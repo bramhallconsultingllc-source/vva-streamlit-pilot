@@ -451,7 +451,7 @@ for item in extended:
     # Print-Ready Executive Summary
     # ----------------------------
 st.subheader("Print-Ready Executive Summary")
-    summary = f"""Visit Value Agent 4.0 — Executive Summary
+summary = f"""Visit Value Agent 4.0 — Executive Summary
 
 Period: {period}
 Focus: {focus}
