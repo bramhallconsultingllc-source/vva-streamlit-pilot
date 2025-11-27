@@ -12,6 +12,89 @@ st.set_page_config(page_title="Visit Value Agent 4.0 (Pilot)", page_icon="🩺",
 st.markdown("<h1 style='text-align:center;margin-bottom:0'>Visit Value Agent 4.0 — Pilot</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;margin-top:0'><em>Bramhall Consulting, LLC — predict. perform. prosper.</em></p>", unsafe_allow_html=True)
 st.divider()
+# ==============================
+# 16-SCENARIO GRID — HELPERS
+# ==============================
+
+TIER_ORDER = ["Critical", "At Risk", "Stable", "Excellent"]  # left-to-right (RF), top-to-bottom (LF)
+
+def tier_from_score(score: float) -> str:
+    """Convert 0–100 weighted score to tier using White Paper thresholds."""
+    if score >= 100:
+        return "Excellent"
+    elif 95 <= score <= 99:
+        return "Stable"
+    elif 90 <= score <= 94:
+        return "At Risk"
+    else:
+        return "Critical"
+
+# Scenario numbering map (row = LF tier, col = RF tier)
+# Rows (top→bottom): LF Critical=1..4, LF At Risk=5..8, LF Stable=9..12, LF Excellent=13..16
+# Cols (left→right): RF Critical, At Risk, Stable, Excellent
+# => This preserves your earlier example: LF Excellent + RF Critical = Scenario 13 (“Low Revenue / Efficient Labor”)
+SCENARIO_MAP = {
+    ("Critical", "Critical"): 1,   ("Critical", "At Risk"): 2,   ("Critical", "Stable"): 3,   ("Critical", "Excellent"): 4,
+    ("At Risk", "Critical"): 5,    ("At Risk", "At Risk"): 6,    ("At Risk", "Stable"): 7,    ("At Risk", "Excellent"): 8,
+    ("Stable", "Critical"): 9,     ("Stable", "At Risk"): 10,    ("Stable", "Stable"): 11,    ("Stable", "Excellent"): 12,
+    ("Excellent", "Critical"): 13, ("Excellent", "At Risk"): 14, ("Excellent", "Stable"): 15, ("Excellent", "Excellent"): 16,
+}
+
+def scenario_label(rf_tier: str, lf_tier: str) -> str:
+    """Short diagnosis line based on the quadrant combo."""
+    rf_high = rf_tier in ("Excellent", "Stable")
+    lf_high = lf_tier in ("Excellent", "Stable")
+    if rf_high and lf_high:
+        return "Both Revenue & Labor strong — sustain, standardize, and scale best practices."
+    if rf_high and not lf_high:
+        return "Strong Revenue / Soft Labor — throughput, staffing alignment, overtime controls."
+    if not rf_high and lf_high:
+        return "Low Revenue / Efficient Labor — revenue density, coding hygiene, visit mix."
+    return "Low Revenue / Soft Labor — stabilize access, fix revenue fundamentals, protect labor."
+
+def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
+    """Return a styled 4×4 DataFrame with the active cell highlighted."""
+    import pandas as pd
+
+    # Construct a DataFrame of scenario numbers with LF rows and RF columns
+    rf_cols = TIER_ORDER  # Critical, At Risk, Stable, Excellent
+    lf_rows = TIER_ORDER  # Critical, At Risk, Stable, Excellent (top to bottom)
+
+    data = []
+    for lf in lf_rows:
+        row = []
+        for rf in rf_cols:
+            row.append(SCENARIO_MAP[(lf, rf)])
+        data.append(row)
+
+    df = pd.DataFrame(data, index=[f"LF: {r}" for r in lf_rows], columns=[f"RF: {c}" for c in rf_cols])
+
+    # highlight function
+    def highlight_active(val, row_idx, col_idx):
+        lf_here = lf_rows[row_idx]
+        rf_here = rf_cols[col_idx]
+        if (lf_here == active_lf_tier) and (rf_here == active_rf_tier):
+            return "background-color: #fdd835; color: #000; font-weight: 700;"  # gold highlight
+        return ""
+
+    # Build a Styler to highlight the active cell
+    styler = df.style.format(precision=0)
+    for r in range(len(lf_rows)):
+        for c in range(len(rf_cols)):
+            styler = styler.set_properties(
+                subset=(df.index[r], df.columns[c]),
+                **{"text-align": "center", "font-weight": "500"}
+            )
+            styler = styler.apply(
+                lambda s, r=r, c=c: [highlight_active(v, r, c) for v in s], axis=1, subset=(df.index[r], df.columns[c])
+            )
+
+    # general cosmetics
+    styler = (styler
+              .set_table_styles([{"selector": "th", "props": [("text-align", "center")]}])
+              .hide(axis="index", level=None)  # comment this line if you want LF labels visible in the left index
+             )
+    return df, styler
 
 # ----------------------------
 # Session state
