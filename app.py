@@ -373,39 +373,27 @@ if st.session_state.step >= 8:
     st.subheader("VVI / RF / LF Scoring Table")
     st.dataframe(score_df, use_container_width=True, hide_index=True)
 
-# ---------------------------------------------
-# Scenario Grid Visualization
-# ---------------------------------------------
-st.subheader("📊 VVI 16-Scenario Grid")
+    # ---------------------------------------------
+    # Scenario Grid Visualization
+    # ---------------------------------------------
+    st.subheader("📊 VVI 16-Scenario Grid")
 
-scenario_result = scenario_name(rf_t, lf_t)
-grid_data = build_scenario_grid(scenario_result)
-
-# Format table
-df_grid = grid_data.copy()
-df_grid = df_grid.style.applymap(
-    lambda v: "background-color:#004b23; color:white;" if v == "Excellent" else
-              "background-color:#ffc300;" if v == "Stable" else
-              "background-color:#d9534f; color:white;" if v == "At Risk" else
-              "background-color:#8b0000; color:white;",
-)
-
-st.write("Your clinic falls into the highlighted scenario below:")
-st.dataframe(df_grid, height=350)
-
+    df_grid, styler = build_scenario_grid(rf_t, lf_t)
+    st.write("Your clinic falls into the highlighted scenario below:")
+    st.dataframe(styler, height=350)
 
     # ----------------------------
     # Scenario + Prescriptive Actions (incl. POS & huddle patches)
     # ----------------------------
-st.subheader("Scenario")
-st.write(f"**{scenario}** — period: **{period}**. Focus: **{focus}**.")
+    st.subheader("Scenario")
+    st.write(f"**{scenario}** — period: **{period}**. Focus: **{focus}**.")
 
-rpv_gap = max(0.0, rt - rpv)
-top3: list[str] = []
-extended: list[str] = []
+    rpv_gap = max(0.0, rt - rpv)
+    top3: list[str] = []
+    extended: list[str] = []
 
     # Revenue levers
-if rf_t in ["At Risk", "Critical", "Stable"] and rpv_gap > 0:
+    if rf_t in ["At Risk", "Critical", "Stable"] and rpv_gap > 0:
         top3 += [
             "Increase revenue density: prioritize higher-acuity visit types and coding accuracy.",
             "Tighten documentation quality (provider education + quick audits).",
@@ -413,14 +401,14 @@ if rf_t in ["At Risk", "Critical", "Stable"] and rpv_gap > 0:
         ]
 
     # Labor levers
-if lf_t in ["At Risk", "Critical"]:
+    if lf_t in ["At Risk", "Critical"]:
         top3 += [
             "Align staffing to the demand curve (templates & throughput fixes).",
             "Reduce avoidable OT / premium coverage with scheduling discipline.",
             "Speed chart closure / cycle-time to improve throughput.",
         ]
 
-if not top3:
+    if not top3:
         top3 = [
             "Sustain revenue integrity (quarterly audits).",
             "Sustain labor efficiency (periodic productivity checks).",
@@ -428,30 +416,30 @@ if not top3:
         ]
 
     # POS patch — only Top 3 if it can materially close the RPV gap
-if rf_t in ["At Risk", "Critical", "Stable"]:
+    if rf_t in ["At Risk", "Critical", "Stable"]:
         if pos_should_be_top3(rpv_gap):
             top3.append("Run POS co-pay capture push (scripts, training, accountability).")
         else:
             extended.append("Quick POS audit (co-pay scripts, training, ClearPay accountability).")
 
     # Daily huddle patch — always
-extended.append("Daily 5-minute morning huddle: review Top 3 levers, VPDA drivers, risks.")
+    extended.append("Daily 5-minute morning huddle: review Top 3 levers, VPDA drivers, risks.")
     # SWB% patch — context only
-extended.append("Treat SWB% as context only; anchor decisions in VVI (RPV/LPV, RF/LF).")
+    extended.append("Treat SWB% as context only; anchor decisions in VVI (RPV/LPV, RF/LF).")
 
-st.write("**Top 3 (Immediate):**")
-for i, item in enumerate(top3[:3], start=1):
+    st.write("**Top 3 (Immediate):**")
+    for i, item in enumerate(top3[:3], start=1):
         st.write(f"{i}. {item}")
 
-st.write("**Extended Actions:**")
-for item in extended:
+    st.write("**Extended Actions:**")
+    for item in extended:
         st.write(f"• {item}")
 
     # ----------------------------
     # Print-Ready Executive Summary
     # ----------------------------
-st.subheader("Print-Ready Executive Summary")
-summary = f"""Visit Value Agent 4.0 — Executive Summary
+    st.subheader("Print-Ready Executive Summary")
+    summary = f"""Visit Value Agent 4.0 — Executive Summary
 
 Period: {period}
 Focus: {focus}
@@ -473,14 +461,14 @@ Extended Actions:
 
 Legal: This operational analysis is for informational purposes only and does not constitute medical, clinical, legal, or compliance advice. VVA provides operational insights only.
 """
-st.code(summary)
+    st.code(summary)
 
-st.download_button(
+    st.download_button(
         "Download Executive Summary (.txt)",
         data=summary.encode("utf-8"),
         file_name="VVA_Executive_Summary.txt",
     )
 
-st.divider()
-if st.button("Start a New Assessment"):
+    st.divider()
+    if st.button("Start a New Assessment"):
         reset()
