@@ -435,9 +435,9 @@ if rf_t in ["At Risk", "Critical", "Stable"]:
             extended.append("Quick POS audit (co-pay scripts, training, ClearPay accountability).")
 
     # Daily huddle patch — always
-    extended.append("Daily 5-minute morning huddle: review Top 3 levers, VPDA drivers, risks.")
+extended.append("Daily 5-minute morning huddle: review Top 3 levers, VPDA drivers, risks.")
     # SWB% patch — context only
-    extended.append("Treat SWB% as context only; anchor decisions in VVI (RPV/LPV, RF/LF).")
+extended.append("Treat SWB% as context only; anchor decisions in VVI (RPV/LPV, RF/LF).")
 
     st.write("**Top 3 (Immediate):**")
     for i, item in enumerate(top3[:3], start=1):
