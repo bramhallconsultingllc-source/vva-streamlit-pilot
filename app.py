@@ -3,9 +3,10 @@
 
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # ----------------------------
-# Page config & simple branding
+# Page config & branding
 # ----------------------------
 st.set_page_config(page_title="Visit Value Agent 4.0 (Pilot)", page_icon="🩺", layout="centered")
 st.markdown("<h1 style='text-align:center;margin-bottom:0'>Visit Value Agent 4.0 — Pilot</h1>", unsafe_allow_html=True)
@@ -37,6 +38,7 @@ def format_money(x: float) -> str:
         return "$0.00"
 
 def tier(score: float) -> str:
+    # 0–100 scale interpretation used throughout the White Paper
     if score >= 100:
         return "Excellent"
     if 95 <= score <= 99:
@@ -51,19 +53,19 @@ def scenario_name(rf_t: str, lf_t: str) -> str:
     return f"{rev_map[rf_t]} / {lab_map[lf_t]}"
 
 def pos_should_be_top3(rpv_gap: float, avg_copay: float = 30.0, copay_eligibility: float = 0.5, leakage_rate: float = 0.25) -> bool:
-    """Rough signal if POS capture alone could close the RPV gap."""
-    lift = avg_copay * copay_eligibility * leakage_rate
+    """Very rough signal: could POS alone close the RPV gap?"""
+    lift = avg_copay * copay_eligibility * leakage_rate  # per visit
     return lift >= rpv_gap
 
 # ----------------------------
-# Instructions
+# Instructions (summary)
 # ----------------------------
 with st.expander("Instructions (summary)", expanded=False):
     st.write(
         "Answer one question at a time. When finished you’ll get: "
         "1) a Calculation Table (incl. SWB%), 2) a VVI/RF/LF scoring table, "
-        "3) a scenario classification with prescriptive actions, and "
-        "4) a print-ready Executive Summary with a download button."
+        "3) a scenario classification with prescriptive actions, "
+        "4) a Shiny-style KPI bar chart, and 5) a print-ready Executive Summary."
     )
 
 # ----------------------------
@@ -158,23 +160,76 @@ if st.session_state.step >= 8:
         st.stop()
 
     # Core metrics
-    rpv = (net_rev / visits) if visits else 0.0
-    lpv = (labor / visits) if visits else 0.0
-    swb_pct = (labor / net_rev) if net_rev else 0.0  # context only
+    rpv = (net_rev / visits) if visits else 0.0                 # Revenue per Visit
+    lpv = (labor / visits) if visits else 0.0                   # Labor per Visit
+    swb_pct = (labor / net_rev) if net_rev else 0.0             # context only
 
-    # RF / LF raw and weighted scores (0–100 standardization)
+    # White Paper factors:
+    # RF_raw = RPV / Target_RPV
+    # LF_raw = Target_LPV / LPV
     rf_raw = (rpv / rt) if rt else 0.0
     lf_raw = (lt / lpv) if lpv else 0.0
+
+    # Scores on 0–100 scale
     rf_score = round(rf_raw * 100, 2)
     lf_score = round(lf_raw * 100, 2)
     rf_t = tier(rf_score)
     lf_t = tier(lf_score)
 
-    # VVI “feel” via RF/LF; scenario naming
-    vvi_raw = (rpv / lpv) if lpv else 0.0
-    scenario = scenario_name(rf_t, lf_t)
+    # VVI: value per dollar of labor
+    vvi_raw = (rpv / lpv) if lpv else 0.0  # not scaled
 
+    # VVI normalized to 0–100 for charting:
+    # This equals (VVI / VVI_target) * 100 where VVI_target = rt/lt,
+    # which simplifies to 100 * RF_raw * LF_raw (strict White Paper alignment).
+    vvi_score = round(100 * rf_raw * lf_raw, 2)
+    vvi_t = tier(vvi_score)
+
+    scenario = scenario_name(rf_t, lf_t)
     st.success("Assessment complete. See results below.")
+
+    # ----------------------------
+    # Shiny-style KPI bars (VVI score, RF, LF) with tier bands
+    # ----------------------------
+    def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
+        labels = ["VVI (normalized 0–100)", "Revenue Factor", "Labor Factor"]
+        values = [vvi_score, rf_score, lf_score]
+
+        # dynamic x-axis so >100 doesn't clip
+        x_max = max(120, max(values) + 15)
+
+        fig, ax = plt.subplots(figsize=(8.5, 2.8))
+
+        # Tier bands: Critical <90, At-Risk 90–94, Stable 95–99, Excellent ≥100
+        bands = [
+            (0,   90,  "#d9534f"),  # red
+            (90,  95,  "#f0ad4e"),  # orange
+            (95,  100, "#ffd666"),  # gold
+            (100, x_max, "#5cb85c") # green
+        ]
+        for start, end, color in bands:
+            ax.axvspan(start, end, color=color, alpha=0.15, lw=0)
+
+        # Bars
+        bars = ax.barh(labels, values, color="#2e2e2e", height=0.55)
+
+        # Value labels at the end of the bars
+        for bar, v in zip(bars, values):
+            ax.text(v + (x_max * 0.01), bar.get_y() + bar.get_height()/2,
+                    f"{v:.2f}", va="center", ha="left", fontsize=10)
+
+        ax.set_xlim(0, x_max)
+        ax.set_xlabel("Score", fontsize=10)
+        ax.set_ylabel("")
+        ax.grid(False, axis="y")
+        ax.spines["right"].set_visible(False)
+        ax.spines["top"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+
+        st.subheader("Key Metrics & Scores (Shiny-style)")
+        st.pyplot(fig)
+
+    render_kpi_bars(vvi_score, rf_score, lf_score)
 
     # ----------------------------
     # Calculation Table (incl. SWB%)
@@ -190,9 +245,11 @@ if st.session_state.step >= 8:
                 "Revenue benchmark target",
                 "Labor benchmark target",
                 "Labor cost as % of revenue (SWB%)",
-                "Revenue score",
-                "Labor score",
-                "VVI Interpretation",
+                "Revenue score (RF)",
+                "Labor score (LF)",
+                "VVI (value per $ labor)",
+                "VVI score (normalized 0–100)",
+                "Scenario",
             ],
             "Value": [
                 f"{int(visits):,}",
@@ -205,6 +262,8 @@ if st.session_state.step >= 8:
                 f"{swb_pct*100:.1f}%",
                 f"{rf_score} ({rf_t})",
                 f"{lf_score} ({lf_t})",
+                f"{vvi_raw:.3f}",
+                f"{vvi_score} ({vvi_t})",
                 scenario,
             ],
         }
@@ -213,22 +272,26 @@ if st.session_state.step >= 8:
     st.dataframe(calc_df, use_container_width=True, hide_index=True)
 
     # ----------------------------
-    # VVI / RF / LF Scoring Table
+    # VVI / RF / LF Scoring Table (formulas shown)
     # ----------------------------
     score_df = pd.DataFrame(
         {
             "Index": ["Revenue Factor (RF)", "Labor Factor (LF)", "Visit Value Index (VVI)"],
-            "Formula": ["RPV ÷ Revenue Target", "Labor Target ÷ LPV", "RPV ÷ LPV"],
-            "Raw Value": [f"{rf_raw:.2f}", f"{lf_raw:.2f}", f"{vvi_raw:.2f}"],
-            "Weighted Score (0–100)": [f"{rf_score:.2f}", f"{lf_score:.2f}", "Derived from RF/LF"],
-            "Tier": [rf_t, lf_t, lf_t if rf_t == lf_t else "Mixed"],
+            "Formula": [
+                "RPV ÷ Target RPV",
+                "Target LPV ÷ LPV",
+                "RPV ÷ LPV  (normalized score = 100 × RF_raw × LF_raw)"
+            ],
+            "Raw Value": [f"{rf_raw:.3f}", f"{lf_raw:.3f}", f"{vvi_raw:.3f}"],
+            "Weighted Score (0–100)": [f"{rf_score:.2f}", f"{lf_score:.2f}", f"{vvi_score:.2f}"],
+            "Tier": [rf_t, lf_t, vvi_t],
         }
     )
     st.subheader("VVI / RF / LF Scoring Table")
     st.dataframe(score_df, use_container_width=True, hide_index=True)
 
     # ----------------------------
-    # Scenario + Prescriptive Actions (incl. patches)
+    # Scenario + Prescriptive Actions (incl. POS & huddle patches)
     # ----------------------------
     st.subheader("Scenario")
     st.write(f"**{scenario}** — period: **{period}**. Focus: **{focus}**.")
@@ -281,7 +344,7 @@ if st.session_state.step >= 8:
         st.write(f"• {item}")
 
     # ----------------------------
-    # Print-Ready Executive Summary (guarded)
+    # Print-Ready Executive Summary
     # ----------------------------
     st.subheader("Print-Ready Executive Summary")
     summary = f"""Visit Value Agent 4.0 — Executive Summary
@@ -308,7 +371,6 @@ Legal: This operational analysis is for informational purposes only and does not
 """
     st.code(summary)
 
-    # Download
     st.download_button(
         "Download Executive Summary (.txt)",
         data=summary.encode("utf-8"),
