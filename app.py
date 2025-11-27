@@ -482,5 +482,5 @@ st.download_button(
     )
 
 st.divider()
-    if st.button("Start a New Assessment"):
+if st.button("Start a New Assessment"):
         reset()
