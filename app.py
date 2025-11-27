@@ -401,8 +401,8 @@ st.subheader("Scenario")
 st.write(f"**{scenario}** — period: **{period}**. Focus: **{focus}**.")
 
 rpv_gap = max(0.0, rt - rpv)
-    top3: list[str] = []
-    extended: list[str] = []
+top3: list[str] = []
+extended: list[str] = []
 
     # Revenue levers
     if rf_t in ["At Risk", "Critical", "Stable"] and rpv_gap > 0:
