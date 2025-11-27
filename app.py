@@ -8,15 +8,8 @@ import pandas as pd
 # Page config & simple branding
 # ----------------------------
 st.set_page_config(page_title="Visit Value Agent 4.0 (Pilot)", page_icon="🩺", layout="centered")
-
-st.markdown(
-    "<h1 style='text-align:center;margin-bottom:0'>Visit Value Agent 4.0 — Pilot</h1>",
-    unsafe_allow_html=True,
-)
-st.markdown(
-    "<p style='text-align:center;margin-top:0'><em>Bramhall Consulting, LLC — predict. perform. prosper.</em></p>",
-    unsafe_allow_html=True,
-)
+st.markdown("<h1 style='text-align:center;margin-bottom:0'>Visit Value Agent 4.0 — Pilot</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;margin-top:0'><em>Bramhall Consulting, LLC — predict. perform. prosper.</em></p>", unsafe_allow_html=True)
 st.divider()
 
 # ----------------------------
@@ -35,8 +28,14 @@ def reset():
     st.session_state.answers = {}
 
 # ----------------------------
-# Small helpers
+# Helpers
 # ----------------------------
+def format_money(x: float) -> str:
+    try:
+        return f"${float(x):,.2f}"
+    except Exception:
+        return "$0.00"
+
 def tier(score: float) -> str:
     if score >= 100:
         return "Excellent"
@@ -47,40 +46,24 @@ def tier(score: float) -> str:
     return "Critical"
 
 def scenario_name(rf_t: str, lf_t: str) -> str:
-    rev_map = {
-        "Excellent": "High Revenue",
-        "Stable": "Stable Revenue",
-        "At Risk": "Low Revenue",
-        "Critical": "Critical Revenue",
-    }
-    lab_map = {
-        "Excellent": "Efficient Labor",
-        "Stable": "Stable Labor",
-        "At Risk": "At-Risk Labor",
-        "Critical": "Critical Labor",
-    }
+    rev_map = {"Excellent": "High Revenue", "Stable": "Stable Revenue", "At Risk": "Low Revenue", "Critical": "Critical Revenue"}
+    lab_map = {"Excellent": "Efficient Labor", "Stable": "Stable Labor", "At Risk": "At-Risk Labor", "Critical": "Critical Labor"}
     return f"{rev_map[rf_t]} / {lab_map[lf_t]}"
 
-def format_money(x: float) -> str:
-    try:
-        return f"${float(x):,.2f}"
-    except Exception:
-        return "$0.00"
-
 def pos_should_be_top3(rpv_gap: float, avg_copay: float = 30.0, copay_eligibility: float = 0.5, leakage_rate: float = 0.25) -> bool:
-    """Very rough signal whether POS alone could close the gap."""
-    lift = avg_copay * copay_eligibility * leakage_rate  # per visit
+    """Rough signal if POS capture alone could close the RPV gap."""
+    lift = avg_copay * copay_eligibility * leakage_rate
     return lift >= rpv_gap
 
 # ----------------------------
-# Instructions summary
+# Instructions
 # ----------------------------
 with st.expander("Instructions (summary)", expanded=False):
     st.write(
-        "Answer one question at a time. After inputs, you'll get: "
+        "Answer one question at a time. When finished you’ll get: "
         "1) a Calculation Table (incl. SWB%), 2) a VVI/RF/LF scoring table, "
         "3) a scenario classification with prescriptive actions, and "
-        "4) a print-ready executive summary you can download."
+        "4) a print-ready Executive Summary with a download button."
     )
 
 # ----------------------------
@@ -88,79 +71,76 @@ with st.expander("Instructions (summary)", expanded=False):
 # ----------------------------
 st.markdown("### Start VVI Assessment")
 
+# STEP 1 — Visits
 if st.session_state.step == 1:
     visits = st.number_input(
         "How many total patient visits occurred during this time period?",
-        min_value=1,
-        step=1,
+        min_value=1, step=1, key="visits_input",
     )
-    if st.button("Next"):
-        st.session_state.answers["visits"] = int(visits)
-        next_step()
+    st.button("Next", disabled=visits <= 0, on_click=lambda: (
+        st.session_state.answers.update({"visits": int(visits)}), next_step()
+    ))
 
+# STEP 2 — Net Revenue
 elif st.session_state.step == 2:
     net_rev = st.number_input(
         "What was the total amount of net revenue collected for these visits? ($)",
-        min_value=0.0,
-        step=100.0,
-        format="%.2f",
+        min_value=0.01, step=100.0, format="%.2f", key="net_rev_input",
     )
-    if st.button("Next"):
-        st.session_state.answers["net_revenue"] = float(net_rev)
-        next_step()
+    st.button("Next", disabled=net_rev <= 0, on_click=lambda: (
+        st.session_state.answers.update({"net_revenue": float(net_rev)}), next_step()
+    ))
 
+# STEP 3 — Labor Cost
 elif st.session_state.step == 3:
     labor_cost = st.number_input(
         "What was the total labor cost for this period? ($) (W2 + PRN + overtime + contract/locum)",
-        min_value=0.0,
-        step=100.0,
-        format="%.2f",
+        min_value=0.01, step=100.0, format="%.2f", key="labor_cost_input",
     )
-    if st.button("Next"):
-        st.session_state.answers["labor_cost"] = float(labor_cost)
-        next_step()
+    st.button("Next", disabled=labor_cost <= 0, on_click=lambda: (
+        st.session_state.answers.update({"labor_cost": float(labor_cost)}), next_step()
+    ))
 
+# STEP 4 — Period
 elif st.session_state.step == 4:
-    period = st.selectbox("What time period does this represent?", ["Week", "Month", "Quarter", "Year"])
-    if st.button("Next"):
-        st.session_state.answers["period"] = period
-        next_step()
+    period = st.selectbox("What time period does this represent?", ["Week", "Month", "Quarter", "Year"], key="period_input")
+    st.button("Next", on_click=lambda: (
+        st.session_state.answers.update({"period": period}), next_step()
+    ))
 
+# STEP 5 — Focus (optional)
 elif st.session_state.step == 5:
     focus = st.selectbox(
         "Optional: Focus area for this assessment",
         ["All areas", "Revenue improvement", "Staffing efficiency", "Patient flow", "Burnout", "None"],
+        key="focus_input",
     )
-    if st.button("Next"):
-        st.session_state.answers["focus"] = focus
-        next_step()
+    st.button("Next", on_click=lambda: (
+        st.session_state.answers.update({"focus": focus}), next_step()
+    ))
 
+# STEP 6 — Revenue Target
 elif st.session_state.step == 6:
     r_target = st.number_input(
         "Revenue target per visit (default $140)",
-        min_value=1.0,
-        value=140.0,
-        step=1.0,
-        format="%.2f",
+        min_value=1.0, value=140.0, step=1.0, format="%.2f", key="rev_target_input",
     )
-    if st.button("Next"):
-        st.session_state.answers["rev_target"] = float(r_target)
-        next_step()
+    st.button("Next", on_click=lambda: (
+        st.session_state.answers.update({"rev_target": float(r_target)}), next_step()
+    ))
 
+# STEP 7 — Labor Target + Run
 elif st.session_state.step == 7:
     l_target = st.number_input(
         "Labor target per visit (default $85)",
-        min_value=1.0,
-        value=85.0,
-        step=1.0,
-        format="%.2f",
+        min_value=1.0, value=85.0, step=1.0, format="%.2f", key="lab_target_input",
     )
-    if st.button("Run Assessment"):
-        st.session_state.answers["lab_target"] = float(l_target)
-        next_step()
+    st.button("Run Assessment", on_click=lambda: (
+        st.session_state.answers.update({"lab_target": float(l_target)}), next_step()
+    ))
 
 # ----------------------------
-# Results — only after inputs complete
+# Results (only after inputs complete)
 # ----------------------------
 if st.session_state.step >= 8:
     a = st.session_state.answers
@@ -171,6 +151,11 @@ if st.session_state.step >= 8:
     focus = a.get("focus", "All areas")
     rt = float(a.get("rev_target", 140.0))
     lt = float(a.get("lab_target", 85.0))
+
+    # Guard against invalid runs
+    if visits <= 0 or net_rev <= 0 or labor <= 0:
+        st.warning("Please enter non-zero values for visits, net revenue, and labor cost, then run the assessment again.")
+        st.stop()
 
     # Core metrics
     rpv = (net_rev / visits) if visits else 0.0
@@ -252,7 +237,7 @@ if st.session_state.step >= 8:
     top3: list[str] = []
     extended: list[str] = []
 
-    # Revenue actions
+    # Revenue levers
     if rf_t in ["At Risk", "Critical", "Stable"] and rpv_gap > 0:
         top3 += [
             "Increase revenue density: prioritize higher-acuity visit types and coding accuracy.",
@@ -260,31 +245,31 @@ if st.session_state.step >= 8:
             "Add capacity at peak hours to capture higher-value demand.",
         ]
 
-    # Labor actions
+    # Labor levers
     if lf_t in ["At Risk", "Critical"]:
         top3 += [
-            "Align staffing to demand curve (template & throughput fixes).",
-            "Reduce avoidable OT / premium coverage with better scheduling discipline.",
-            "Speed chart closure / cycle-time to improve throughput without overscheduling.",
+            "Align staffing to the demand curve (templates & throughput fixes).",
+            "Reduce avoidable OT / premium coverage with scheduling discipline.",
+            "Speed chart closure / cycle-time to improve throughput.",
         ]
 
     if not top3:
         top3 = [
-            "Sustain current revenue integrity (quarterly audits).",
-            "Sustain labor efficiency with periodic productivity checks.",
-            "Share best practices across clinics; maintain cycle-time discipline.",
+            "Sustain revenue integrity (quarterly audits).",
+            "Sustain labor efficiency (periodic productivity checks).",
+            "Share best practices across sites; maintain cycle-time discipline.",
         ]
 
-    # POS patch — include in Top 3 only if POS alone could materially close the RPV gap
+    # POS patch — only Top 3 if it can materially close the RPV gap
     if rf_t in ["At Risk", "Critical", "Stable"]:
         if pos_should_be_top3(rpv_gap):
             top3.append("Run POS co-pay capture push (scripts, training, accountability).")
         else:
-            extended.append("Quick POS audit (co-pay scripts, accountability, ClearPay).")
+            extended.append("Quick POS audit (co-pay scripts, training, ClearPay accountability).")
 
-    # Daily huddle patch — always recommended
+    # Daily huddle patch — always
     extended.append("Daily 5-minute morning huddle: review Top 3 levers, VPDA drivers, risks.")
-    # SWB% context patch — don’t over-index on SWB%
+    # SWB% patch — context only
     extended.append("Treat SWB% as context only; anchor decisions in VVI (RPV/LPV, RF/LF).")
 
     st.write("**Top 3 (Immediate):**")
@@ -296,7 +281,7 @@ if st.session_state.step >= 8:
         st.write(f"• {item}")
 
     # ----------------------------
-    # Print-ready Executive Summary (guarded)
+    # Print-Ready Executive Summary (guarded)
     # ----------------------------
     st.subheader("Print-Ready Executive Summary")
     summary = f"""Visit Value Agent 4.0 — Executive Summary
