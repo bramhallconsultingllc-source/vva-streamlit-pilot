@@ -372,6 +372,7 @@ if st.session_state.step >= 8:
     )
     st.subheader("VVI / RF / LF Scoring Table")
     st.dataframe(score_df, use_container_width=True, hide_index=True)
+
 # ---------------------------------------------
 # Scenario Grid Visualization
 # ---------------------------------------------
@@ -391,6 +392,7 @@ df_grid = df_grid.style.applymap(
 
 st.write("Your clinic falls into the highlighted scenario below:")
 st.dataframe(df_grid, height=350)
+
 
     # ----------------------------
     # Scenario + Prescriptive Actions (incl. POS & huddle patches)
