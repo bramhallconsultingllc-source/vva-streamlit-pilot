@@ -272,7 +272,7 @@ if st.session_state.step >= 8:
     st.success("Assessment complete. See results below.")
 
     # ----------------------------
-    # Shiny-style KPI bars (VVI score, RF, LF) with tier bands
+    # KPI bars (VVI score, RF, LF) with tier bands
     # ----------------------------
     def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
         labels = ["VVI (normalized 0–100)", "Revenue Factor", "Labor Factor"]
