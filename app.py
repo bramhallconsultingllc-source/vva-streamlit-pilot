@@ -397,7 +397,7 @@ st.dataframe(df_grid, height=350)
     # ----------------------------
     # Scenario + Prescriptive Actions (incl. POS & huddle patches)
     # ----------------------------
-    st.subheader("Scenario")
+st.subheader("Scenario")
 st.write(f"**{scenario}** — period: **{period}**. Focus: **{focus}**.")
 
     rpv_gap = max(0.0, rt - rpv)
