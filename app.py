@@ -439,18 +439,18 @@ extended.append("Daily 5-minute morning huddle: review Top 3 levers, VPDA driver
     # SWB% patch — context only
 extended.append("Treat SWB% as context only; anchor decisions in VVI (RPV/LPV, RF/LF).")
 
-    st.write("**Top 3 (Immediate):**")
+st.write("**Top 3 (Immediate):**")
     for i, item in enumerate(top3[:3], start=1):
         st.write(f"{i}. {item}")
 
-    st.write("**Extended Actions:**")
+st.write("**Extended Actions:**")
     for item in extended:
         st.write(f"• {item}")
 
     # ----------------------------
     # Print-Ready Executive Summary
     # ----------------------------
-    st.subheader("Print-Ready Executive Summary")
+st.subheader("Print-Ready Executive Summary")
     summary = f"""Visit Value Agent 4.0 — Executive Summary
 
 Period: {period}
