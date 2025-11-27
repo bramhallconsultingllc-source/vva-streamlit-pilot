@@ -230,9 +230,10 @@ if st.session_state.step >= 8:
     for item in extended:
         st.write(f"• {item}")
 
-    # Print‑ready executive summary
-    st.subheader("Print‑Ready Executive Summary")
-    summary = f\"\"\"Visit Value Agent 4.0 — Executive Summary
+# Print-ready executive summary
+st.subheader("Print-Ready Executive Summary")
+
+summary = f"""Visit Value Agent 4.0 — Executive Summary
 
 Period: {period}
 Focus: {focus}
@@ -253,8 +254,9 @@ Extended Actions:
 - {extended[2] if len(extended)>2 else '-'}
 
 Legal: This operational analysis is for informational purposes only and does not constitute medical, clinical, legal, or compliance advice. VVA provides operational insights only.
-\"\"\"
-    st.code(summary)
+"""
+
+st.code(summary)
 
     # Download button
     st.download_button("Download Executive Summary (.txt)", data=summary.encode("utf-8"), file_name="VVA_Executive_Summary.txt")
