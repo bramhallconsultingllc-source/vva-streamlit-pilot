@@ -440,11 +440,11 @@ extended.append("Daily 5-minute morning huddle: review Top 3 levers, VPDA driver
 extended.append("Treat SWB% as context only; anchor decisions in VVI (RPV/LPV, RF/LF).")
 
 st.write("**Top 3 (Immediate):**")
-    for i, item in enumerate(top3[:3], start=1):
+for i, item in enumerate(top3[:3], start=1):
         st.write(f"{i}. {item}")
 
 st.write("**Extended Actions:**")
-    for item in extended:
+for item in extended:
         st.write(f"• {item}")
 
     # ----------------------------
