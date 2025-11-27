@@ -372,6 +372,25 @@ if st.session_state.step >= 8:
     )
     st.subheader("VVI / RF / LF Scoring Table")
     st.dataframe(score_df, use_container_width=True, hide_index=True)
+# ---------------------------------------------
+# Scenario Grid Visualization
+# ---------------------------------------------
+st.subheader("📊 VVI 16-Scenario Grid")
+
+scenario_result = scenario_name(rf_t, lf_t)
+grid_data = build_scenario_grid(scenario_result)
+
+# Format table
+df_grid = grid_data.copy()
+df_grid = df_grid.style.applymap(
+    lambda v: "background-color:#004b23; color:white;" if v == "Excellent" else
+              "background-color:#ffc300;" if v == "Stable" else
+              "background-color:#d9534f; color:white;" if v == "At Risk" else
+              "background-color:#8b0000; color:white;",
+)
+
+st.write("Your clinic falls into the highlighted scenario below:")
+st.dataframe(df_grid, height=350)
 
     # ----------------------------
     # Scenario + Prescriptive Actions (incl. POS & huddle patches)
