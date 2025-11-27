@@ -413,14 +413,14 @@ if rf_t in ["At Risk", "Critical", "Stable"] and rpv_gap > 0:
         ]
 
     # Labor levers
-    if lf_t in ["At Risk", "Critical"]:
+if lf_t in ["At Risk", "Critical"]:
         top3 += [
             "Align staffing to the demand curve (templates & throughput fixes).",
             "Reduce avoidable OT / premium coverage with scheduling discipline.",
             "Speed chart closure / cycle-time to improve throughput.",
         ]
 
-    if not top3:
+if not top3:
         top3 = [
             "Sustain revenue integrity (quarterly audits).",
             "Sustain labor efficiency (periodic productivity checks).",
@@ -428,7 +428,7 @@ if rf_t in ["At Risk", "Critical", "Stable"] and rpv_gap > 0:
         ]
 
     # POS patch — only Top 3 if it can materially close the RPV gap
-    if rf_t in ["At Risk", "Critical", "Stable"]:
+if rf_t in ["At Risk", "Critical", "Stable"]:
         if pos_should_be_top3(rpv_gap):
             top3.append("Run POS co-pay capture push (scripts, training, accountability).")
         else:
