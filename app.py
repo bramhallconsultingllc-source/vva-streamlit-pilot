@@ -405,7 +405,7 @@ top3: list[str] = []
 extended: list[str] = []
 
     # Revenue levers
-    if rf_t in ["At Risk", "Critical", "Stable"] and rpv_gap > 0:
+if rf_t in ["At Risk", "Critical", "Stable"] and rpv_gap > 0:
         top3 += [
             "Increase revenue density: prioritize higher-acuity visit types and coding accuracy.",
             "Tighten documentation quality (provider education + quick audits).",
