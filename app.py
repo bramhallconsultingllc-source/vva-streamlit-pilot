@@ -150,7 +150,7 @@ def render_vvi_gauge(vvi_score: float):
 
     fig, ax = plt.subplots(figsize=(7.5, 3.8))
 
-    outer_r, inner_r = 1.75, 1.50
+    outer_r, inner_r = 1.0, .65
     bands = [
     (0, 90, "#d9534f"),     # Critical
     (90, 95, "#ff914d"),    # At-Risk
