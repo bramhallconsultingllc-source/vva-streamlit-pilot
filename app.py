@@ -8,11 +8,10 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# PDF
+# PDF export
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
-from reportlab.lib.units import inch
 
 # ----------------------------
 # Page config & branding
@@ -23,7 +22,7 @@ st.markdown("<p style='text-align:center;margin-top:0'><em>Bramhall Consulting, 
 st.divider()
 
 # ==============================
-# 16-SCENARIO GRID — HELPERS
+# Scenario grid helpers
 # ==============================
 TIER_ORDER = ["Critical", "At Risk", "Stable", "Excellent"]  # RF left→right, LF top→bottom
 
@@ -91,7 +90,7 @@ def pos_should_be_top3(rpv_gap: float, avg_copay: float = 30.0, copay_eligibilit
     return lift >= rpv_gap
 
 # ------------------------------------------------------
-# Scenario-specific prescriptive logic (2)
+# Scenario-specific prescriptive logic
 # ------------------------------------------------------
 def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
     """Returns dict with diagnosis, top3, extended, huddle_script, daily_patch."""
@@ -142,14 +141,14 @@ def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
 
     return {
         "diagnosis": diag,
-        "top3": top3[:3],             # keep the top 3
+        "top3": top3[:3],
         "extended": ext,
         "huddle_script": huddle,
         "daily_patch": daily_patch
     }
 
 # ----------------------------
-# Session state (4)
+# Session state
 # ----------------------------
 if "step" not in st.session_state:
     st.session_state.step = 1
@@ -261,7 +260,7 @@ if st.session_state.step >= 8:
 
     st.success("Assessment complete. See results below.")
 
-    # ---------- (5) Optional Visit-Type Mix input & impact ----------
+    # ---------- Optional Visit-Type Mix input & impact ----------
     with st.expander("Optional: Visit-Type Mix (impact on RF)", expanded=False):
         st.caption("Enter rough %-mix (numbers don’t need to total 100%). We’ll show estimated RF impact (not applied to core scores).")
         c1, c2, c3 = st.columns(3)
@@ -273,19 +272,17 @@ if st.session_state.step >= 8:
         dot   = c5.number_input("% DOT", min_value=0.0, value=5.0, step=1.0)
         vacc  = c6.number_input("% Vaccine", min_value=0.0, value=5.0, step=1.0)
 
-        # very simple weights (example; tune freely)
+        # simple weights (tune as wanted)
         weights = {
             "Level 3": 0.95, "Level 4": 1.08, "Occ Health": 1.02,
             "Procedure": 1.15, "DOT": 1.00, "Vaccine": 0.90
         }
         mix = {"Level 3": lvl3, "Level 4": lvl4, "Occ Health": occ, "Procedure": proc, "DOT": dot, "Vaccine": vacc}
         total = sum(mix.values()) or 1.0
-        # Weighted uplift vs baseline 1.00
         uplift = sum((mix[k]/total) * weights[k] for k in mix)
         est_rpv = rpv * uplift
         est_rf  = (est_rpv / rt) * 100
         st.write(f"Estimated RPV with mix: **{format_money(est_rpv)}** → Estimated RF: **{est_rf:.1f}**")
-        # small bar
         figm, axm = plt.subplots(figsize=(5,1.8))
         axm.barh(["Current RF","Mix Est. RF"], [rf_score, est_rf], height=0.5, color=["#2e2e2e","#004b23"])
         axm.set_xlim(0, max(120, est_rf+10, rf_score+10)); axm.set_xlabel("Score")
@@ -310,7 +307,7 @@ if st.session_state.step >= 8:
         ax.spines["right"].set_visible(False); ax.spines["top"].set_visible(False); ax.spines["left"].set_visible(False)
         st.subheader("Key Metrics & Scores (Shiny-style)")
         st.pyplot(fig)
-        return fig  # return for PDF embedding
+        return fig
 
     kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
 
@@ -348,7 +345,7 @@ if st.session_state.step >= 8:
     df_grid, styler = build_scenario_grid(rf_t, lf_t)
     st.dataframe(styler, use_container_width=True)
 
-    # ---------- (2) Prescriptive output ----------
+    # ---------- Prescriptive output ----------
     actions = prescriptive_actions(rf_t, lf_t, rpv_gap)
     st.subheader("Scenario")
     st.write(f"**{actions['diagnosis']}** — period: **{period}**. Focus: **{focus}**.")
@@ -363,23 +360,23 @@ if st.session_state.step >= 8:
     with st.expander("Daily Reminder Patch", expanded=False):
         st.write(actions["daily_patch"])
 
-    # ---------- (6) AI Insights Panel ----------
+    # ---------- AI Insights Panel ----------
     with st.expander("AI Insights Summary", expanded=True):
         bullets = []
         if rf_score < 95:
             if rpv_gap > 0:
                 bullets.append(f"Revenue density suppressed by ~{format_money(rpv_gap)} per visit; focus on coding mix & acuity.")
             else:
-                bullets.append("Revenue below target but gap is not explained by per-visit density — check payer yield/denials.")
+                bullets.append("Revenue below target but gap isn’t explained by per-visit density — check payer yield/denials.")
         if lf_score < 95:
-            bullets.append("Labor efficiency indicates throughput constraints or schedule misalignment.")
+            bullets.append("Labor efficiency suggests throughput constraints or schedule misalignment.")
         if vvi_score < 95 and rf_score >= 95 and lf_score >= 95:
             bullets.append("Overall value suppressed by reliability variance; protect flow and chart closure.")
         if not bullets:
-            bullets.append("Performance is balanced; sustain best practices and standardize across sites.")
+            bullets.append("Performance balanced; sustain best practices and standardize across sites.")
         for b in bullets: st.write(f"• {b}")
 
-    # ---------- (3) Print-ready PDF export ----------
+    # ---------- Print-ready PDF export ----------
     def make_pdf_buffer():
         buf = io.BytesIO()
         c = canvas.Canvas(buf, pagesize=LETTER)
@@ -387,11 +384,10 @@ if st.session_state.step >= 8:
 
         # Header (black & gold)
         c.setFillColor(colors.black); c.rect(0, h-60, w, 60, fill=1, stroke=0)
-        c.setFillColorRGB(0.48, 0.39, 0.0)  # gold-ish title
+        c.setFillColorRGB(0.48, 0.39, 0.0)  # gold-ish
         c.setFont("Helvetica-Bold", 16)
         c.drawString(40, h-40, "Visit Value Agent 4.0 — Executive Summary")
-        c.setFillColor(colors.white)
-        c.setFont("Helvetica", 10)
+        c.setFillColor(colors.white); c.setFont("Helvetica", 10)
         c.drawRightString(w-40, h-40, "Bramhall Consulting, LLC — predict. perform. prosper.")
 
         y = h-90
@@ -416,7 +412,7 @@ if st.session_state.step >= 8:
         c.setFont("Helvetica", 11)
         for ex in actions["extended"]:
             c.drawString(50, y, f"• {ex}"); y -= 14
-            if y < 140:  # new page if crowded
+            if y < 140:
                 c.showPage(); y = h-80
 
         # Embed KPI chart
@@ -426,8 +422,7 @@ if st.session_state.step >= 8:
         c.drawImage(img_buf, 40, 80, width=w-80, height=180, preserveAspectRatio=True, mask='auto')
 
         # Footer
-        c.setFont("Helvetica-Oblique", 9)
-        c.setFillColor(colors.grey)
+        c.setFont("Helvetica-Oblique", 9); c.setFillColor(colors.grey)
         c.drawRightString(w-40, 40, f"Generated {datetime.now().strftime('%Y-%m-%d %H:%M')}  •  VVA 4.0 (Pilot)")
         c.save(); buf.seek(0)
         return buf
@@ -435,7 +430,7 @@ if st.session_state.step >= 8:
     st.download_button("Download Executive Summary (PDF)", data=make_pdf_buffer(),
                        file_name="VVA_Executive_Summary.pdf", mime="application/pdf")
 
-    # ---------- (4) Save run & compare ----------
+    # ---------- Save run & compare ----------
     st.subheader("Save this run")
     default_name = f"Clinic {len(st.session_state.runs)+1}"
     run_name = st.text_input("Name this clinic/run:", value=default_name)
@@ -457,3 +452,4 @@ if st.session_state.step >= 8:
     st.divider()
     if st.button("Start a New Assessment"):
         reset()
+
