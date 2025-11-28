@@ -4,6 +4,8 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.patches import Wedge
+import numpy as np
 
 # ----------------------------
 # Page config & branding
@@ -12,6 +14,7 @@ st.set_page_config(page_title="Visit Value Agent 4.0 (Pilot)", page_icon="🩺",
 st.markdown("<h1 style='text-align:center;margin-bottom:0'>Visit Value Agent 4.0 — Pilot</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;margin-top:0'><em>Bramhall Consulting, LLC — predict. perform. prosper.</em></p>", unsafe_allow_html=True)
 st.divider()
+
 # ==============================
 # 16-SCENARIO GRID — HELPERS
 # ==============================
@@ -30,9 +33,6 @@ def tier_from_score(score: float) -> str:
         return "Critical"
 
 # Scenario numbering map (row = LF tier, col = RF tier)
-# Rows (top→bottom): LF Critical=1..4, LF At Risk=5..8, LF Stable=9..12, LF Excellent=13..16
-# Cols (left→right): RF Critical, At Risk, Stable, Excellent
-# => This preserves your earlier example: LF Excellent + RF Critical = Scenario 13 (“Low Revenue / Efficient Labor”)
 SCENARIO_MAP = {
     ("Critical", "Critical"): 1,   ("Critical", "At Risk"): 2,   ("Critical", "Stable"): 3,   ("Critical", "Excellent"): 4,
     ("At Risk", "Critical"): 5,    ("At Risk", "At Risk"): 6,    ("At Risk", "Stable"): 7,    ("At Risk", "Excellent"): 8,
@@ -54,9 +54,6 @@ def scenario_label(rf_tier: str, lf_tier: str) -> str:
 
 def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
     """Return a styled 4×4 DataFrame with the active cell highlighted."""
-    import pandas as pd
-
-    # Construct a DataFrame of scenario numbers with LF rows and RF columns
     rf_cols = TIER_ORDER  # Critical, At Risk, Stable, Excellent
     lf_rows = TIER_ORDER  # Critical, At Risk, Stable, Excellent (top to bottom)
 
@@ -141,6 +138,75 @@ def pos_should_be_top3(rpv_gap: float, avg_copay: float = 30.0, copay_eligibilit
     return lift >= rpv_gap
 
 # ----------------------------
+# Chart renderers (VVI gauge + RF/LF bars)
+# ----------------------------
+def render_vvi_gauge(vvi_score: float):
+    """Semicircular VVI gauge with tier bands and a needle."""
+    x_max = max(120, vvi_score + 15)
+
+    def score_to_angle(s):
+        s = max(0, min(s, x_max))
+        return (s / x_max) * 180.0
+
+    fig, ax = plt.subplots(figsize=(8.5, 3.8))
+
+    outer_r, inner_r = 1.0, 0.65
+    bands = [(0, 90, "#d9534f"), (90, 95, "#f0ad4e"), (95, 100, "#ffd666"), (100, x_max, "#5cb85c")]
+    start_deg = 180
+    for start, end, color in bands:
+        a0 = start_deg + score_to_angle(start)
+        a1 = start_deg + score_to_angle(min(end, x_max))
+        ax.add_patch(Wedge((0, 0), outer_r, a0, a1, width=outer_r - inner_r, color=color, alpha=0.15))
+
+    # ticks
+    for ts in [0, 90, 95, 100, x_max]:
+        ang = np.deg2rad(180 + score_to_angle(ts))
+        x0, y0 = (inner_r - 0.02) * np.cos(ang), (inner_r - 0.02) * np.sin(ang)
+        x1, y1 = (inner_r + 0.02) * np.cos(ang), (inner_r + 0.02) * np.sin(ang)
+        ax.plot([x0, x1], [y0, y1], lw=1, color="#333333")
+        lx, ly = (inner_r - 0.12) * np.cos(ang), (inner_r - 0.12) * np.sin(ang)
+        ax.text(lx, ly, f"{int(ts) if ts != x_max else int(x_max)}", ha="center", va="center", fontsize=9)
+
+    # needle
+    needle_ang = np.deg2rad(180 + score_to_angle(vvi_score))
+    nx, ny = 0.95 * np.cos(needle_ang), 0.95 * np.sin(needle_ang)
+    ax.plot([0, nx], [0, ny], linewidth=2.5, color="#2e2e2e")
+    ax.add_patch(plt.Circle((0, 0), 0.03, color="#2e2e2e"))
+
+    ax.text(0, -0.28, "VVI Score", ha="center", va="center", fontsize=12, fontweight="600")
+    ax.text(0, -0.44, f"{vvi_score:.2f}", ha="center", va="center", fontsize=14)
+
+    ax.set_aspect("equal")
+    ax.axis("off")
+    st.subheader("VVI — Primary Score")
+    st.pyplot(fig)
+
+def render_rf_lf_bars(rf_score: float, lf_score: float):
+    """Horizontal bars for RF and LF with tier bands."""
+    labels = ["Revenue Factor", "Labor Factor"]
+    values = [rf_score, lf_score]
+    x_max = max(120, max(values) + 15)
+
+    fig, ax = plt.subplots(figsize=(8.5, 2.6))
+    for start, end, color in [(0, 90, "#d9534f"), (90, 95, "#f0ad4e"), (95, 100, "#ffd666"), (100, x_max, "#5cb85c")]:
+        ax.axvspan(start, end, color=color, alpha=0.15, lw=0)
+
+    bars = ax.barh(labels, values, height=0.55, color="#2e2e2e")
+    for bar, v in zip(bars, values):
+        ax.text(v + (x_max * 0.01), bar.get_y() + bar.get_height() / 2, f"{v:.2f}", va="center", ha="left", fontsize=10)
+
+    ax.set_xlim(0, x_max)
+    ax.set_xlabel("Score", fontsize=10)
+    ax.set_ylabel("")
+    ax.grid(False, axis="y")
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    ax.spines["left"].set_visible(False)
+
+    st.subheader("Sub-scores")
+    st.pyplot(fig)
+
+# ----------------------------
 # Instructions (summary)
 # ----------------------------
 with st.expander("Instructions (summary)", expanded=False):
@@ -148,7 +214,7 @@ with st.expander("Instructions (summary)", expanded=False):
         "Answer one question at a time. When finished you’ll get: "
         "1) a Calculation Table (incl. SWB%), 2) a VVI/RF/LF scoring table, "
         "3) a scenario classification with prescriptive actions, "
-        "4) a Shiny-style KPI bar chart, and 5) a print-ready Executive Summary."
+        "4) a VVI gauge + RF/LF bars, and 5) a print-ready Executive Summary."
     )
 
 # ----------------------------
@@ -243,131 +309,35 @@ if st.session_state.step >= 8:
         st.stop()
 
     # Core metrics
-    rpv = (net_rev / visits) if visits else 0.0                 # Revenue per Visit
-    lpv = (labor / visits) if visits else 0.0                   # Labor per Visit
-    swb_pct = (labor / net_rev) if net_rev else 0.0             # context only
+    rpv = net_rev / visits
+    lpv = labor / visits
+    swb_pct = labor / net_rev
 
-    # White Paper factors:
-    # RF_raw = RPV / Target_RPV
-    # LF_raw = Target_LPV / LPV
-    rf_raw = (rpv / rt) if rt else 0.0
-    lf_raw = (lt / lpv) if lpv else 0.0
-
-    # Scores on 0–100 scale
+    # Factors (raw) and scores
+    rf_raw = rpv / rt               # RPV ÷ Target RPV
+    lf_raw = lt / lpv               # Target LPV ÷ LPV
     rf_score = round(rf_raw * 100, 2)
     lf_score = round(lf_raw * 100, 2)
     rf_t = tier(rf_score)
     lf_t = tier(lf_score)
 
-    # VVI: value per dollar of labor
-    vvi_raw = (rpv / lpv) if lpv else 0.0  # not scaled
-
-    # VVI normalized to 0–100 for charting:
-    # This equals (VVI / VVI_target) * 100 where VVI_target = rt/lt,
-    # which simplifies to 100 * RF_raw * LF_raw (strict White Paper alignment).
-    vvi_score = round(100 * rf_raw * lf_raw, 2)
+    # VVI (actual) and normalized (0–100)
+    vvi_raw = rpv / lpv             # unscaled index
+    vvi_target = rt / lt            # the "weight" (shifts with targets)
+    vvi_score = round((vvi_raw / vvi_target) * 100, 2)
     vvi_t = tier(vvi_score)
 
     scenario = scenario_name(rf_t, lf_t)
     st.success("Assessment complete. See results below.")
 
-    # ----------------------------
-    # ----------------------------
-# VVI gauge (hero) + RF/LF bars
-# ----------------------------
-def render_vvi_gauge(vvi_score: float):
-    """
-    Semicircular VVI gauge with tier bands and a needle.
-    Bands: Critical <90, At-Risk 90–94, Stable 95–99, Excellent ≥100
-    Scales to show up to max(120, vvi+15)
-    """
-    x_max = max(120, vvi_score + 15)
-
-    def score_to_angle(s):  # 0 -> 0°, x_max -> 180°
-        s = max(0, min(s, x_max))
-        return (s / x_max) * 180.0
-
-    fig, ax = plt.subplots(figsize=(8.5, 3.8))
-
-    outer_r, inner_r = 1.0, 0.65
-    bands = [
-        (0,   90,  "#d9534f"),  # Critical
-        (90,  95,  "#f0ad4e"),  # At-Risk
-        (95,  100, "#ffd666"),  # Stable
-        (100, x_max, "#5cb85c") # Excellent
-    ]
-    start_deg = 180
-    for start, end, color in bands:
-        a0 = start_deg + score_to_angle(start)
-        a1 = start_deg + score_to_angle(min(end, x_max))
-        ax.add_patch(Wedge((0, 0), outer_r, a0, a1, width=outer_r - inner_r, color=color, alpha=0.15))
-
-    # ticks: 0, 90, 95, 100, x_max
-    tick_scores = [0, 90, 95, 100, x_max]
-    for ts in tick_scores:
-        ang = np.deg2rad(180 + score_to_angle(ts))
-        x0, y0 = (inner_r - 0.02) * np.cos(ang), (inner_r - 0.02) * np.sin(ang)
-        x1, y1 = (inner_r + 0.02) * np.cos(ang), (inner_r + 0.02) * np.sin(ang)
-        ax.plot([x0, x1], [y0, y1], lw=1, color="#333333")
-        lx, ly = (inner_r - 0.12) * np.cos(ang), (inner_r - 0.12) * np.sin(ang)
-        ax.text(lx, ly, f"{int(ts) if ts != x_max else int(x_max)}", ha="center", va="center", fontsize=9)
-
-    # needle
-    needle_ang = np.deg2rad(180 + score_to_angle(vvi_score))
-    nx, ny = 0.95 * np.cos(needle_ang), 0.95 * np.sin(needle_ang)
-    ax.plot([0, nx], [0, ny], linewidth=2.5, color="#2e2e2e")
-    ax.add_patch(plt.Circle((0, 0), 0.03, color="#2e2e2e"))
-
-    # labels
-    ax.text(0, -0.28, "VVI Score", ha="center", va="center", fontsize=12, fontweight="600")
-    ax.text(0, -0.44, f"{vvi_score:.2f}", ha="center", va="center", fontsize=14)
-
-    ax.set_aspect("equal")
-    ax.axis("off")
-    st.subheader("VVI — Primary Score")
-    st.pyplot(fig)
-
-
-def render_rf_lf_bars(rf_score: float, lf_score: float):
-    labels = ["Revenue Factor", "Labor Factor"]
-    values = [rf_score, lf_score]
-    x_max = max(120, max(values) + 15)
-
-    fig, ax = plt.subplots(figsize=(8.5, 2.6))
-
-    # Tier bands
-    bands = [
-        (0,   90,  "#d9534f"),
-        (90,  95,  "#f0ad4e"),
-        (95,  100, "#ffd666"),
-        (100, x_max, "#5cb85c")
-    ]
-    for start, end, color in bands:
-        ax.axvspan(start, end, color=color, alpha=0.15, lw=0)
-
-    bars = ax.barh(labels, values, height=0.55, color="#2e2e2e")
-    for bar, v in zip(bars, values):
-        ax.text(v + (x_max * 0.01), bar.get_y() + bar.get_height()/2, f"{v:.2f}", va="center", ha="left", fontsize=10)
-
-    ax.set_xlim(0, x_max)
-    ax.set_xlabel("Score", fontsize=10)
-    ax.set_ylabel("")
-    ax.grid(False, axis="y")
-    ax.spines["right"].set_visible(False)
-    ax.spines["top"].set_visible(False)
-    ax.spines["left"].set_visible(False)
-
-    st.subheader("Sub-scores")
-    st.pyplot(fig)
-
-# draw charts
-render_vvi_gauge(vvi_score)
-render_rf_lf_bars(rf_score, lf_score)
+    # Charts
+    render_vvi_gauge(vvi_score)
+    render_rf_lf_bars(rf_score, lf_score)
 
     # ----------------------------
     # Calculation Table (incl. SWB%)
     # ----------------------------
-calc_df = pd.DataFrame(
+    calc_df = pd.DataFrame(
         {
             "Metric": [
                 "Total visits",
@@ -377,6 +347,7 @@ calc_df = pd.DataFrame(
                 "Labor cost per visit (LPV)",
                 "Revenue benchmark target",
                 "Labor benchmark target",
+                "VVI target (weight = Target RPV ÷ Target LPV)",
                 "Labor cost as % of revenue (SWB%)",
                 "Revenue score (RF)",
                 "Labor score (LF)",
@@ -392,6 +363,7 @@ calc_df = pd.DataFrame(
                 format_money(lpv),
                 format_money(rt),
                 format_money(lt),
+                f"{vvi_target:.3f}",
                 f"{swb_pct*100:.1f}%",
                 f"{rf_score} ({rf_t})",
                 f"{lf_score} ({lf_t})",
@@ -413,7 +385,7 @@ calc_df = pd.DataFrame(
             "Formula": [
                 "RPV ÷ Target RPV",
                 "Target LPV ÷ LPV",
-                "RPV ÷ LPV  (normalized score = 100 × RF_raw × LF_raw)"
+                "VVI ÷ VVI_target  (equivalently 100 × RF_raw × LF_raw for score)",
             ],
             "Raw Value": [f"{rf_raw:.3f}", f"{lf_raw:.3f}", f"{vvi_raw:.3f}"],
             "Weighted Score (0–100)": [f"{rf_score:.2f}", f"{lf_score:.2f}", f"{vvi_score:.2f}"],
@@ -427,7 +399,6 @@ calc_df = pd.DataFrame(
     # Scenario Grid Visualization
     # ---------------------------------------------
     st.subheader("📊 VVI 16-Scenario Grid")
-
     df_grid, styler = build_scenario_grid(rf_t, lf_t)
     st.write("Your clinic falls into the highlighted scenario below:")
     st.dataframe(styler, height=350)
