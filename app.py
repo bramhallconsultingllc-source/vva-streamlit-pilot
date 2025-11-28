@@ -367,7 +367,7 @@ render_rf_lf_bars(rf_score, lf_score)
     # ----------------------------
     # Calculation Table (incl. SWB%)
     # ----------------------------
-    calc_df = pd.DataFrame(
+calc_df = pd.DataFrame(
         {
             "Metric": [
                 "Total visits",
