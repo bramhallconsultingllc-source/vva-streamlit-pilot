@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
+from reportlab.lib.utils import ImageReader 
 
 # ----------------------------
 # Page config & branding
