@@ -153,7 +153,7 @@ def render_vvi_gauge(vvi_score: float):
     outer_r, inner_r = 1.0, 0.65
     bands = [
     (0, 90, "#d9534f"),     # Critical
-    (90, 95, "#f0ad4e"),    # At-Risk
+    (90, 95, "#ff914d"),    # At-Risk
     (95, 100, "#a0d8ef"),   # Stable (new)
     (100, x_max, "#5cb85c") # Excellent
 ]
