@@ -171,7 +171,7 @@ with st.expander("Instructions (summary)", expanded=False):
         "Answer one question at a time. When finished you’ll get: "
         "1) a Calculation Table (incl. SWB%), 2) a VVI/RF/LF scoring table, "
         "3) a scenario classification with prescriptive actions, "
-        "4) a Shiny-style KPI bar chart, and 5) a print-ready Executive Summary/PDF."
+        "4) a KPI bar chart, and 5) a print-ready Executive Summary/PDF."
     )
 
 # ----------------------------
