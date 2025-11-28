@@ -193,7 +193,7 @@ def render_rf_lf_bars(rf_score: float, lf_score: float):
     values = [rf_score, lf_score]
     x_max = max(120, max(values) + 15)
 
-    fig, ax = plt.subplots(figsize=(6.5, 2.0))
+    fig, ax = plt.subplots(figsize=(7.5, 3.0))
     for start, end, color in [(0, 90, "#d9534f"), (90, 95, "#ff914d"), (95, 100, "#ffde59"), (100, x_max, "#5cb85c")]:
         ax.axvspan(start, end, color=color, alpha=0.15, lw=0)
 
