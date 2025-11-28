@@ -306,7 +306,7 @@ if st.session_state.step >= 8:
             ax.text(v + (x_max * 0.01), bar.get_y() + bar.get_height()/2, f"{v:.2f}", va="center", ha="left", fontsize=10)
         ax.set_xlim(0, x_max); ax.set_xlabel("Score"); ax.set_ylabel(""); ax.grid(False, axis="y")
         ax.spines["right"].set_visible(False); ax.spines["top"].set_visible(False); ax.spines["left"].set_visible(False)
-        st.subheader("Key Metrics & Scores (Shiny-style)")
+        st.subheader("Key Metrics & Scores")
         st.pyplot(fig)
         return fig
 
