@@ -148,7 +148,7 @@ def render_vvi_gauge(vvi_score: float):
         s = max(0, min(s, x_max))
         return (s / x_max) * 180.0
 
-    fig, ax = plt.subplots(figsize=(6.5, 2.8))
+    fig, ax = plt.subplots(figsize=(7.5, 3.8))
 
     outer_r, inner_r = 1.0, 0.65
     bands = [
