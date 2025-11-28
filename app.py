@@ -1,11 +1,18 @@
 # app.py — Visit Value Agent 4.0 (Pilot)
 # Bramhall Consulting, LLC — predict. perform. prosper.
 
+import io
+from datetime import datetime
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.patches import Wedge
-import numpy as np
+
+# PDF
+from reportlab.lib.pagesizes import LETTER
+from reportlab.lib import colors
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
 
 # ----------------------------
 # Page config & branding
@@ -18,21 +25,14 @@ st.divider()
 # ==============================
 # 16-SCENARIO GRID — HELPERS
 # ==============================
-
-TIER_ORDER = ["Critical", "At Risk", "Stable", "Excellent"]  # left-to-right (RF), top-to-bottom (LF)
+TIER_ORDER = ["Critical", "At Risk", "Stable", "Excellent"]  # RF left→right, LF top→bottom
 
 def tier_from_score(score: float) -> str:
-    """Convert 0–100 weighted score to tier using White Paper thresholds."""
-    if score >= 100:
-        return "Excellent"
-    elif 95 <= score <= 99:
-        return "Stable"
-    elif 90 <= score <= 94:
-        return "At Risk"
-    else:
-        return "Critical"
+    if score >= 100: return "Excellent"
+    if 95 <= score <= 99: return "Stable"
+    if 90 <= score <= 94: return "At Risk"
+    return "Critical"
 
-# Scenario numbering map (row = LF tier, col = RF tier)
 SCENARIO_MAP = {
     ("Critical", "Critical"): 1,   ("Critical", "At Risk"): 2,   ("Critical", "Stable"): 3,   ("Critical", "Excellent"): 4,
     ("At Risk", "Critical"): 5,    ("At Risk", "At Risk"): 6,    ("At Risk", "Stable"): 7,    ("At Risk", "Excellent"): 8,
@@ -40,77 +40,40 @@ SCENARIO_MAP = {
     ("Excellent", "Critical"): 13, ("Excellent", "At Risk"): 14, ("Excellent", "Stable"): 15, ("Excellent", "Excellent"): 16,
 }
 
-def scenario_label(rf_tier: str, lf_tier: str) -> str:
-    """Short diagnosis line based on the quadrant combo."""
-    rf_high = rf_tier in ("Excellent", "Stable")
-    lf_high = lf_tier in ("Excellent", "Stable")
-    if rf_high and lf_high:
-        return "Both Revenue & Labor strong — sustain, standardize, and scale best practices."
-    if rf_high and not lf_high:
-        return "Strong Revenue / Soft Labor — throughput, staffing alignment, overtime controls."
-    if not rf_high and lf_high:
-        return "Low Revenue / Efficient Labor — revenue density, coding hygiene, visit mix."
-    return "Low Revenue / Soft Labor — stabilize access, fix revenue fundamentals, protect labor."
+def scenario_name(rf_t: str, lf_t: str) -> str:
+    rev_map = {"Excellent": "High Revenue", "Stable": "Stable Revenue", "At Risk": "Low Revenue", "Critical": "Critical Revenue"}
+    lab_map = {"Excellent": "Efficient Labor", "Stable": "Stable Labor", "At Risk": "At-Risk Labor", "Critical": "Critical Labor"}
+    return f"{rev_map[rf_t]} / {lab_map[lf_t]}"
 
 def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
-    """Return a styled 4×4 DataFrame with the active cell highlighted."""
-    rf_cols = TIER_ORDER  # Critical, At Risk, Stable, Excellent
-    lf_rows = TIER_ORDER  # Critical, At Risk, Stable, Excellent (top to bottom)
-
+    rf_cols = TIER_ORDER
+    lf_rows = TIER_ORDER
     data = []
     for lf in lf_rows:
         row = []
         for rf in rf_cols:
             row.append(SCENARIO_MAP[(lf, rf)])
         data.append(row)
-
     df = pd.DataFrame(data, index=[f"LF: {r}" for r in lf_rows], columns=[f"RF: {c}" for c in rf_cols])
 
-    # highlight function
     def highlight_active(val, row_idx, col_idx):
-        lf_here = lf_rows[row_idx]
-        rf_here = rf_cols[col_idx]
+        lf_here = lf_rows[row_idx]; rf_here = rf_cols[col_idx]
         if (lf_here == active_lf_tier) and (rf_here == active_rf_tier):
-            return "background-color: #fdd835; color: #000; font-weight: 700;"  # gold highlight
+            return "background-color: #fdd835; color: #000; font-weight: 700;"
         return ""
 
-    # Build a Styler to highlight the active cell
     styler = df.style.format(precision=0)
     for r in range(len(lf_rows)):
         for c in range(len(rf_cols)):
-            styler = styler.set_properties(
-                subset=(df.index[r], df.columns[c]),
-                **{"text-align": "center", "font-weight": "500"}
-            )
-            styler = styler.apply(
-                lambda s, r=r, c=c: [highlight_active(v, r, c) for v in s], axis=1, subset=(df.index[r], df.columns[c])
-            )
-
-    # general cosmetics
+            styler = styler.set_properties(subset=(df.index[r], df.columns[c]),
+                                           **{"text-align": "center", "font-weight": "500"})
+            styler = styler.apply(lambda s, r=r, c=c: [highlight_active(v, r, c) for v in s], axis=1,
+                                  subset=(df.index[r], df.columns[c]))
     styler = (styler
               .set_table_styles([{"selector": "th", "props": [("text-align", "center")]}])
-              .hide(axis="index", level=None)  # comment this line if you want LF labels visible in the left index
-             )
+              .hide(axis="index", level=None))
     return df, styler
 
-# ----------------------------
-# Session state
-# ----------------------------
-if "step" not in st.session_state:
-    st.session_state.step = 1
-if "answers" not in st.session_state:
-    st.session_state.answers = {}
-
-def next_step():
-    st.session_state.step += 1
-
-def reset():
-    st.session_state.step = 1
-    st.session_state.answers = {}
-
-# ----------------------------
-# Helpers
-# ----------------------------
 def format_money(x: float) -> str:
     try:
         return f"${float(x):,.2f}"
@@ -118,99 +81,87 @@ def format_money(x: float) -> str:
         return "$0.00"
 
 def tier(score: float) -> str:
-    # 0–100 scale interpretation used throughout the White Paper
-    if score >= 100:
-        return "Excellent"
-    if 95 <= score <= 99:
-        return "Stable"
-    if 90 <= score <= 94:
-        return "At Risk"
+    if score >= 100: return "Excellent"
+    if 95 <= score <= 99: return "Stable"
+    if 90 <= score <= 94: return "At Risk"
     return "Critical"
 
-def scenario_name(rf_t: str, lf_t: str) -> str:
-    rev_map = {"Excellent": "High Revenue", "Stable": "Stable Revenue", "At Risk": "Low Revenue", "Critical": "Critical Revenue"}
-    lab_map = {"Excellent": "Efficient Labor", "Stable": "Stable Labor", "At Risk": "At-Risk Labor", "Critical": "Critical Labor"}
-    return f"{rev_map[rf_t]} / {lab_map[lf_t]}"
-
 def pos_should_be_top3(rpv_gap: float, avg_copay: float = 30.0, copay_eligibility: float = 0.5, leakage_rate: float = 0.25) -> bool:
-    """Very rough signal: could POS alone close the RPV gap?"""
-    lift = avg_copay * copay_eligibility * leakage_rate  # per visit
+    lift = avg_copay * copay_eligibility * leakage_rate
     return lift >= rpv_gap
 
+# ------------------------------------------------------
+# Scenario-specific prescriptive logic (2)
+# ------------------------------------------------------
+def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
+    """Returns dict with diagnosis, top3, extended, huddle_script, daily_patch."""
+    diag = scenario_name(rf_t, lf_t)
+
+    top3 = []
+    ext = []
+
+    # Revenue levers
+    if rf_t in ("Critical", "At Risk", "Stable") and rpv_gap > 0:
+        top3 += [
+            "Increase revenue density: prioritize higher-acuity visit types and coding accuracy.",
+            "Tighten documentation quality (provider coaching + targeted audits).",
+            "Add capacity at peak hours to capture higher-value demand."
+        ]
+    # Labor levers
+    if lf_t in ("Critical", "At Risk"):
+        top3 += [
+            "Align staffing to the demand curve (templates & throughput fixes).",
+            "Reduce avoidable OT / premium coverage with scheduling discipline.",
+            "Speed chart closure / cycle-time to improve throughput."
+        ]
+    if not top3:
+        top3 = [
+            "Sustain revenue integrity (quarterly audits).",
+            "Sustain labor efficiency (periodic productivity checks).",
+            "Share best practices across sites; maintain cycle-time discipline."
+        ]
+
+    # POS patch
+    if rf_t in ("Critical", "At Risk", "Stable"):
+        if pos_should_be_top3(rpv_gap):
+            top3.append("Run POS co-pay capture push (scripts, training, accountability).")
+        else:
+            ext.append("Quick POS audit (co-pay scripts, training, ClearPay accountability).")
+
+    # Huddle + SWB messaging
+    huddle = (
+        "5-Minute Morning Huddle:\n"
+        "• Today’s priorities: Top 3 levers above\n"
+        "• Throughput focus: door-to-room < 10 min; room-to-provider < 15 min\n"
+        "• Reliability: close charts same day; handoffs clear; escalate bottlenecks early"
+    )
+    daily_patch = "Daily reminder: review Top 3, confirm staffing vs demand, call out risks, recognize wins."
+
+    ext.append("Daily 5-minute morning huddle: review Top 3 levers, VPDA drivers, risks.")
+    ext.append("Treat SWB% as context only; anchor decisions in VVI (RPV/LPV, RF/LF).")
+
+    return {
+        "diagnosis": diag,
+        "top3": top3[:3],             # keep the top 3
+        "extended": ext,
+        "huddle_script": huddle,
+        "daily_patch": daily_patch
+    }
+
 # ----------------------------
-# Chart renderers (VVI gauge + RF/LF bars)
+# Session state (4)
 # ----------------------------
-def render_vvi_gauge(vvi_score: float):
-    """Semicircular VVI gauge with tier bands and a needle."""
-    x_max = max(120, vvi_score + 15)
+if "step" not in st.session_state:
+    st.session_state.step = 1
+if "answers" not in st.session_state:
+    st.session_state.answers = {}
+if "runs" not in st.session_state:
+    st.session_state.runs = []  # list of dicts (name + results)
 
-    def score_to_angle(s):
-        s = max(0, min(s, x_max))
-        return (s / x_max) * 180.0
-
-    fig, ax = plt.subplots(figsize=(7.5, 3.8))
-
-    outer_r, inner_r = 1.0, .65
-    bands = [
-    (0, 90, "#d9534f"),     # Critical
-    (90, 95, "#ff914d"),    # At-Risk
-    (95, 100, "#ffde59"),   # Stable (new)
-    (100, x_max, "#5cb85c") # Excellent
-]
-
-    start_deg = 180
-    for start, end, color in bands:
-        a0 = start_deg + score_to_angle(start)
-        a1 = start_deg + score_to_angle(min(end, x_max))
-        ax.add_patch(Wedge((0, 0), outer_r, a0, a1, width=outer_r - inner_r, color=color, alpha=0.15))
-
-    # ticks
-    for ts in [0, 90, 95, 100, x_max]:
-        ang = np.deg2rad(180 + score_to_angle(ts))
-        x0, y0 = (inner_r - 0.02) * np.cos(ang), (inner_r - 0.02) * np.sin(ang)
-        x1, y1 = (inner_r + 0.02) * np.cos(ang), (inner_r + 0.02) * np.sin(ang)
-        ax.plot([x0, x1], [y0, y1], lw=1, color="#333333")
-        lx, ly = (inner_r - 0.12) * np.cos(ang), (inner_r - 0.12) * np.sin(ang)
-        ax.text(lx, ly, f"{int(ts) if ts != x_max else int(x_max)}", ha="center", va="center", fontsize=9)
-
-    # needle
-    needle_ang = np.deg2rad(180 + score_to_angle(vvi_score))
-    nx, ny = 0.95 * np.cos(needle_ang), 0.95 * np.sin(needle_ang)
-    ax.plot([0, nx], [0, ny], linewidth=2.5, color="#2e2e2e")
-    ax.add_patch(plt.Circle((0, 0), 0.03, color="#2e2e2e"))
-
-    ax.text(0, -0.22, "VVI Score", ha="center", va="center", fontsize=12, fontweight="600")
-    ax.text(0, -0.34, f"{vvi_score:.2f}", ha="center", va="center", fontsize=14)
-
-    ax.set_aspect("equal")
-    ax.axis("off")
-    st.subheader("VVI — Primary Score")
-    st.pyplot(fig)
-
-def render_rf_lf_bars(rf_score: float, lf_score: float):
-    """Horizontal bars for RF and LF with tier bands."""
-    labels = ["Revenue Factor", "Labor Factor"]
-    values = [rf_score, lf_score]
-    x_max = max(120, max(values) + 15)
-
-    fig, ax = plt.subplots(figsize=(7.5, 3.0))
-    for start, end, color in [(0, 90, "#d9534f"), (90, 95, "#ff914d"), (95, 100, "#ffde59"), (100, x_max, "#5cb85c")]:
-        ax.axvspan(start, end, color=color, alpha=0.15, lw=0)
-
-    bars = ax.barh(labels, values, height=0.55, color="#2e2e2e")
-    for bar, v in zip(bars, values):
-        ax.text(v + (x_max * 0.01), bar.get_y() + bar.get_height() / 2, f"{v:.2f}", va="center", ha="left", fontsize=10)
-
-    ax.set_xlim(0, x_max)
-    ax.set_xlabel("Score", fontsize=10)
-    ax.set_ylabel("")
-    ax.grid(False, axis="y")
-    ax.spines["right"].set_visible(False)
-    ax.spines["top"].set_visible(False)
-    ax.spines["left"].set_visible(False)
-
-    st.subheader("Sub-scores")
-    st.pyplot(fig)
+def next_step(): st.session_state.step += 1
+def reset():
+    st.session_state.step = 1
+    st.session_state.answers = {}
 
 # ----------------------------
 # Instructions (summary)
@@ -220,98 +171,71 @@ with st.expander("Instructions (summary)", expanded=False):
         "Answer one question at a time. When finished you’ll get: "
         "1) a Calculation Table (incl. SWB%), 2) a VVI/RF/LF scoring table, "
         "3) a scenario classification with prescriptive actions, "
-        "4) a VVI gauge + RF/LF bars, and 5) a print-ready Executive Summary."
+        "4) a Shiny-style KPI bar chart, and 5) a print-ready Executive Summary/PDF."
     )
 
 # ----------------------------
-# Input Flow — one question at a time
+# Input Flow
 # ----------------------------
 st.markdown("### Start VVI Assessment")
-
-# STEP 1 — Visits
 if st.session_state.step == 1:
-    visits = st.number_input(
-        "How many total patient visits occurred during this time period?",
-        min_value=1, step=1, key="visits_input",
-    )
+    visits = st.number_input("How many total patient visits occurred during this time period?",
+                             min_value=1, step=1, key="visits_input")
     st.button("Next", disabled=visits <= 0, on_click=lambda: (
         st.session_state.answers.update({"visits": int(visits)}), next_step()
     ))
-
-# STEP 2 — Net Revenue
 elif st.session_state.step == 2:
-    net_rev = st.number_input(
-        "What was the total amount of net revenue collected for these visits? ($)",
-        min_value=0.01, step=100.0, format="%.2f", key="net_rev_input",
-    )
+    net_rev = st.number_input("What was the total net revenue collected? ($)",
+                              min_value=0.01, step=100.0, format="%.2f", key="net_rev_input")
     st.button("Next", disabled=net_rev <= 0, on_click=lambda: (
         st.session_state.answers.update({"net_revenue": float(net_rev)}), next_step()
     ))
-
-# STEP 3 — Labor Cost
 elif st.session_state.step == 3:
-    labor_cost = st.number_input(
-        "What was the total labor cost for this period? ($) (W2 + PRN + overtime + contract/locum)",
-        min_value=0.01, step=100.0, format="%.2f", key="labor_cost_input",
-    )
+    labor_cost = st.number_input("Total labor cost ($) (W2 + PRN + OT + contract/locum)",
+                                 min_value=0.01, step=100.0, format="%.2f", key="labor_cost_input")
     st.button("Next", disabled=labor_cost <= 0, on_click=lambda: (
         st.session_state.answers.update({"labor_cost": float(labor_cost)}), next_step()
     ))
-
-# STEP 4 — Period
 elif st.session_state.step == 4:
-    period = st.selectbox("What time period does this represent?", ["Week", "Month", "Quarter", "Year"], key="period_input")
+    period = st.selectbox("What time period does this represent?", ["Week", "Month", "Quarter", "Year"],
+                          key="period_input")
     st.button("Next", on_click=lambda: (
         st.session_state.answers.update({"period": period}), next_step()
     ))
-
-# STEP 5 — Focus (optional)
 elif st.session_state.step == 5:
-    focus = st.selectbox(
-        "Optional: Focus area for this assessment",
-        ["All areas", "Revenue improvement", "Staffing efficiency", "Patient flow", "Burnout", "None"],
-        key="focus_input",
-    )
+    focus = st.selectbox("Optional: Focus area", ["All areas", "Revenue improvement", "Staffing efficiency",
+                                                  "Patient flow", "Burnout", "None"], key="focus_input")
     st.button("Next", on_click=lambda: (
         st.session_state.answers.update({"focus": focus}), next_step()
     ))
-
-# STEP 6 — Revenue Target
 elif st.session_state.step == 6:
-    r_target = st.number_input(
-        "Revenue target per visit (default $140)",
-        min_value=1.0, value=140.0, step=1.0, format="%.2f", key="rev_target_input",
-    )
+    r_target = st.number_input("Revenue target per visit (default $140)",
+                               min_value=1.0, value=140.0, step=1.0, format="%.2f", key="rev_target_input")
     st.button("Next", on_click=lambda: (
         st.session_state.answers.update({"rev_target": float(r_target)}), next_step()
     ))
-
-# STEP 7 — Labor Target + Run
 elif st.session_state.step == 7:
-    l_target = st.number_input(
-        "Labor target per visit (default $85)",
-        min_value=1.0, value=85.0, step=1.0, format="%.2f", key="lab_target_input",
-    )
+    l_target = st.number_input("Labor target per visit (default $85)",
+                               min_value=1.0, value=85.0, step=1.0, format="%.2f", key="lab_target_input")
     st.button("Run Assessment", on_click=lambda: (
         st.session_state.answers.update({"lab_target": float(l_target)}), next_step()
     ))
 
 # ----------------------------
-# Results (only after inputs complete)
+# Results
 # ----------------------------
 if st.session_state.step >= 8:
     a = st.session_state.answers
-    visits = float(a.get("visits", 0))
+    visits  = float(a.get("visits", 0))
     net_rev = float(a.get("net_revenue", 0.0))
-    labor = float(a.get("labor_cost", 0.0))
-    period = a.get("period", "-")
-    focus = a.get("focus", "All areas")
-    rt = float(a.get("rev_target", 140.0))
-    lt = float(a.get("lab_target", 85.0))
+    labor   = float(a.get("labor_cost", 0.0))
+    period  = a.get("period", "-")
+    focus   = a.get("focus", "All areas")
+    rt      = float(a.get("rev_target", 140.0))
+    lt      = float(a.get("lab_target", 85.0))
 
-    # Guard against invalid runs
     if visits <= 0 or net_rev <= 0 or labor <= 0:
-        st.warning("Please enter non-zero values for visits, net revenue, and labor cost, then run the assessment again.")
+        st.warning("Please enter non-zero values for visits, net revenue, and labor cost, then run again.")
         st.stop()
 
     # Core metrics
@@ -319,182 +243,216 @@ if st.session_state.step >= 8:
     lpv = labor / visits
     swb_pct = labor / net_rev
 
-    # Factors (raw) and scores
-    rf_raw = rpv / rt               # RPV ÷ Target RPV
-    lf_raw = lt / lpv               # Target LPV ÷ LPV
+    # White Paper factors (RF, LF)
+    rf_raw = (rpv / rt) if rt else 0.0
+    lf_raw = (lt / lpv) if lpv else 0.0
     rf_score = round(rf_raw * 100, 2)
     lf_score = round(lf_raw * 100, 2)
     rf_t = tier(rf_score)
     lf_t = tier(lf_score)
 
-    # VVI (actual) and normalized (0–100)
-    vvi_raw = rpv / lpv             # unscaled index
-    vvi_target = rt / lt            # the "weight" (shifts with targets)
-    vvi_score = round((vvi_raw / vvi_target) * 100, 2)
+    # VVI (raw) and normalized to 0–100 for charting (=100*RF_raw*LF_raw)
+    vvi_raw = (rpv / lpv) if lpv else 0.0
+    vvi_score = round(100 * rf_raw * lf_raw, 2)
     vvi_t = tier(vvi_score)
 
+    rpv_gap = max(0.0, rt - rpv)
     scenario = scenario_name(rf_t, lf_t)
+
     st.success("Assessment complete. See results below.")
 
-    # Charts
-    render_vvi_gauge(vvi_score)
-    render_rf_lf_bars(rf_score, lf_score)
+    # ---------- (5) Optional Visit-Type Mix input & impact ----------
+    with st.expander("Optional: Visit-Type Mix (impact on RF)", expanded=False):
+        st.caption("Enter rough %-mix (numbers don’t need to total 100%). We’ll show estimated RF impact (not applied to core scores).")
+        c1, c2, c3 = st.columns(3)
+        lvl3  = c1.number_input("% Level 3", min_value=0.0, value=40.0, step=1.0)
+        lvl4  = c2.number_input("% Level 4", min_value=0.0, value=35.0, step=1.0)
+        occ   = c3.number_input("% Occ Health", min_value=0.0, value=10.0, step=1.0)
+        c4, c5, c6 = st.columns(3)
+        proc  = c4.number_input("% Procedure", min_value=0.0, value=5.0, step=1.0)
+        dot   = c5.number_input("% DOT", min_value=0.0, value=5.0, step=1.0)
+        vacc  = c6.number_input("% Vaccine", min_value=0.0, value=5.0, step=1.0)
 
-    # ----------------------------
-    # Calculation Table (incl. SWB%)
-    # ----------------------------
-    calc_df = pd.DataFrame(
-        {
-            "Metric": [
-                "Total visits",
-                "Net revenue collected",
-                "Total labor cost",
-                "Revenue per visit (RPV)",
-                "Labor cost per visit (LPV)",
-                "Revenue benchmark target",
-                "Labor benchmark target",
-                "VVI target (weight = Target RPV ÷ Target LPV)",
-                "Labor cost as % of revenue (SWB%)",
-                "Revenue score (RF)",
-                "Labor score (LF)",
-                "VVI (value per $ labor)",
-                "VVI score (normalized 0–100)",
-                "Scenario",
-            ],
-            "Value": [
-                f"{int(visits):,}",
-                format_money(net_rev),
-                format_money(labor),
-                format_money(rpv),
-                format_money(lpv),
-                format_money(rt),
-                format_money(lt),
-                f"{vvi_target:.3f}",
-                f"{swb_pct*100:.1f}%",
-                f"{rf_score} ({rf_t})",
-                f"{lf_score} ({lf_t})",
-                f"{vvi_raw:.3f}",
-                f"{vvi_score} ({vvi_t})",
-                scenario,
-            ],
+        # very simple weights (example; tune freely)
+        weights = {
+            "Level 3": 0.95, "Level 4": 1.08, "Occ Health": 1.02,
+            "Procedure": 1.15, "DOT": 1.00, "Vaccine": 0.90
         }
-    )
+        mix = {"Level 3": lvl3, "Level 4": lvl4, "Occ Health": occ, "Procedure": proc, "DOT": dot, "Vaccine": vacc}
+        total = sum(mix.values()) or 1.0
+        # Weighted uplift vs baseline 1.00
+        uplift = sum((mix[k]/total) * weights[k] for k in mix)
+        est_rpv = rpv * uplift
+        est_rf  = (est_rpv / rt) * 100
+        st.write(f"Estimated RPV with mix: **{format_money(est_rpv)}** → Estimated RF: **{est_rf:.1f}**")
+        # small bar
+        figm, axm = plt.subplots(figsize=(5,1.8))
+        axm.barh(["Current RF","Mix Est. RF"], [rf_score, est_rf], height=0.5, color=["#2e2e2e","#004b23"])
+        axm.set_xlim(0, max(120, est_rf+10, rf_score+10)); axm.set_xlabel("Score")
+        for v,bar in zip([rf_score, est_rf], axm.patches):
+            axm.text(v+1, bar.get_y()+bar.get_height()/2, f"{v:.1f}", va="center")
+        axm.grid(False); axm.spines["top"].set_visible(False); axm.spines["right"].set_visible(False)
+        st.pyplot(figm)
+
+    # ---------- KPI bars ----------
+    def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
+        labels = ["VVI (normalized 0–100)", "Revenue Factor", "Labor Factor"]
+        values = [vvi_score, rf_score, lf_score]
+        x_max = max(120, max(values) + 15)
+
+        fig, ax = plt.subplots(figsize=(8.5, 2.8))
+        bands = [(0,90,"#d9534f"), (90,95,"#f0ad4e"), (95,100,"#ffd666"), (100,x_max,"#5cb85c")]
+        for s,e,c in bands: ax.axvspan(s,e,color=c,alpha=0.15,lw=0)
+        bars = ax.barh(labels, values, color="#2e2e2e", height=0.55)
+        for bar, v in zip(bars, values):
+            ax.text(v + (x_max * 0.01), bar.get_y() + bar.get_height()/2, f"{v:.2f}", va="center", ha="left", fontsize=10)
+        ax.set_xlim(0, x_max); ax.set_xlabel("Score"); ax.set_ylabel(""); ax.grid(False, axis="y")
+        ax.spines["right"].set_visible(False); ax.spines["top"].set_visible(False); ax.spines["left"].set_visible(False)
+        st.subheader("Key Metrics & Scores (Shiny-style)")
+        st.pyplot(fig)
+        return fig  # return for PDF embedding
+
+    kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
+
+    # ---------- Calculation table ----------
+    calc_df = pd.DataFrame({
+        "Metric": [
+            "Total visits","Net revenue collected","Total labor cost","Revenue per visit (RPV)",
+            "Labor cost per visit (LPV)","Revenue benchmark target","Labor benchmark target",
+            "Labor cost as % of revenue (SWB%)","Revenue score (RF)","Labor score (LF)",
+            "VVI (value per $ labor)","VVI score (normalized 0–100)","Scenario"
+        ],
+        "Value": [
+            f"{int(visits):,}", format_money(net_rev), format_money(labor), format_money(rpv),
+            format_money(lpv), format_money(rt), format_money(lt),
+            f"{swb_pct*100:.1f}%", f"{rf_score} ({rf_t})", f"{lf_score} ({lf_t})",
+            f"{vvi_raw:.3f}", f"{vvi_score} ({vvi_t})", scenario
+        ],
+    })
     st.subheader("Calculation Table")
     st.dataframe(calc_df, use_container_width=True, hide_index=True)
 
-    # ----------------------------
-    # VVI / RF / LF Scoring Table (formulas shown)
-    # ----------------------------
-    score_df = pd.DataFrame(
-        {
-            "Index": ["Revenue Factor (RF)", "Labor Factor (LF)", "Visit Value Index (VVI)"],
-            "Formula": [
-                "RPV ÷ Target RPV",
-                "Target LPV ÷ LPV",
-                "VVI ÷ VVI_target  (equivalently 100 × RF_raw × LF_raw for score)",
-            ],
-            "Raw Value": [f"{rf_raw:.3f}", f"{lf_raw:.3f}", f"{vvi_raw:.3f}"],
-            "Weighted Score (0–100)": [f"{rf_score:.2f}", f"{lf_score:.2f}", f"{vvi_score:.2f}"],
-            "Tier": [rf_t, lf_t, vvi_t],
-        }
-    )
+    # ---------- Scoring table ----------
+    score_df = pd.DataFrame({
+        "Index": ["Revenue Factor (RF)", "Labor Factor (LF)", "Visit Value Index (VVI)"],
+        "Formula": ["RPV ÷ Target RPV", "Target LPV ÷ LPV", "RPV ÷ LPV  (normalized = 100 × RF_raw × LF_raw)"],
+        "Raw Value": [f"{rf_raw:.3f}", f"{lf_raw:.3f}", f"{vvi_raw:.3f}"],
+        "Weighted Score (0–100)": [f"{rf_score:.2f}", f"{lf_score:.2f}", f"{vvi_score:.2f}"],
+        "Tier": [rf_t, lf_t, vvi_t],
+    })
     st.subheader("VVI / RF / LF Scoring Table")
     st.dataframe(score_df, use_container_width=True, hide_index=True)
 
-    # ---------------------------------------------
-    # Scenario Grid Visualization
-    # ---------------------------------------------
+    # ---------- Scenario Grid ----------
     st.subheader("📊 VVI 16-Scenario Grid")
     df_grid, styler = build_scenario_grid(rf_t, lf_t)
-    st.write("Your clinic falls into the highlighted scenario below:")
-    st.dataframe(styler, height=350)
+    st.dataframe(styler, use_container_width=True)
 
-    # ----------------------------
-    # Scenario + Prescriptive Actions (incl. POS & huddle patches)
-    # ----------------------------
+    # ---------- (2) Prescriptive output ----------
+    actions = prescriptive_actions(rf_t, lf_t, rpv_gap)
     st.subheader("Scenario")
-    st.write(f"**{scenario}** — period: **{period}**. Focus: **{focus}**.")
-
-    rpv_gap = max(0.0, rt - rpv)
-    top3: list[str] = []
-    extended: list[str] = []
-
-    # Revenue levers
-    if rf_t in ["At Risk", "Critical", "Stable"] and rpv_gap > 0:
-        top3 += [
-            "Increase revenue density: prioritize higher-acuity visit types and coding accuracy.",
-            "Tighten documentation quality (provider education + quick audits).",
-            "Add capacity at peak hours to capture higher-value demand.",
-        ]
-
-    # Labor levers
-    if lf_t in ["At Risk", "Critical"]:
-        top3 += [
-            "Align staffing to the demand curve (templates & throughput fixes).",
-            "Reduce avoidable OT / premium coverage with scheduling discipline.",
-            "Speed chart closure / cycle-time to improve throughput.",
-        ]
-
-    if not top3:
-        top3 = [
-            "Sustain revenue integrity (quarterly audits).",
-            "Sustain labor efficiency (periodic productivity checks).",
-            "Share best practices across sites; maintain cycle-time discipline.",
-        ]
-
-    # POS patch — only Top 3 if it can materially close the RPV gap
-    if rf_t in ["At Risk", "Critical", "Stable"]:
-        if pos_should_be_top3(rpv_gap):
-            top3.append("Run POS co-pay capture push (scripts, training, accountability).")
-        else:
-            extended.append("Quick POS audit (co-pay scripts, training, ClearPay accountability).")
-
-    # Daily huddle patch — always
-    extended.append("Daily 5-minute morning huddle: review Top 3 levers, VPDA drivers, risks.")
-    # SWB% patch — context only
-    extended.append("Treat SWB% as context only; anchor decisions in VVI (RPV/LPV, RF/LF).")
-
+    st.write(f"**{actions['diagnosis']}** — period: **{period}**. Focus: **{focus}**.")
     st.write("**Top 3 (Immediate):**")
-    for i, item in enumerate(top3[:3], start=1):
-        st.write(f"{i}. {item}")
-
+    for i, item in enumerate(actions["top3"], start=1):
+        st.write(f"{i}) {item}")
     st.write("**Extended Actions:**")
-    for item in extended:
+    for item in actions["extended"]:
         st.write(f"• {item}")
+    with st.expander("Huddle Script (copy/paste)", expanded=False):
+        st.code(actions["huddle_script"])
+    with st.expander("Daily Reminder Patch", expanded=False):
+        st.write(actions["daily_patch"])
 
-    # ----------------------------
-    # Print-Ready Executive Summary
-    # ----------------------------
-    st.subheader("Print-Ready Executive Summary")
-    summary = f"""Visit Value Agent 4.0 — Executive Summary
+    # ---------- (6) AI Insights Panel ----------
+    with st.expander("AI Insights Summary", expanded=True):
+        bullets = []
+        if rf_score < 95:
+            if rpv_gap > 0:
+                bullets.append(f"Revenue density suppressed by ~{format_money(rpv_gap)} per visit; focus on coding mix & acuity.")
+            else:
+                bullets.append("Revenue below target but gap is not explained by per-visit density — check payer yield/denials.")
+        if lf_score < 95:
+            bullets.append("Labor efficiency indicates throughput constraints or schedule misalignment.")
+        if vvi_score < 95 and rf_score >= 95 and lf_score >= 95:
+            bullets.append("Overall value suppressed by reliability variance; protect flow and chart closure.")
+        if not bullets:
+            bullets.append("Performance is balanced; sustain best practices and standardize across sites.")
+        for b in bullets: st.write(f"• {b}")
 
-Period: {period}
-Focus: {focus}
+    # ---------- (3) Print-ready PDF export ----------
+    def make_pdf_buffer():
+        buf = io.BytesIO()
+        c = canvas.Canvas(buf, pagesize=LETTER)
+        w, h = LETTER
 
-VVI Scenario: {scenario}
-Revenue Factor (RF): {rf_score:.2f} ({rf_t})
-Labor Factor (LF): {lf_score:.2f} ({lf_t})
-RPV: {format_money(rpv)}  |  LPV: {format_money(lpv)}  |  SWB%: {swb_pct*100:.1f}%
+        # Header (black & gold)
+        c.setFillColor(colors.black); c.rect(0, h-60, w, 60, fill=1, stroke=0)
+        c.setFillColorRGB(0.48, 0.39, 0.0)  # gold-ish title
+        c.setFont("Helvetica-Bold", 16)
+        c.drawString(40, h-40, "Visit Value Agent 4.0 — Executive Summary")
+        c.setFillColor(colors.white)
+        c.setFont("Helvetica", 10)
+        c.drawRightString(w-40, h-40, "Bramhall Consulting, LLC — predict. perform. prosper.")
 
-Top 3 Actions:
-1) {top3[0] if len(top3)>0 else '-'}
-2) {top3[1] if len(top3)>1 else '-'}
-3) {top3[2] if len(top3)>2 else '-'}
+        y = h-90
+        def line(lbl, val):
+            nonlocal y
+            c.setFont("Helvetica-Bold", 11); c.setFillColor(colors.black); c.drawString(40, y, lbl)
+            c.setFont("Helvetica", 11); c.drawString(200, y, val); y -= 16
 
-Extended Actions:
-- {extended[0] if len(extended)>0 else '-'}
-- {extended[1] if len(extended)>1 else '-'}
-- {extended[2] if len(extended)>2 else '-'}
+        line("Period:", period)
+        line("Focus:", str(focus))
+        line("Scenario:", actions["diagnosis"])
+        line("RF / LF:", f"{rf_score:.2f} ({rf_t})  |  {lf_score:.2f} ({lf_t})")
+        line("RPV / LPV / SWB%:", f"{format_money(rpv)}  |  {format_money(lpv)}  |  {swb_pct*100:.1f}%")
+        y -= 6
 
-Legal: This operational analysis is for informational purposes only and does not constitute medical, clinical, legal, or compliance advice. VVA provides operational insights only.
-"""
-    st.code(summary)
+        c.setFont("Helvetica-Bold", 12); c.drawString(40, y, "Top 3 Actions"); y -= 14
+        c.setFont("Helvetica", 11)
+        for i,t3 in enumerate(actions["top3"], start=1):
+            c.drawString(50, y, f"{i}) {t3}"); y -= 14
 
-    st.download_button(
-        "Download Executive Summary (.txt)",
-        data=summary.encode("utf-8"),
-        file_name="VVA_Executive_Summary.txt",
-    )
+        y -= 6; c.setFont("Helvetica-Bold", 12); c.drawString(40, y, "Extended Actions"); y -= 14
+        c.setFont("Helvetica", 11)
+        for ex in actions["extended"]:
+            c.drawString(50, y, f"• {ex}"); y -= 14
+            if y < 140:  # new page if crowded
+                c.showPage(); y = h-80
+
+        # Embed KPI chart
+        img_buf = io.BytesIO()
+        kpi_fig.savefig(img_buf, format="png", dpi=150, bbox_inches="tight")
+        img_buf.seek(0)
+        c.drawImage(img_buf, 40, 80, width=w-80, height=180, preserveAspectRatio=True, mask='auto')
+
+        # Footer
+        c.setFont("Helvetica-Oblique", 9)
+        c.setFillColor(colors.grey)
+        c.drawRightString(w-40, 40, f"Generated {datetime.now().strftime('%Y-%m-%d %H:%M')}  •  VVA 4.0 (Pilot)")
+        c.save(); buf.seek(0)
+        return buf
+
+    st.download_button("Download Executive Summary (PDF)", data=make_pdf_buffer(),
+                       file_name="VVA_Executive_Summary.pdf", mime="application/pdf")
+
+    # ---------- (4) Save run & compare ----------
+    st.subheader("Save this run")
+    default_name = f"Clinic {len(st.session_state.runs)+1}"
+    run_name = st.text_input("Name this clinic/run:", value=default_name)
+    if st.button("Save to portfolio"):
+        st.session_state.runs.append({
+            "name": run_name,
+            "period": period,
+            "focus": focus,
+            "RF": rf_score, "LF": lf_score, "VVI": vvi_score,
+            "scenario": actions["diagnosis"]
+        })
+        st.success(f"Saved: {run_name}")
+
+    if st.session_state.runs:
+        st.subheader("Portfolio (compare clinics)")
+        comp = pd.DataFrame(st.session_state.runs)
+        st.dataframe(comp, use_container_width=True, hide_index=True)
 
     st.divider()
     if st.button("Start a New Assessment"):
