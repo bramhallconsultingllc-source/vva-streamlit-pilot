@@ -151,7 +151,13 @@ def render_vvi_gauge(vvi_score: float):
     fig, ax = plt.subplots(figsize=(8.5, 3.8))
 
     outer_r, inner_r = 1.0, 0.65
-    bands = [(0, 90, "#d9534f"), (90, 95, "#f0ad4e"), (95, 100, "#ffd666"), (100, x_max, "#5cb85c")]
+    bands = [
+    (0, 90, "#d9534f"),     # Critical
+    (90, 95, "#f0ad4e"),    # At-Risk
+    (95, 100, "#a0d8ef"),   # Stable (new)
+    (100, x_max, "#5cb85c") # Excellent
+]
+
     start_deg = 180
     for start, end, color in bands:
         a0 = start_deg + score_to_angle(start)
