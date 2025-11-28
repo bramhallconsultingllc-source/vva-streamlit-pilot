@@ -422,7 +422,7 @@ if st.session_state.step >= 8:
         img_buf.seek(0)
 
         img = ImageReader(img_buf)
-        c.drawImage(img_buf, 40, 80, width=w-80, height=180, preserveAspectRatio=True, mask='auto')
+        c.drawImage(img, 40, 80, width=w-80, height=180, preserveAspectRatio=True, mask='auto')
 
         # Footer
         c.setFont("Helvetica-Oblique", 9); c.setFillColor(colors.grey)
