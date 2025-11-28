@@ -272,47 +272,97 @@ if st.session_state.step >= 8:
     st.success("Assessment complete. See results below.")
 
     # ----------------------------
-    # KPI bars (VVI score, RF, LF) with tier bands
     # ----------------------------
-    def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
-        labels = ["VVI (normalized 0–100)", "Revenue Factor", "Labor Factor"]
-        values = [vvi_score, rf_score, lf_score]
+# VVI gauge (hero) + RF/LF bars
+# ----------------------------
+def render_vvi_gauge(vvi_score: float):
+    """
+    Semicircular VVI gauge with tier bands and a needle.
+    Bands: Critical <90, At-Risk 90–94, Stable 95–99, Excellent ≥100
+    Scales to show up to max(120, vvi+15)
+    """
+    x_max = max(120, vvi_score + 15)
 
-        # dynamic x-axis so >100 doesn't clip
-        x_max = max(120, max(values) + 15)
+    def score_to_angle(s):  # 0 -> 0°, x_max -> 180°
+        s = max(0, min(s, x_max))
+        return (s / x_max) * 180.0
 
-        fig, ax = plt.subplots(figsize=(8.5, 2.8))
+    fig, ax = plt.subplots(figsize=(8.5, 3.8))
 
-        # Tier bands: Critical <90, At-Risk 90–94, Stable 95–99, Excellent ≥100
-        bands = [
-            (0,   90,  "#d9534f"),  # red
-            (90,  95,  "#f0ad4e"),  # orange
-            (95,  100, "#ffd666"),  # gold
-            (100, x_max, "#5cb85c") # green
-        ]
-        for start, end, color in bands:
-            ax.axvspan(start, end, color=color, alpha=0.15, lw=0)
+    outer_r, inner_r = 1.0, 0.65
+    bands = [
+        (0,   90,  "#d9534f"),  # Critical
+        (90,  95,  "#f0ad4e"),  # At-Risk
+        (95,  100, "#ffd666"),  # Stable
+        (100, x_max, "#5cb85c") # Excellent
+    ]
+    start_deg = 180
+    for start, end, color in bands:
+        a0 = start_deg + score_to_angle(start)
+        a1 = start_deg + score_to_angle(min(end, x_max))
+        ax.add_patch(Wedge((0, 0), outer_r, a0, a1, width=outer_r - inner_r, color=color, alpha=0.15))
 
-        # Bars
-        bars = ax.barh(labels, values, color="#2e2e2e", height=0.55)
+    # ticks: 0, 90, 95, 100, x_max
+    tick_scores = [0, 90, 95, 100, x_max]
+    for ts in tick_scores:
+        ang = np.deg2rad(180 + score_to_angle(ts))
+        x0, y0 = (inner_r - 0.02) * np.cos(ang), (inner_r - 0.02) * np.sin(ang)
+        x1, y1 = (inner_r + 0.02) * np.cos(ang), (inner_r + 0.02) * np.sin(ang)
+        ax.plot([x0, x1], [y0, y1], lw=1, color="#333333")
+        lx, ly = (inner_r - 0.12) * np.cos(ang), (inner_r - 0.12) * np.sin(ang)
+        ax.text(lx, ly, f"{int(ts) if ts != x_max else int(x_max)}", ha="center", va="center", fontsize=9)
 
-        # Value labels at the end of the bars
-        for bar, v in zip(bars, values):
-            ax.text(v + (x_max * 0.01), bar.get_y() + bar.get_height()/2,
-                    f"{v:.2f}", va="center", ha="left", fontsize=10)
+    # needle
+    needle_ang = np.deg2rad(180 + score_to_angle(vvi_score))
+    nx, ny = 0.95 * np.cos(needle_ang), 0.95 * np.sin(needle_ang)
+    ax.plot([0, nx], [0, ny], linewidth=2.5, color="#2e2e2e")
+    ax.add_patch(plt.Circle((0, 0), 0.03, color="#2e2e2e"))
 
-        ax.set_xlim(0, x_max)
-        ax.set_xlabel("Score", fontsize=10)
-        ax.set_ylabel("")
-        ax.grid(False, axis="y")
-        ax.spines["right"].set_visible(False)
-        ax.spines["top"].set_visible(False)
-        ax.spines["left"].set_visible(False)
+    # labels
+    ax.text(0, -0.28, "VVI Score", ha="center", va="center", fontsize=12, fontweight="600")
+    ax.text(0, -0.44, f"{vvi_score:.2f}", ha="center", va="center", fontsize=14)
 
-        st.subheader("Key Metrics & Scores (Shiny-style)")
-        st.pyplot(fig)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    st.subheader("VVI — Primary Score")
+    st.pyplot(fig)
 
-    render_kpi_bars(vvi_score, rf_score, lf_score)
+
+def render_rf_lf_bars(rf_score: float, lf_score: float):
+    labels = ["Revenue Factor", "Labor Factor"]
+    values = [rf_score, lf_score]
+    x_max = max(120, max(values) + 15)
+
+    fig, ax = plt.subplots(figsize=(8.5, 2.6))
+
+    # Tier bands
+    bands = [
+        (0,   90,  "#d9534f"),
+        (90,  95,  "#f0ad4e"),
+        (95,  100, "#ffd666"),
+        (100, x_max, "#5cb85c")
+    ]
+    for start, end, color in bands:
+        ax.axvspan(start, end, color=color, alpha=0.15, lw=0)
+
+    bars = ax.barh(labels, values, height=0.55, color="#2e2e2e")
+    for bar, v in zip(bars, values):
+        ax.text(v + (x_max * 0.01), bar.get_y() + bar.get_height()/2, f"{v:.2f}", va="center", ha="left", fontsize=10)
+
+    ax.set_xlim(0, x_max)
+    ax.set_xlabel("Score", fontsize=10)
+    ax.set_ylabel("")
+    ax.grid(False, axis="y")
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    ax.spines["left"].set_visible(False)
+
+    st.subheader("Sub-scores")
+    st.pyplot(fig)
+
+# draw charts
+render_vvi_gauge(vvi_score)
+render_rf_lf_bars(rf_score, lf_score)
 
     # ----------------------------
     # Calculation Table (incl. SWB%)
