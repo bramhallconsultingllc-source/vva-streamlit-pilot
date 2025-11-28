@@ -179,8 +179,8 @@ def render_vvi_gauge(vvi_score: float):
     ax.plot([0, nx], [0, ny], linewidth=2.5, color="#2e2e2e")
     ax.add_patch(plt.Circle((0, 0), 0.03, color="#2e2e2e"))
 
-    ax.text(0, -0.28, "VVI Score", ha="center", va="center", fontsize=12, fontweight="600")
-    ax.text(0, -0.44, f"{vvi_score:.2f}", ha="center", va="center", fontsize=14)
+    ax.text(0, -0.22, "VVI Score", ha="center", va="center", fontsize=12, fontweight="600")
+    ax.text(0, -0.34, f"{vvi_score:.2f}", ha="center", va="center", fontsize=14)
 
     ax.set_aspect("equal")
     ax.axis("off")
