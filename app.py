@@ -148,7 +148,7 @@ def render_vvi_gauge(vvi_score: float):
         s = max(0, min(s, x_max))
         return (s / x_max) * 180.0
 
-    fig, ax = plt.subplots(figsize=(6.5, 2.8))
+    fig, ax = plt.subplots(figsize=(5.5, 1.8))
 
     outer_r, inner_r = 1.0, 0.65
     bands = [
@@ -193,7 +193,7 @@ def render_rf_lf_bars(rf_score: float, lf_score: float):
     values = [rf_score, lf_score]
     x_max = max(120, max(values) + 15)
 
-    fig, ax = plt.subplots(figsize=(6.5, 2.0))
+    fig, ax = plt.subplots(figsize=(5.5, 1.0))
     for start, end, color in [(0, 90, "#d9534f"), (90, 95, "#ff914d"), (95, 100, "#ffde59"), (100, x_max, "#5cb85c")]:
         ax.axvspan(start, end, color=color, alpha=0.15, lw=0)
 
