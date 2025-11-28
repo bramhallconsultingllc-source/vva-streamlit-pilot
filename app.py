@@ -12,7 +12,13 @@ import matplotlib.pyplot as plt
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
-from reportlab.lib.utils import ImageReader 
+from reportlab.lib.utils import ImageReader
+
+# --- AI (optional) ---
+try:
+    from openai import OpenAI
+except Exception:
+    OpenAI = None  # app still runs if OpenAI SDK isn't installed
 
 # ----------------------------
 # Page config & branding
@@ -149,6 +155,82 @@ def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
     }
 
 # ----------------------------
+# Optional AI Insights helper
+# ----------------------------
+def ai_generate_insights(
+    rf_score: float,
+    lf_score: float,
+    vvi_score: float,
+    rpv: float,
+    lpv: float,
+    swb_pct: float,
+    scenario_text: str,
+    focus: str,
+    period: str,
+) -> tuple[bool, str]:
+    """
+    Returns (ok, markdown_text). ok=False with a friendly reason if AI is not configured.
+    AI only explains; it must NOT change or restate the numbers incorrectly.
+    """
+    if OpenAI is None:
+        return False, "OpenAI SDK not installed. Add `openai` to requirements.txt to enable AI Insights."
+
+    api_key = None
+    try:
+        api_key = st.secrets["OPENAI_API_KEY"]
+    except Exception:
+        return False, "Missing `OPENAI_API_KEY` in Streamlit Secrets. Add it to enable AI Insights."
+
+    try:
+        client = OpenAI(api_key=api_key)
+
+        system_prompt = (
+            "You are the Visit Value Agent (VVA). "
+            "Use the provided scores as immutable ground truth. "
+            "Do NOT invent numbers or contradict them. "
+            "Be concise, actionable, and on-brand for Bramhall Consulting. "
+            "Organize output as: Summary (2–3 bullets) • Why • What to do next (Top 3)."
+        )
+
+        user_payload = {
+            "rf_score": rf_score,
+            "lf_score": lf_score,
+            "vvi_score": vvi_score,
+            "rpv": rpv,
+            "lpv": lpv,
+            "swb_pct": swb_pct,
+            "scenario": scenario_text,
+            "focus": focus,
+            "period": period,
+        }
+
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            temperature=0.2,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {
+                    "role": "user",
+                    "content": (
+                        "Use this JSON strictly as inputs (do not change numbers):\n"
+                        f"{user_payload}\n\n"
+                        "Write markdown with:\n"
+                        "### Summary\n"
+                        "• 2–3 tight bullets\n\n"
+                        "### Why this is happening\n"
+                        "Short explanation grounded in RF/LF/VVI and scenario.\n\n"
+                        "### What to do next (Top 3)\n"
+                        "Numbered list; crisp, manager-actionable."
+                    ),
+                },
+            ],
+        )
+        text = resp.choices[0].message.content.strip()
+        return True, text
+    except Exception as e:
+        return False, f"AI call failed: {e}"
+
+# ----------------------------
 # Session state
 # ----------------------------
 if "step" not in st.session_state:
@@ -171,7 +253,7 @@ with st.expander("Instructions (summary)", expanded=False):
         "Answer one question at a time. When finished you’ll get: "
         "1) a Calculation Table (incl. SWB%), 2) a VVI/RF/LF scoring table, "
         "3) a scenario classification with prescriptive actions, "
-        "4) a KPI bar chart, and 5) a print-ready Executive Summary/PDF."
+        "4) a Shiny-style KPI bar chart, and 5) a print-ready Executive Summary/PDF."
     )
 
 # ----------------------------
@@ -257,7 +339,7 @@ if st.session_state.step >= 8:
     vvi_t = tier(vvi_score)
 
     rpv_gap = max(0.0, rt - rpv)
-    scenario = scenario_name(rf_t, lf_t)
+    scenario_text = scenario_name(rf_t, lf_t)
 
     st.success("Assessment complete. See results below.")
 
@@ -306,7 +388,7 @@ if st.session_state.step >= 8:
             ax.text(v + (x_max * 0.01), bar.get_y() + bar.get_height()/2, f"{v:.2f}", va="center", ha="left", fontsize=10)
         ax.set_xlim(0, x_max); ax.set_xlabel("Score"); ax.set_ylabel(""); ax.grid(False, axis="y")
         ax.spines["right"].set_visible(False); ax.spines["top"].set_visible(False); ax.spines["left"].set_visible(False)
-        st.subheader("Key Metrics & Scores")
+        st.subheader("Key Metrics & Scores (Shiny-style)")
         st.pyplot(fig)
         return fig
 
@@ -324,7 +406,7 @@ if st.session_state.step >= 8:
             f"{int(visits):,}", format_money(net_rev), format_money(labor), format_money(rpv),
             format_money(lpv), format_money(rt), format_money(lt),
             f"{swb_pct*100:.1f}%", f"{rf_score} ({rf_t})", f"{lf_score} ({lf_t})",
-            f"{vvi_raw:.3f}", f"{vvi_score} ({vvi_t})", scenario
+            f"{vvi_raw:.3f}", f"{vvi_score} ({vvi_t})", scenario_text
         ],
     })
     st.subheader("Calculation Table")
@@ -361,21 +443,32 @@ if st.session_state.step >= 8:
     with st.expander("Daily Reminder Patch", expanded=False):
         st.write(actions["daily_patch"])
 
-    # ---------- AI Insights Panel ----------
-    with st.expander("AI Insights Summary", expanded=True):
-        bullets = []
-        if rf_score < 95:
-            if rpv_gap > 0:
-                bullets.append(f"Revenue density suppressed by ~{format_money(rpv_gap)} per visit; focus on coding mix & acuity.")
+    # ---------- AI Insights (optional) ----------
+    with st.sidebar:
+        use_ai = st.toggle("Enable AI Insights (optional)", value=False,
+                           help="Uses your OpenAI key in Streamlit Secrets")
+
+    st.subheader("AI Insights (optional)")
+    if not use_ai:
+        st.info("AI is off. Turn it on in the left sidebar to generate narrative insights. "
+                "Your scores & actions above are still fully available.")
+    else:
+        if st.button("Generate AI Insights with AI"):
+            ok, md = ai_generate_insights(
+                rf_score=rf_score,
+                lf_score=lf_score,
+                vvi_score=vvi_score,
+                rpv=rpv,
+                lpv=lpv,
+                swb_pct=swb_pct,
+                scenario_text=scenario_text,
+                focus=focus,
+                period=period,
+            )
+            if ok:
+                st.markdown(md)
             else:
-                bullets.append("Revenue below target but gap isn’t explained by per-visit density — check payer yield/denials.")
-        if lf_score < 95:
-            bullets.append("Labor efficiency suggests throughput constraints or schedule misalignment.")
-        if vvi_score < 95 and rf_score >= 95 and lf_score >= 95:
-            bullets.append("Overall value suppressed by reliability variance; protect flow and chart closure.")
-        if not bullets:
-            bullets.append("Performance balanced; sustain best practices and standardize across sites.")
-        for b in bullets: st.write(f"• {b}")
+                st.warning(md)
 
     # ---------- Print-ready PDF export ----------
     def make_pdf_buffer():
@@ -420,8 +513,7 @@ if st.session_state.step >= 8:
         img_buf = io.BytesIO()
         kpi_fig.savefig(img_buf, format="png", dpi=150, bbox_inches="tight")
         img_buf.seek(0)
-
-        img = ImageReader(img_buf)
+        img = ImageReader(img_buf)  # ImageReader handles file-like objects
         c.drawImage(img, 40, 80, width=w-80, height=180, preserveAspectRatio=True, mask='auto')
 
         # Footer
@@ -455,4 +547,3 @@ if st.session_state.step >= 8:
     st.divider()
     if st.button("Start a New Assessment"):
         reset()
-
