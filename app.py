@@ -807,7 +807,7 @@ if st.session_state.step >= 7:
     scenario_text = actions["diagnosis"]
 
     st.success("Assessment complete. See results below.")
-      kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
+    kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
     
     # ---------- Calculation table ----------
     calc_df = pd.DataFrame(
