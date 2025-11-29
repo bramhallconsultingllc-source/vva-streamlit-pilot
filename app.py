@@ -10,6 +10,7 @@ from datetime import datetime
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib import colors
@@ -336,6 +337,107 @@ def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
     ).hide(axis="index", level=None)
     return df, styler
 
+def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
+    rf_cols = TIER_ORDER
+    lf_rows = TIER_ORDER
+    data = []
+    for lf in lf_rows:
+        row = []
+        for rf in rf_cols:
+            row.append(SCENARIO_MAP[(lf, rf)])
+        data.append(row)
+    df = pd.DataFrame(
+        data,
+        index=[f"LF: {r}" for r in lf_rows],
+        columns=[f"RF: {c}" for c in rf_cols],
+    )
+
+    def highlight_active(val, row_idx, col_idx):
+        lf_here = lf_rows[row_idx]
+        rf_here = rf_cols[col_idx]
+        if (lf_here == active_lf_tier) and (rf_here == active_rf_tier):
+            return "background-color: #fdd835; color: #000; font-weight: 700;"
+        return ""
+
+    styler = df.style.format(precision=0)
+    for r in range(len(lf_rows)):
+        for c in range(len(rf_cols)):
+            styler = styler.set_properties(
+                subset=(df.index[r], df.columns[c]),
+                **{"text-align": "center", "font-weight": "500"},
+            )
+            styler = styler.apply(
+                lambda s, r=r, c=c: [highlight_active(v, r, c) for v in s],
+                axis=1,
+                subset=(df.index[r], df.columns[c]),
+            )
+    styler = styler.set_table_styles(
+        [{"selector": "th", "props": [("text-align", "center")]}]
+    ).hide(axis="index", level=None)
+    return df, styler
+
+def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
+    """Render donut-style gauges for VVI, RF, and LF and return the Matplotlib figure."""
+    scores = [vvi_score, rf_score, lf_score]
+    labels = ["VVI", "RF", "LF"]
+
+    # Common reference so donuts are comparable; allows scores a bit over 100
+    ref = max(120, max(scores) + 10)
+
+    fig, axes = plt.subplots(1, 3, figsize=(9, 3), subplot_kw={"aspect": "equal"})
+    if not isinstance(axes, (list, tuple, np.ndarray)):
+        axes = [axes]
+
+    for ax, score, label in zip(axes, scores, labels):
+        # Clamp for drawing, but keep the true score in the label
+        draw_val = max(0, min(score, ref))
+        remaining = max(ref - draw_val, 0.01)
+
+        # Donut: score vs remaining
+        wedges, _ = ax.pie(
+            [draw_val, remaining],
+            startangle=90,
+            counterclock=False,
+            wedgeprops=dict(width=0.3, edgecolor="white"),
+        )
+
+        # Emphasize the "filled" wedge slightly
+        wedges[0].set_edgecolor("black")
+
+        # Center text: score
+        ax.text(
+            0,
+            0.05,
+            f"{score:.1f}",
+            ha="center",
+            va="center",
+            fontsize=11,
+            fontweight="bold",
+        )
+
+        # Label below center
+        ax.text(
+            0,
+            -0.35,
+            label,
+            ha="center",
+            va="center",
+            fontsize=9,
+        )
+
+        ax.set_title("", fontsize=10)
+
+    fig.suptitle("Key Metrics & Scores", fontsize=14, fontweight="bold", y=1.02)
+    plt.tight_layout()
+    st.pyplot(fig)
+    return fig
+
+
+def format_money(x: float) -> str:
+    try:
+        return f"${float(x):,.2f}"
+    except Exception:
+        return "$0.00"
 
 def format_money(x: float) -> str:
     try:
@@ -668,63 +770,6 @@ if st.session_state.step >= 7:
     scenario_text = actions["diagnosis"]
 
     st.success("Assessment complete. See results below.")
-
-          # ---------- KPI gauges (donut style) ----------
-    def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
-        scores = [vvi_score, rf_score, lf_score]
-        labels = ["VVI", "RF", "LF"]
-        titles = ["Visit Value Index (VVI)", "Revenue Factor (RF)", "Labor Factor (LF)"]
-
-        # Common reference so donuts are comparable; allows scores a bit over 100
-        ref = max(120, max(scores) + 10)
-
-        fig, axes = plt.subplots(1, 3, figsize=(9, 3), subplot_kw={"aspect": "equal"})
-        if not isinstance(axes, (list, tuple, np.ndarray)):
-            axes = [axes]
-
-        for ax, score, label, title in zip(axes, scores, labels, titles):
-            # Clamp for drawing, but keep the true score in the label
-            draw_val = max(0, min(score, ref))
-            remaining = max(ref - draw_val, 0.01)
-
-            # Donut: score vs remaining
-            wedges, _ = ax.pie(
-                [draw_val, remaining],
-                startangle=90,
-                counterclock=False,
-                wedgeprops=dict(width=0.3, edgecolor="white"),
-            )
-
-            # Emphasize the "filled" wedge slightly
-            wedges[0].set_edgecolor("black")
-
-            # Center text: score
-            ax.text(
-                0,
-                0.05,
-                f"{score:.1f}",
-                ha="center",
-                va="center",
-                fontsize=11,
-                fontweight="bold",
-            )
-
-            # Label below center
-            ax.text(
-                0,
-                -0.35,
-                label,
-                ha="center",
-                va="center",
-                fontsize=9,
-            )
-
-            ax.set_title("", fontsize=10)
-
-        fig.suptitle("Key Metrics & Scores", fontsize=14, fontweight="bold", y=1.02)
-        plt.tight_layout()
-        st.pyplot(fig)
-        return fig
 
     # ---------- Calculation table ----------
     calc_df = pd.DataFrame(
