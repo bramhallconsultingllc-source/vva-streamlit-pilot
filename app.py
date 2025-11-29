@@ -521,19 +521,6 @@ def reset():
     st.session_state.step = 1
     st.session_state.answers = {}
 
-
-# ----------------------------
-# Instructions (summary)
-# ----------------------------
-
-with st.expander("Instructions (summary)", expanded=False):
-    st.write(
-        "Answer one question at a time. When finished you’ll get: "
-        "1) a Calculation Table (incl. SWB%), 2) a VVI/RF/LF scoring table, "
-        "3) a scenario classification with prescriptive actions, "
-        "4) a KPI bar chart, and 5) a print-ready Executive Summary/PDF."
-    )
-
 # ----------------------------
 # Input Flow
 # ----------------------------
