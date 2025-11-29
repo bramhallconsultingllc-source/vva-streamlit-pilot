@@ -1,3 +1,5 @@
+import os
+
 # app.py — Visit Value Agent 4.0 (Pilot)
 # Bramhall Consulting, LLC — predict. perform. prosper.
 
@@ -29,41 +31,15 @@ st.set_page_config(
     layout="centered"
 )
 
-LOGO_PATH = "Logo BC.png"  # ensure this file exists in your repo root
+LOGO_PATH = "Logo BC.png"  # update if your filename is different
 
-intro_css = """
-<style>
-.intro-container {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-.intro-logo {
-    max-width: 220px;
-}
-.intro-text {
-    opacity: 0;
-    animation: fadeIn 3.5s forwards;
-    animation-delay: 0.7s;
-}
-@keyframes fadeIn {
-    0%   { opacity: 0; }
-    40%  { opacity: 0; }
-    100% { opacity: 1; }
-}
-.intro-bullets {
-    list-style-type: disc;
-    text-align: left;
-    display: inline-block;
-    margin-top: 0.5rem;
-}
-</style>
-"""
 st.markdown(intro_css, unsafe_allow_html=True)
-
 st.markdown("<div class='intro-container'>", unsafe_allow_html=True)
 
-if LOGO_PATH:
+if os.path.exists(LOGO_PATH):
     st.image(LOGO_PATH, use_column_width=False, output_format="PNG")
+else:
+    st.caption(f"(Logo file '{LOGO_PATH}' not found — update LOGO_PATH or add the image to the app root.)")
 
 intro_html = """
 <div class='intro-text'>
