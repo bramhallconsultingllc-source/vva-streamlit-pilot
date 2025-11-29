@@ -682,97 +682,7 @@ if st.session_state.step >= 7:
 
     st.success("Assessment complete. See results below.")
 
-    # ---------- Impact Simulator ----------
-    with st.expander("Optional: Simulate impact of improvement", expanded=False):
-        st.caption(
-            "Adjust Net Revenue per Visit (NRPV) and Labor Cost per Visit (LCV) "
-            "by dollars or percent to see how VVI, RF, and LF could move if "
-            "your prescriptive actions are successful. This does not change your "
-            "core scores above; it is a what-if view."
-        )
-
-        mode = st.radio(
-            "Adjust by:",
-            ["Percent change", "Dollar change"],
-            horizontal=True,
-        )
-
-        c1, c2 = st.columns(2)
-        if mode == "Percent change":
-            nrpv_delta_pct = c1.number_input(
-                "NRPV change (%)", value=5.0, step=1.0, format="%.1f"
-            )
-            lcv_delta_pct = c2.number_input(
-                "LCV change (%)", value=-5.0, step=1.0, format="%.1f"
-            )
-
-            sim_rpv = rpv * (1 + nrpv_delta_pct / 100.0)
-            sim_lcv = lcv * (1 + lcv_delta_pct / 100.0)
-        else:
-            nrpv_delta_amt = c1.number_input(
-                "NRPV change ($)", value=5.0, step=1.0, format="%.2f"
-            )
-            lcv_delta_amt = c2.number_input(
-                "LCV change ($)", value=-5.0, step=1.0, format="%.2f"
-            )
-
-            sim_rpv = rpv + nrpv_delta_amt
-            sim_lcv = lcv + lcv_delta_amt
-
-        sim_rpv = max(sim_rpv, 0.01)
-        sim_lcv = max(sim_lcv, 0.01)
-
-        sim_rf_raw = sim_rpv / rt
-        sim_lf_raw = lt / sim_lcv
-        sim_vvi_raw = sim_rpv / sim_lcv
-        sim_vvi_target = (rt / lt) if (rt and lt) else 1.67
-        sim_rf_score = sim_rf_raw * 100
-        sim_lf_score = sim_lf_raw * 100
-        sim_vvi_score = (sim_vvi_raw / sim_vvi_target) * 100
-
-        sim_df = pd.DataFrame(
-            {
-                "Index": ["Current", "Simulated"],
-                "NRPV": [format_money(rpv), format_money(sim_rpv)],
-                "LCV": [format_money(lcv), format_money(sim_lcv)],
-                "VVI Score": [f"{vvi_score:.1f}", f"{sim_vvi_score:.1f}"],
-                "RF Score": [f"{rf_score:.1f}", f"{sim_rf_score:.1f}"],
-                "LF Score": [f"{lf_score:.1f}", f"{sim_lf_score:.1f}"],
-            }
-        )
-
-        st.write("**Simulated impact (does not overwrite actual results):**")
-        st.dataframe(sim_df, use_container_width=True, hide_index=True)
-
-        fig_sim, ax_sim = plt.subplots(figsize=(6, 2.5))
-        labels = ["VVI", "RF", "LF"]
-        current_vals = [vvi_score, rf_score, lf_score]
-        sim_vals = [sim_vvi_score, sim_rf_score, sim_lf_score]
-        x = range(len(labels))
-        bar_width = 0.35
-
-        ax_sim.barh(
-            [i + bar_width for i in x],
-            current_vals,
-            height=bar_width,
-            label="Current",
-        )
-        ax_sim.barh(
-            x,
-            sim_vals,
-            height=bar_width,
-            label="Simulated",
-        )
-
-        ax_sim.set_yticks([i + bar_width / 2 for i in x])
-        ax_sim.set_yticklabels(labels)
-        ax_sim.set_xlabel("Score (0–100+)")
-        ax_sim.legend()
-        ax_sim.spines["right"].set_visible(False)
-        ax_sim.spines["top"].set_visible(False)
-        st.pyplot(fig_sim)
-
-    # ---------- KPI bars ----------
+      # ---------- KPI bars ----------
     def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
         labels = ["VVI (normalized 0–100)", "Revenue Factor (RF)", "Labor Factor (LF)"]
         values = [vvi_score, rf_score, lf_score]
@@ -942,6 +852,96 @@ if st.session_state.step >= 7:
 
     with st.expander("Daily Reminder Patch", expanded=False):
         st.write(actions["daily_patch"])
+        
+    # ---------- Impact Simulator (optional what-if) ----------
+    with st.expander("Optional: Simulate impact of improvement", expanded=False):
+        st.caption(
+            "Adjust Net Revenue per Visit (NRPV) and Labor Cost per Visit (LCV) "
+            "by dollars or percent to see how VVI, RF, and LF could move if "
+            "your prescriptive actions are successful. This does not change your "
+            "core scores above; it is a what-if view."
+        )
+
+        mode = st.radio(
+            "Adjust by:",
+            ["Percent change", "Dollar change"],
+            horizontal=True,
+        )
+
+        c1, c2 = st.columns(2)
+        if mode == "Percent change":
+            nrpv_delta_pct = c1.number_input(
+                "NRPV change (%)", value=5.0, step=1.0, format="%.1f"
+            )
+            lcv_delta_pct = c2.number_input(
+                "LCV change (%)", value=-5.0, step=1.0, format="%.1f"
+            )
+
+            sim_rpv = rpv * (1 + nrpv_delta_pct / 100.0)
+            sim_lcv = lcv * (1 + lcv_delta_pct / 100.0)
+        else:
+            nrpv_delta_amt = c1.number_input(
+                "NRPV change ($)", value=5.0, step=1.0, format="%.2f"
+            )
+            lcv_delta_amt = c2.number_input(
+                "LCV change ($)", value=-5.0, step=1.0, format="%.2f"
+            )
+
+            sim_rpv = rpv + nrpv_delta_amt
+            sim_lcv = lcv + lcv_delta_amt
+
+        sim_rpv = max(sim_rpv, 0.01)
+        sim_lcv = max(sim_lcv, 0.01)
+
+        sim_rf_raw = sim_rpv / rt
+        sim_lf_raw = lt / sim_lcv
+        sim_vvi_raw = sim_rpv / sim_lcv
+        sim_vvi_target = (rt / lt) if (rt and lt) else 1.67
+        sim_rf_score = sim_rf_raw * 100
+        sim_lf_score = sim_lf_raw * 100
+        sim_vvi_score = (sim_vvi_raw / sim_vvi_target) * 100
+
+        sim_df = pd.DataFrame(
+            {
+                "Index": ["Current", "Simulated"],
+                "NRPV": [format_money(rpv), format_money(sim_rpv)],
+                "LCV": [format_money(lcv), format_money(sim_lcv)],
+                "VVI Score": [f"{vvi_score:.1f}", f"{sim_vvi_score:.1f}"],
+                "RF Score": [f"{rf_score:.1f}", f"{sim_rf_score:.1f}"],
+                "LF Score": [f"{lf_score:.1f}", f"{sim_lf_score:.1f}"],
+            }
+        )
+
+        st.write("**Simulated impact (does not overwrite actual results):**")
+        st.dataframe(sim_df, use_container_width=True, hide_index=True)
+
+        fig_sim, ax_sim = plt.subplots(figsize=(6, 2.5))
+        labels = ["VVI", "RF", "LF"]
+        current_vals = [vvi_score, rf_score, lf_score]
+        sim_vals = [sim_vvi_score, sim_rf_score, sim_lf_score]
+        x = range(len(labels))
+        bar_width = 0.35
+
+        ax_sim.barh(
+            [i + bar_width for i in x],
+            current_vals,
+            height=bar_width,
+            label="Current",
+        )
+        ax_sim.barh(
+            x,
+            sim_vals,
+            height=bar_width,
+            label="Simulated",
+        )
+
+        ax_sim.set_yticks([i + bar_width / 2 for i in x])
+        ax_sim.set_yticklabels(labels)
+        ax_sim.set_xlabel("Score (0–100+)")
+        ax_sim.legend()
+        ax_sim.spines["right"].set_visible(False)
+        ax_sim.spines["top"].set_visible(False)
+        st.pyplot(fig_sim)
 
     # ---------- AI Insights (optional) ----------
     with st.sidebar:
