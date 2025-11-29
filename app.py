@@ -669,43 +669,62 @@ if st.session_state.step >= 7:
 
     st.success("Assessment complete. See results below.")
 
-      # ---------- KPI bars ----------
+          # ---------- KPI gauges (donut style) ----------
     def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
-        labels = ["VVI (normalized 0–100)", "Revenue Factor (RF)", "Labor Factor (LF)"]
-        values = [vvi_score, rf_score, lf_score]
-        x_max = max(120, max(values) + 15)
+        scores = [vvi_score, rf_score, lf_score]
+        labels = ["VVI", "RF", "LF"]
+        titles = ["Visit Value Index (VVI)", "Revenue Factor (RF)", "Labor Factor (LF)"]
 
-        fig, ax = plt.subplots(figsize=(8.5, 2.8))
-        bands = [
-            (0, 90, "#d9534f"),
-            (90, 95, "#f0ad4e"),
-            (95, 100, "#ffd666"),
-            (100, x_max, "#5cb85c"),
-        ]
-        for s, e, c in bands:
-            ax.axvspan(s, e, color=c, alpha=0.15, lw=0)
-        bars = ax.barh(labels, values, color="#2e2e2e", height=0.55)
-        for bar, v in zip(bars, values):
-            ax.text(
-                v + (x_max * 0.01),
-                bar.get_y() + bar.get_height() / 2,
-                f"{v:.2f}",
-                va="center",
-                ha="left",
-                fontsize=10,
+        # Common reference so donuts are comparable; allows scores a bit over 100
+        ref = max(120, max(scores) + 10)
+
+        fig, axes = plt.subplots(1, 3, figsize=(9, 3), subplot_kw={"aspect": "equal"})
+        if not isinstance(axes, (list, tuple, np.ndarray)):
+            axes = [axes]
+
+        for ax, score, label, title in zip(axes, scores, labels, titles):
+            # Clamp for drawing, but keep the true score in the label
+            draw_val = max(0, min(score, ref))
+            remaining = max(ref - draw_val, 0.01)
+
+            # Donut: score vs remaining
+            wedges, _ = ax.pie(
+                [draw_val, remaining],
+                startangle=90,
+                counterclock=False,
+                wedgeprops=dict(width=0.3, edgecolor="white"),
             )
-        ax.set_xlim(0, x_max)
-        ax.set_xlabel("Score")
-        ax.set_ylabel("")
-        ax.grid(False, axis="y")
-        ax.spines["right"].set_visible(False)
-        ax.spines["top"].set_visible(False)
-        ax.spines["left"].set_visible(False)
-        st.subheader("Key Metrics & Scores")
+
+            # Emphasize the "filled" wedge slightly
+            wedges[0].set_edgecolor("black")
+
+            # Center text: score
+            ax.text(
+                0,
+                0.05,
+                f"{score:.1f}",
+                ha="center",
+                va="center",
+                fontsize=11,
+                fontweight="bold",
+            )
+
+            # Label below center
+            ax.text(
+                0,
+                -0.35,
+                label,
+                ha="center",
+                va="center",
+                fontsize=9,
+            )
+
+            ax.set_title("", fontsize=10)
+
+        fig.suptitle("Key Metrics & Scores", fontsize=14, fontweight="bold", y=1.02)
+        plt.tight_layout()
         st.pyplot(fig)
         return fig
-
-    kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
 
     # ---------- Calculation table ----------
     calc_df = pd.DataFrame(
