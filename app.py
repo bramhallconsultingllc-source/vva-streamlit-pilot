@@ -47,7 +47,7 @@ intro_css = """
 }
 
 /* Mobile responsiveness */
-@media (max-width: 600px) {
+@media (max-width: 400px) {
     .intro-logo {
         max-width: 150px;   /* smaller on phones */
         width: 55%;         /* scales proportionally */
