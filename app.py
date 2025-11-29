@@ -377,61 +377,83 @@ def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
     return df, styler
 
 def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
-    """Render donut-style gauges for VVI, RF, and LF and return the Matplotlib figure."""
-    scores = [vvi_score, rf_score, lf_score]
-    labels = ["VVI", "RF", "LF"]
+    labels = ["Visit Value Index (VVI)", "Revenue Factor (RF)", "Labor Factor (LF)"]
+    values = [vvi_score, rf_score, lf_score]
 
-    # Common reference so donuts are comparable; allows scores a bit over 100
-    ref = max(120, max(scores) + 10)
+    # Determine max scale with some buffer
+    x_max = max(120, max(values) + 10)
 
-    fig, axes = plt.subplots(1, 3, figsize=(9, 3), subplot_kw={"aspect": "equal"})
-    if not isinstance(axes, (list, tuple, np.ndarray)):
-        axes = [axes]
+    fig, ax = plt.subplots(figsize=(8.2, 2.8))
 
-    for ax, score, label in zip(axes, scores, labels):
-        # Clamp for drawing, but keep the true score in the label
-        draw_val = max(0, min(score, ref))
-        remaining = max(ref - draw_val, 0.01)
+    # ---- Tier background bands (horizontal shading) ----
+    bands = [
+        (0, 90, "#f8d0d0"),   # Critical (red)
+        (90, 95, "#ffe2c2"),  # At Risk (orange)
+        (95, 100, "#fff4c2"), # Stable (yellow)
+        (100, x_max, "#d9f2d9"),  # Excellent (green)
+    ]
+    for start, end, color in bands:
+        ax.axvspan(start, end, color=color, alpha=0.45)
 
-        # Donut: score vs remaining
-        wedges, _ = ax.pie(
-            [draw_val, remaining],
-            startangle=90,
-            counterclock=False,
-            wedgeprops=dict(width=0.3, edgecolor="white"),
+    # ---- Bar styling ----
+    gold = "#b08c3e"
+    charcoal = "#2e2e2e"
+
+    bar_colors = [gold, charcoal, charcoal]  # VVI stands out
+    bar_heights = [0.55, 0.40, 0.40]         # VVI slightly thicker
+    y_positions = [2, 1, 0]
+
+    # ---- Draw bars ----
+    for y, val, color, height in zip(y_positions, values, bar_colors, bar_heights):
+        ax.barh(
+            y,
+            val,
+            height=height,
+            color=color,
+            edgecolor="none",
         )
 
-        # Emphasize the "filled" wedge slightly
-        wedges[0].set_edgecolor("black")
-
-        # Center text: score
+        # Value text
         ax.text(
-            0,
-            0.05,
-            f"{score:.1f}",
-            ha="center",
+            val + (x_max * 0.008),
+            y,
+            f"{val:.1f}",
             va="center",
-            fontsize=11,
+            ha="left",
+            fontsize=10,
             fontweight="bold",
         )
 
-        # Label below center
+    # ---- Left labels ----
+    for y, label in zip(y_positions, labels):
         ax.text(
-            0,
-            -0.35,
+            -x_max * 0.015,
+            y,
             label,
-            ha="center",
+            ha="right",
             va="center",
-            fontsize=9,
+            fontsize=10,
+            color="#222",
         )
 
-        ax.set_title("", fontsize=10)
+    # ---- Benchmark line at 100 ----
+    ax.axvline(100, linestyle="--", linewidth=1.1, color=gold)
+
+    # ---- Cleanup ----
+    ax.set_xlim(0, x_max)
+    ax.set_ylim(-0.7, 2.7)
+    ax.set_yticks([])
+    ax.set_xticks([])
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(False)
+    ax.spines["bottom"].set_visible(False)
 
     fig.suptitle("Key Metrics & Scores", fontsize=14, fontweight="bold", y=1.02)
     plt.tight_layout()
+
     st.pyplot(fig)
     return fig
-
 
 def format_money(x: float) -> str:
     try:
