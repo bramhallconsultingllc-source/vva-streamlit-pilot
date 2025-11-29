@@ -42,7 +42,17 @@ intro_css = """
 /* Logo */
 .intro-logo {
     max-width: 220px;
-    margin-bottom: 0.3rem;
+    width: 40%;
+    height: auto;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+    .intro-logo {
+        max-width: 150px;   /* smaller on phones */
+        width: 55%;         /* scales proportionally */
+        margin-top: 0.5rem;
+    }
 }
 
 /* Thin gold line that "draws" across */
