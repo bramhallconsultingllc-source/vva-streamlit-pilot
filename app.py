@@ -38,19 +38,46 @@ intro_css = """
     text-align: center;
     margin-bottom: 1.5rem;
 }
+
+/* Logo */
 .intro-logo {
     max-width: 220px;
+    margin-bottom: 0.3rem;
 }
+
+/* Thin gold line that "draws" across */
+.intro-line-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 0.3rem 0 0.8rem;
+}
+
+.intro-line {
+    width: 0;
+    height: 2px;
+    background: #b08c3e;  /* gold-ish, matches brand */
+    animation: lineGrow 1.6s ease-out forwards;
+}
+
+/* Text fade-in after the line draws */
 .intro-text {
     opacity: 0;
-    animation: fadeIn 3.5s forwards;
-    animation-delay: 0.7s;
+    transform: translateY(6px);
+    animation: fadeInUp 1.4s ease-out forwards;
+    animation-delay: 1.0s;  /* wait for line to mostly complete */
 }
-@keyframes fadeIn {
-    0%   { opacity: 0; }
-    40%  { opacity: 0; }
-    100% { opacity: 1; }
+
+/* Animations */
+@keyframes lineGrow {
+    0%   { width: 0; }
+    100% { width: 180px; }
 }
+
+@keyframes fadeInUp {
+    0%   { opacity: 0; transform: translateY(6px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
 .intro-bullets {
     list-style-type: disc;
     text-align: left;
@@ -72,19 +99,16 @@ else:
 
 intro_html = """
 <div class='intro-text'>
+    <div class='intro-line-wrapper'>
+        <div class='intro-line'></div>
+    </div>
     <h2>Welcome to the Visit Value Index&trade; (VVI)</h2>
-    <p>Where 5 simple inputs create:</p>
-    <ul class='intro-bullets'>
-        <li>A single standardized efficiency score</li>
-        <li>Clear revenue and labor sub-factors</li>
-        <li>A diagnosis and 16-scenario prescriptive matrix</li>
-        <li>A 12-week turnaround strategy</li>
-    </ul>
-    <p style="margin-top:1rem;font-style:italic;color:#555;">
+    <p style="margin-top:0.4rem;font-style:italic;color:#555;">
         Bramhall Consulting, LLC &mdash; predict. perform. prosper.
     </p>
 </div>
 """
+
 st.markdown(intro_html, unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
