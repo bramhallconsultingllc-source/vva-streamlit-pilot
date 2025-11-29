@@ -98,10 +98,11 @@ else:
     st.caption(f"(Logo file '{LOGO_PATH}' not found — update LOGO_PATH or add the image to the app root.)")
 
 intro_html = """
+<div class='intro-line-wrapper'>
+    <div class='intro-line'></div>
+</div>
+
 <div class='intro-text'>
-    <div class='intro-line-wrapper'>
-        <div class='intro-line'></div>
-    </div>
     <h2>Welcome to the Visit Value Index&trade; (VVI)</h2>
     <p style="margin-top:0.4rem;font-style:italic;color:#555;">
         Bramhall Consulting, LLC &mdash; predict. perform. prosper.
