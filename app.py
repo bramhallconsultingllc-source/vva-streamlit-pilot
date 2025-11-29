@@ -356,27 +356,48 @@ def pos_should_be_top3(
 
 def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
     """
-    Returns dict with diagnosis, top3, extended, huddle_script, daily_patch,
-    using the official 16-scenario RF/LF matrix plus POS logic.
+    Returns a dict with:
+      - diagnosis
+      - top3 (combined)
+      - rev_actions (revenue-focused)
+      - lab_actions (labor-focused)
+      - system_actions (operating rhythm / governance)
+      - extended (all actions flattened, used for PDF)
+      - huddle_script
+      - daily_patch
     """
+
     diagnosis = SCENARIO_DIAGNOSES.get((rf_t, lf_t), scenario_name(rf_t, lf_t))
 
-    rf_list = RF_ACTIONS.get(rf_t, [])
-    lf_list = LF_ACTIONS.get(lf_t, [])
+    # Tier-based bundles from your RF/LF matrices
+    rev_actions = RF_ACTIONS.get(rf_t, []).copy()
+    lab_actions = LF_ACTIONS.get(lf_t, []).copy()
 
-    combined = rf_list + lf_list
+    combined = rev_actions + lab_actions
     if not combined:
         combined = ["Sustain current performance and monitor for drift."]
 
+    # Top 3 from combined RF + LF
     top3 = combined[:3]
-    extended = combined[3:]
+    extended_rf_lf = combined[3:]
 
-    # POS lever layered on top
+    # POS lever (revenue-focused)
+    pos_push = "Run a POS co-pay capture push (scripts, training, accountability)."
+    pos_audit = "Quick POS audit (co-pay scripts, training, ClearPay accountability)."
+
     if rf_t in ("Critical", "At Risk", "Stable"):
         if pos_should_be_top3(rpv_gap):
-            top3.append("Run a POS co-pay capture push (scripts, training, accountability).")
+            top3.append(pos_push)
+            rev_actions.append(pos_push)
         else:
-            extended.append("Quick POS audit (co-pay scripts, training, ClearPay accountability).")
+            extended_rf_lf.append(pos_audit)
+            rev_actions.append(pos_audit)
+
+    # System / cadence actions common to all scenarios
+    system_actions = [
+        "Daily 5-minute huddle: review Top 3 levers, VPDA drivers, and risks.",
+        "Treat SWB% as context only; anchor decisions in VVI (NRPV/LCV, RF, and LF).",
+    ]
 
     huddle_script = (
         "5-Minute Morning Huddle:\n"
@@ -384,22 +405,25 @@ def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
         "• Throughput focus: door-to-room < 10 min; room-to-provider < 15 min\n"
         "• Reliability: close charts same day; handoffs clear; escalate bottlenecks early"
     )
+
     daily_patch = (
         "Daily reminder: review Top 3 levers, confirm staffing vs demand, "
         "call out risks early, and recognize wins in real time."
     )
 
-    extended.append("Daily 5-minute huddle: review Top 3 levers, VPDA drivers, and risks.")
-    extended.append("Treat SWB% as context only; anchor decisions in VVI (NRPV/LCV, RF, and LF).")
+    # Flattened list used for PDF export
+    extended_all = extended_rf_lf + system_actions
 
     return {
         "diagnosis": diagnosis,
         "top3": top3[:3],
-        "extended": extended,
+        "rev_actions": rev_actions,
+        "lab_actions": lab_actions,
+        "system_actions": system_actions,
+        "extended": extended_all,
         "huddle_script": huddle_script,
         "daily_patch": daily_patch,
     }
-
 
 # ----------------------------
 # Optional AI Insights helper
