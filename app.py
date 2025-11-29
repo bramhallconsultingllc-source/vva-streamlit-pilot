@@ -376,84 +376,99 @@ def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
     ).hide(axis="index", level=None)
     return df, styler
 
-def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
-    labels = ["Visit Value Index (VVI)", "Revenue Factor (RF)", "Labor Factor (LF)"]
-    values = [vvi_score, rf_score, lf_score]
+    # ---------- KPI bars (Executive style) ----------
+    def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
+        labels = [
+            "Visit Value Index (VVI)",
+            "Revenue Factor (RF)",
+            "Labor Factor (LF)",
+        ]
+        values = [vvi_score, rf_score, lf_score]
 
-    # Determine max scale with some buffer
-    x_max = max(120, max(values) + 10)
+        # Room for scores slightly above 100
+        x_max = max(120, max(values) + 10)
 
-    fig, ax = plt.subplots(figsize=(8.2, 2.8))
+        fig, ax = plt.subplots(figsize=(8.5, 2.8))
 
-    # ---- Tier background bands (horizontal shading) ----
-    bands = [
-        (0, 90, "#f8d0d0"),   # Critical (red)
-        (90, 95, "#ffe2c2"),  # At Risk (orange)
-        (95, 100, "#fff4c2"), # Stable (yellow)
-        (100, x_max, "#d9f2d9"),  # Excellent (green)
-    ]
-    for start, end, color in bands:
-        ax.axvspan(start, end, color=color, alpha=0.45)
+        # Soft background bands by performance tier
+        bands = [
+            (0, 90,  "#fdecea"),  # Critical / At Risk – very soft red
+            (90, 95, "#fff4e5"),  # At Risk – soft amber
+            (95, 100, "#fffbe6"), # Stable – soft cream
+            (100, x_max, "#e8f5e9"),  # Excellent – soft green
+        ]
+        for start, end, col in bands:
+            ax.axvspan(start, end, color=col, alpha=1.0, lw=0)
 
-    # ---- Bar styling ----
-    gold = "#b08c3e"
-    charcoal = "#2e2e2e"
+        # Vertical reference line at 100
+        ax.axvline(100, color="#b08c3e", linestyle="--", linewidth=1)
 
-    bar_colors = [gold, charcoal, charcoal]  # VVI stands out
-    bar_heights = [0.55, 0.40, 0.40]         # VVI slightly thicker
-    y_positions = [2, 1, 0]
+        y_pos = [2, 1, 0]  # so VVI is visually on top
 
-    # ---- Draw bars ----
-    for y, val, color, height in zip(y_positions, values, bar_colors, bar_heights):
-        ax.barh(
-            y,
-            val,
-            height=height,
-            color=color,
-            edgecolor="none",
-        )
+        for i, (label, val, y) in enumerate(zip(labels, values, y_pos)):
+            # Hero bar for VVI
+            if i == 0:
+                bar_color = "#b08c3e"     # brand gold
+                edge_color = "#3a2a0f"
+                height = 0.55
+            else:
+                bar_color = "#333333"     # charcoal
+                edge_color = "#1f1f1f"
+                height = 0.45
 
-        # Value text
-        ax.text(
-            val + (x_max * 0.008),
-            y,
-            f"{val:.1f}",
-            va="center",
-            ha="left",
-            fontsize=10,
-            fontweight="bold",
-        )
+            # Subtle shadow capsule (behind main bar)
+            shadow = ax.barh(
+                y,
+                min(val, x_max),
+                height=height + 0.10,
+                color="#000000",
+                alpha=0.06,
+                zorder=1,
+            )
 
-    # ---- Left labels ----
-    for y, label in zip(y_positions, labels):
-        ax.text(
-            -x_max * 0.015,
-            y,
-            label,
-            ha="right",
-            va="center",
-            fontsize=10,
-            color="#222",
-        )
+            # Main bar
+            bar = ax.barh(
+                y,
+                min(val, x_max),
+                height=height,
+                color=bar_color,
+                edgecolor=edge_color,
+                linewidth=1.2,
+                zorder=2,
+            )
 
-    # ---- Benchmark line at 100 ----
-    ax.axvline(100, linestyle="--", linewidth=1.1, color=gold)
+            # Text label (score) at the end of the bar
+            text_x = min(val, x_max) + (x_max * 0.01)
+            ax.text(
+                text_x,
+                y,
+                f"{val:.1f}",
+                va="center",
+                ha="left",
+                fontsize=10,
+                fontweight="bold" if i == 0 else "normal",
+                color="#222222",
+            )
 
-    # ---- Cleanup ----
-    ax.set_xlim(0, x_max)
-    ax.set_ylim(-0.7, 2.7)
-    ax.set_yticks([])
-    ax.set_xticks([])
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)
+        # Axes formatting
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(labels)
+        ax.set_xlim(0, x_max)
+        ax.set_xlabel("Score", fontsize=10)
+        ax.set_ylabel("")
+        ax.grid(False)
 
-    fig.suptitle("Key Metrics & Scores", fontsize=14, fontweight="bold", y=1.02)
-    plt.tight_layout()
+        # Clean frame
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["bottom"].set_color("#cccccc")
 
-    st.pyplot(fig)
-    return fig
+        plt.tight_layout()
+        ax.set_title("Key Metrics & Scores", fontsize=14, fontweight="bold", pad=10)
+
+        st.pyplot(fig)
+        return fig
 
 def format_money(x: float) -> str:
     try:
