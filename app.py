@@ -1,4 +1,5 @@
 import os
+import base64
 
 # app.py — Visit Value Agent 4.0 (Pilot)
 # Bramhall Consulting, LLC — predict. perform. prosper.
@@ -23,12 +24,22 @@ except Exception:
 
 
 # ----------------------------
+# Helpers
+# ----------------------------
+def get_base64_image(path: str) -> str:
+    """Return a base64-encoded string for the image at `path`."""
+    with open(path, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode("utf-8")
+
+
+# ----------------------------
 # Page config & branded intro
 # ----------------------------
 st.set_page_config(
     page_title="Visit Value Agent 4.0 (Pilot)",
     page_icon="🩺",
-    layout="centered"
+    layout="centered",
 )
 
 # CSS for intro section
@@ -39,19 +50,29 @@ intro_css = """
     margin-bottom: 1.5rem;
 }
 
-/* Logo */
+/* Logo: desktop default */
 .intro-logo {
-    max-width: 220px;
-    width: 40%;
-    height: auto;
+    max-width: 220px !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 auto !important;
+    display: block;
 }
 
-/* Mobile responsiveness */
+/* Mobile responsiveness — shrink logo on smaller screens */
+@media (max-width: 600px) {
+    .intro-logo {
+        max-width: 110px !important;
+        width: 110px !important;
+        margin-top: 0.4rem !important;
+    }
+}
+
 @media (max-width: 400px) {
     .intro-logo {
-        max-width: 150px;   /* smaller on phones */
-        width: 55%;         /* scales proportionally */
-        margin-top: 0.5rem;
+        max-width: 95px !important;
+        width: 95px !important;
+        margin-top: 0.4rem !important;
     }
 }
 
@@ -59,7 +80,7 @@ intro_css = """
 .intro-line-wrapper {
     display: flex;
     justify-content: center;
-    margin: 0.3rem 0 0.8rem;
+    margin: 1.2rem 0 0.8rem;
 }
 
 .intro-line {
@@ -87,26 +108,28 @@ intro_css = """
     0%   { opacity: 0; transform: translateY(6px); }
     100% { opacity: 1; transform: translateY(0); }
 }
-
-.intro-bullets {
-    list-style-type: disc;
-    text-align: left;
-    display: inline-block;
-    margin-top: 0.5rem;
-}
 </style>
 """
 
 LOGO_PATH = "Logo BC.png"  # update if your filename is different
 
+# Apply CSS and render intro
 st.markdown(intro_css, unsafe_allow_html=True)
 st.markdown("<div class='intro-container'>", unsafe_allow_html=True)
 
+# Logo (base64 so we can attach CSS class reliably)
 if os.path.exists(LOGO_PATH):
-    st.image(LOGO_PATH, use_column_width=False, output_format="PNG")
+    img_data = get_base64_image(LOGO_PATH)
+    st.markdown(
+        f'<img src="data:image/png;base64,{img_data}" class="intro-logo" />',
+        unsafe_allow_html=True,
+    )
 else:
-    st.caption(f"(Logo file '{LOGO_PATH}' not found — update LOGO_PATH or add the image to the app root.)")
+    st.caption(
+        f"(Logo file '{LOGO_PATH}' not found — update LOGO_PATH or add the image to the app root.)"
+    )
 
+# Animated line + welcome text
 intro_html = """
 <div class='intro-line-wrapper'>
     <div class='intro-line'></div>
