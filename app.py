@@ -31,6 +31,35 @@ st.set_page_config(
     layout="centered"
 )
 
+# CSS for intro section
+intro_css = """
+<style>
+.intro-container {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+.intro-logo {
+    max-width: 220px;
+}
+.intro-text {
+    opacity: 0;
+    animation: fadeIn 3.5s forwards;
+    animation-delay: 0.7s;
+}
+@keyframes fadeIn {
+    0%   { opacity: 0; }
+    40%  { opacity: 0; }
+    100% { opacity: 1; }
+}
+.intro-bullets {
+    list-style-type: disc;
+    text-align: left;
+    display: inline-block;
+    margin-top: 0.5rem;
+}
+</style>
+"""
+
 LOGO_PATH = "Logo BC.png"  # update if your filename is different
 
 st.markdown(intro_css, unsafe_allow_html=True)
