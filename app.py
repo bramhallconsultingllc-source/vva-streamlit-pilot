@@ -890,21 +890,49 @@ if st.session_state.step >= 7:
     )
     st.dataframe(styler_score, use_container_width=True, hide_index=True)
 
-    # ---------- Scenario Grid ----------
-    st.subheader("📊 VVI 16-Scenario Grid")
-    df_grid, styler_grid = build_scenario_grid(rf_t, lf_t)
-    st.dataframe(styler_grid, use_container_width=True)
+   # ---------- Scenario Grid ----------
+st.subheader("📊 VVI 16-Scenario Grid")
+df_grid, styler_grid = build_scenario_grid(rf_t, lf_t)
+st.dataframe(styler_grid, use_container_width=True)
 
-    # ---------- Prescriptive output ----------
-    st.subheader("Scenario")
-    st.write(f"**{actions['diagnosis']}** — period: **{period}**.")
-    st.write("**Top 3 (Immediate):**")
-    for i, item in enumerate(actions["top3"], start=1):
-        st.write(f"{i}) {item}")
+# ---------- Scenario diagnosis table ----------
+st.subheader("Scenario Diagnosis")
 
-    st.write("**Extended Actions:**")
-    for item in actions["extended"]:
-        st.write(f"• {item}")
+scenario_df = pd.DataFrame({
+    "Item": ["Diagnosis", "Period", "Revenue Tier (RF)", "Labor Tier (LF)"],
+    "Value": [
+        actions["diagnosis"],
+        period,
+        rf_t,
+        lf_t,
+    ],
+})
+st.table(scenario_df)
+
+# ---------- Top 3 ----------
+st.subheader("Top 3 Actions (Immediate)")
+for idx, item in enumerate(actions["top3"], start=1):
+    st.write(f"{idx}. {item}")
+
+# ---------- Extended Actions, organized ----------
+st.subheader("Extended Actions")
+
+col_rev, col_lab, col_sys = st.columns(3)
+
+with col_rev:
+    st.markdown("**Revenue Actions**")
+    for item in actions.get("rev_actions", []):
+        st.write(f"- {item}")
+
+with col_lab:
+    st.markdown("**Labor Actions**")
+    for item in actions.get("lab_actions", []):
+        st.write(f"- {item}")
+
+with col_sys:
+    st.markdown("**Operating Rhythm**")
+    for item in actions.get("system_actions", []):
+        st.write(f"- {item}")
 
     with st.expander("Huddle Script (copy/paste)", expanded=False):
         st.code(actions["huddle_script"])
