@@ -848,7 +848,7 @@ if st.session_state.step >= 7:
     st.subheader("Calculation Table")
     st.dataframe(calc_df, use_container_width=True, hide_index=True)
 
-    # ---------- Scoring table (VVI emphasized) ----------
+       # ---------- Scoring table (VVI emphasized) ----------
     score_df = pd.DataFrame(
         {
             "Index": [
@@ -885,55 +885,58 @@ if st.session_state.step >= 7:
             ] * len(row)
         return [""] * len(row)
 
-    styler_score = (
-        score_df.style.apply(highlight_vvi, axis=1).set_properties(**{"text-align": "left"})
+    styler_score = score_df.style.apply(highlight_vvi, axis=1).set_properties(
+        **{"text-align": "left"}
     )
     st.dataframe(styler_score, use_container_width=True, hide_index=True)
 
-   # ---------- Scenario Grid ----------
-st.subheader("📊 VVI 16-Scenario Grid")
-df_grid, styler_grid = build_scenario_grid(rf_t, lf_t)
-st.dataframe(styler_grid, use_container_width=True)
+    # ---------- Scenario Grid ----------
+    st.subheader("📊 VVI 16-Scenario Grid")
+    df_grid, styler_grid = build_scenario_grid(rf_t, lf_t)
+    st.dataframe(styler_grid, use_container_width=True)
 
-# ---------- Scenario diagnosis table ----------
-st.subheader("Scenario Diagnosis")
+    # ---------- Scenario diagnosis table ----------
+    st.subheader("Scenario Diagnosis")
 
-scenario_df = pd.DataFrame({
-    "Item": ["Diagnosis", "Period", "Revenue Tier (RF)", "Labor Tier (LF)"],
-    "Value": [
-        actions["diagnosis"],
-        period,
-        rf_t,
-        lf_t,
-    ],
-})
-st.table(scenario_df)
+    scenario_df = pd.DataFrame(
+        {
+            "Item": ["Diagnosis", "Period", "Revenue Tier (RF)", "Labor Tier (LF)"],
+            "Value": [
+                actions["diagnosis"],
+                period,
+                rf_t,
+                lf_t,
+            ],
+        }
+    )
+    st.table(scenario_df)
 
-# ---------- Top 3 ----------
-st.subheader("Top 3 Actions (Immediate)")
-for idx, item in enumerate(actions["top3"], start=1):
-    st.write(f"{idx}. {item}")
+    # ---------- Top 3 ----------
+    st.subheader("Top 3 Actions (Immediate)")
+    for idx, item in enumerate(actions["top3"], start=1):
+        st.write(f"{idx}. {item}")
 
-# ---------- Extended Actions, organized ----------
-st.subheader("Extended Actions")
+    # ---------- Extended Actions, organized ----------
+    st.subheader("Extended Actions")
 
-col_rev, col_lab, col_sys = st.columns(3)
+    col_rev, col_lab, col_sys = st.columns(3)
 
-with col_rev:
-    st.markdown("**Revenue Actions**")
-    for item in actions.get("rev_actions", []):
-        st.write(f"- {item}")
+    with col_rev:
+        st.markdown("**Revenue Actions**")
+        for item in actions.get("rev_actions", []):
+            st.write(f"- {item}")
 
-with col_lab:
-    st.markdown("**Labor Actions**")
-    for item in actions.get("lab_actions", []):
-        st.write(f"- {item}")
+    with col_lab:
+        st.markdown("**Labor Actions**")
+        for item in actions.get("lab_actions", []):
+            st.write(f"- {item}")
 
-with col_sys:
-    st.markdown("**Operating Rhythm**")
-    for item in actions.get("system_actions", []):
-        st.write(f"- {item}")
+    with col_sys:
+        st.markdown("**Operating Rhythm**")
+        for item in actions.get("system_actions", []):
+            st.write(f"- {item}")
 
+    # ---------- Huddle & Daily Patch ----------
     with st.expander("Huddle Script (copy/paste)", expanded=False):
         st.code(actions["huddle_script"])
 
@@ -1037,7 +1040,9 @@ with col_sys:
         kpi_fig.savefig(img_buf, format="png", dpi=150, bbox_inches="tight")
         img_buf.seek(0)
         img = ImageReader(img_buf)
-        c.drawImage(img, 40, 80, width=w - 80, height=180, preserveAspectRatio=True, mask="auto")
+        c.drawImage(
+            img, 40, 80, width=w - 80, height=180, preserveAspectRatio=True, mask="auto"
+        )
 
         # Footer
         c.setFont("Helvetica-Oblique", 9)
