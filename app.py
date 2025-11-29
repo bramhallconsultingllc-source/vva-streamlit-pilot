@@ -54,7 +54,7 @@ intro_css = """
 
 .intro-line {
     width: 0;
-    height: 2px;
+    height: 1.5px;
     background: #b08c3e;  /* gold-ish, matches brand */
     animation: lineGrow 1.6s ease-out forwards;
 }
@@ -70,7 +70,7 @@ intro_css = """
 /* Animations */
 @keyframes lineGrow {
     0%   { width: 0; }
-    100% { width: 180px; }
+    100% { width: 340px; }
 }
 
 @keyframes fadeInUp {
