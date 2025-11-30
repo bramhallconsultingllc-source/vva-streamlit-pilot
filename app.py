@@ -594,130 +594,175 @@ def ai_generate_insights(
     except Exception as e:
         return False, f"AI call failed: {e}"
 
-
 # ----------------------------
-# Session state
+# Session state (just for portfolio now)
 # ----------------------------
-
-if "step" not in st.session_state:
-    st.session_state.step = 1
-if "answers" not in st.session_state:
-    st.session_state.answers = {}
 if "runs" not in st.session_state:
     st.session_state.runs = []  # list of dicts (name + results)
 
-
-def next_step():
-    st.session_state.step += 1
-
-
-def reset():
-    st.session_state.step = 1
-    st.session_state.answers = {}
-
 # ----------------------------
-# Input Flow
+# Input Form (all at once
 # ----------------------------
+st.markdown("### Input")
 
-st.markdown("### Start VVI Assessment")
+with st.form("vvi_inputs"):
+    # Required inputs
+    st.markdown("**Required**")
 
-if st.session_state.step == 1:
     visits = st.number_input(
-        "How many total patient visits occurred during this time period?",
+        "Number of Visits",
         min_value=1,
         step=1,
+        value=500,
         key="visits_input",
     )
-    st.button(
-        "Next",
-        disabled=visits <= 0,
-        on_click=lambda: (
-            st.session_state.answers.update({"visits": int(visits)}),
-            next_step(),
-        ),
-    )
 
-elif st.session_state.step == 2:
     net_rev = st.number_input(
-        "What was the total net revenue collected? ($)",
+        "Net Operating Revenue (NOR)",
         min_value=0.01,
         step=100.0,
         format="%.2f",
+        value=100000.00,
         key="net_rev_input",
     )
-    st.button(
-        "Next",
-        disabled=net_rev <= 0,
-        on_click=lambda: (
-            st.session_state.answers.update({"net_revenue": float(net_rev)}),
-            next_step(),
-        ),
-    )
 
-elif st.session_state.step == 3:
     labor_cost = st.number_input(
-        "Total labor cost ($) (W2 + PRN + OT + contract/locum)",
+        "Labor Expense – Salaries, Wages, Benefits (SWB)",
         min_value=0.01,
         step=100.0,
         format="%.2f",
+        value=65000.00,
         key="labor_cost_input",
     )
-    st.button(
-        "Next",
-        disabled=labor_cost <= 0,
-        on_click=lambda: (
-            st.session_state.answers.update({"labor_cost": float(labor_cost)}),
-            next_step(),
-        ),
-    )
 
-elif st.session_state.step == 4:
-    period = st.selectbox(
-        "What time period does this represent?",
-        ["Week", "Month", "Quarter", "Year"],
-        key="period_input",
-    )
-    st.button(
-        "Next",
-        on_click=lambda: (
-            st.session_state.answers.update({"period": period}),
-            next_step(),
-        ),
-    )
+    st.markdown("---")
+    st.markdown("**Optional**  \n"
+                "<span style='font-size:0.8rem;color:#777;'>"
+                "These optional inputs use industry-standard averages, "
+                "but you can update them to better reflect your organization."
+                "</span>",
+                unsafe_allow_html=True)
 
-elif st.session_state.step == 5:
     r_target = st.number_input(
-        "Revenue target per visit (default $140)",
+        "Budgeted NOR per Visit",
         min_value=1.0,
         value=140.0,
         step=1.0,
         format="%.2f",
         key="rev_target_input",
     )
-    st.button(
-        "Next",
-        on_click=lambda: (
-            st.session_state.answers.update({"rev_target": float(r_target)}),
-            next_step(),
-        ),
-    )
 
-elif st.session_state.step == 6:
     l_target = st.number_input(
-        "Labor target per visit (default $85)",
+        "Budgeted SWB per Visit",
         min_value=1.0,
         value=85.0,
         step=1.0,
         format="%.2f",
         key="lab_target_input",
     )
-    st.button(
-        "Run Assessment",
-        on_click=lambda: (
-            st.session_state.answers.update({"lab_target": float(l_target)}),
-            next_step(),
-        ),
+
+    submitted = st.form_submit_button("Run Assessment")
+
+# ----------------------------
+# Results
+# ----------------------------
+if submitted:
+    visits = float(visits)
+    net_rev = float(net_rev)
+    labor = float(labor_cost)
+    period = "Custom"   # or add a selectbox above if you still want Week/Month/etc.
+    rt = float(r_target)
+    lt = float(l_target)
+
+    if visits <= 0 or net_rev <= 0 or labor <= 0:
+        st.warning(
+            "Please enter non-zero values for visits, net revenue, and labor cost."
+        )
+        st.stop()
+
+    # Core metrics
+    rpv = net_rev / visits  # Net Revenue per Visit (NRPV)
+    lcv = labor / visits    # Labor Cost per Visit (LCV)
+    swb_pct = labor / net_rev
+
+    # RF and LF
+    rf_raw = (rpv / rt) if rt else 0.0
+    lf_raw = (lt / lcv) if lcv else 0.0
+    rf_score = round(rf_raw * 100, 2)
+    lf_score = round(lf_raw * 100, 2)
+    rf_t = tier(rf_score)
+    lf_t = tier(lf_score)
+
+    # VVI (raw) and normalized using benchmark ratio
+    vvi_raw = (rpv / lcv) if lcv else 0.0
+    vvi_target = (rt / lt) if (rt and lt) else 1.67
+    vvi_score = round((vvi_raw / vvi_target) * 100, 2)
+    vvi_t = tier(vvi_score)
+
+    rpv_gap = max(0.0, rt - rpv)
+    actions = prescriptive_actions(rf_t, lf_t, rpv_gap)
+    scenario_text = actions["diagnosis"]
+
+    st.success("Assessment complete. See results below.")
+    kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
+
+    # ----- Calculation table with highlighted Scenario row -----
+    calc_df = pd.DataFrame(
+        {
+            "Metric": [
+                "Total visits",
+                "Net revenue collected",
+                "Total labor cost",
+                "Net Revenue per Visit (NRPV)",
+                "Labor Cost per Visit (LCV)",
+                "Revenue benchmark target (NRPV target)",
+                "Labor benchmark target (LCV target)",
+                "Labor cost as % of revenue (SWB%)",
+                "Revenue score (RF)",
+                "Labor score (LF)",
+                "VVI (NRPV ÷ LCV)",
+                "VVI score (normalized 0–100)",
+                "Scenario",
+            ],
+            "Value": [
+                f"{int(visits):,}",
+                format_money(net_rev),
+                format_money(labor),
+                format_money(rpv),
+                format_money(lcv),
+                format_money(rt),
+                format_money(lt),
+                f"{swb_pct * 100:.1f}%",
+                f"{rf_score} ({rf_t})",
+                f"{lf_score} ({lf_t})",
+                f"{vvi_raw:.3f}",
+                f"{vvi_score} ({vvi_t})",
+                scenario_text,
+            ],
+        }
     )
+
+    st.subheader("Calculation Table")
+
+    def highlight_scenario(row):
+        if row["Metric"] == "Scenario":
+            return [
+                "font-weight:700; background-color:#f7f2d3; "
+                "border-top:1px solid #ccc; border-bottom:1px solid #ccc;"
+            ] * len(row)
+        return [""] * len(row)
+
+    calc_styler = (
+        calc_df.style
+        .apply(highlight_scenario, axis=1)
+        .set_properties(subset=["Value"], **{"white-space": "normal"})
+    )
+
+    st.dataframe(calc_styler, use_container_width=True, hide_index=True)
+
+    # (…then keep all your existing scoring table, scenario diagnosis,
+    # actions, simulator, AI insights, PDF, portfolio code exactly as you
+    # already have it, just under this `if submitted:` block.)
 
 # ----------------------------
 # Results
