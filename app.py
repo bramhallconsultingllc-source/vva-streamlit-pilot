@@ -490,7 +490,6 @@ def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
     # System / cadence actions common to all scenarios
     system_actions = [
         "Daily 5-minute huddle: review Top 3 levers, VPDA drivers, and risks.",
-        "Treat SWB% as context only; anchor decisions in VVI (NRPV/LCV, RF, and LF).",
     ]
 
     huddle_script = (
