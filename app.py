@@ -802,32 +802,31 @@ if st.session_state.step >= 7:
             ],
         }
     )
-    st.subheader("Calculation Table")
+       st.subheader("Calculation Table")
 
-def highlight_scenario(row):
-    if row["Metric"] == "Scenario":
-        # Executive call-out styling for the Scenario row
-        return [
-            "font-weight:700; background-color:#f7f2d3; "
-            "border-top:1px solid #ccc; border-bottom:1px solid #ccc;"
-        ] * len(row)
-    return [""] * len(row)
+    def highlight_scenario(row):
+        if row["Metric"] == "Scenario":
+            # Executive call-out styling for the Scenario row
+            return [
+                "font-weight:700; background-color:#f7f2d3; "
+                "border-top:1px solid #ccc; border-bottom:1px solid #ccc;"
+            ] * len(row)
+        return [""] * len(row)
 
-calc_styler = (
-    calc_df.style
-    .apply(highlight_scenario, axis=1)
-    # Let long text (diagnosis) wrap in the Value column
-    .set_properties(subset=["Value"], **{"white-space": "normal"})
-)
+    calc_styler = (
+        calc_df.style
+        .apply(highlight_scenario, axis=1)
+        .set_properties(subset=["Value"], **{"white-space": "normal"})
+    )
 
-st.dataframe(
-    calc_styler,
-    use_container_width=True,
-    hide_index=True,
-)
+    st.dataframe(
+        calc_styler,
+        use_container_width=True,
+        hide_index=True,
+    )
 
-       # ---------- Scoring table (VVI emphasized) ----------
-score_df = pd.DataFrame(
+    # ---------- Scoring table (VVI emphasized) ----------
+    score_df = pd.DataFrame(
         {
             "Index": [
                 "Visit Value Index (VVI)",
@@ -853,9 +852,9 @@ score_df = pd.DataFrame(
         }
     )
 
-st.subheader("VVI / RF / LF Scoring Table")
+    st.subheader("VVI / RF / LF Scoring Table")
 
-def highlight_vvi(row):
+    def highlight_vvi(row):
         if row.name == 0:
             return [
                 "font-weight:700; background-color:#f7f2d3; "
@@ -866,12 +865,8 @@ def highlight_vvi(row):
     styler_score = score_df.style.apply(highlight_vvi, axis=1).set_properties(
         **{"text-align": "left"}
     )
-    st.dataframe(styler_score, use_container_width=True, hide_index=True)
 
-    # ---------- Scenario Grid ----------
-    st.subheader("📊 VVI 16-Scenario Grid")
-    df_grid, styler_grid = build_scenario_grid(rf_t, lf_t)
-    st.dataframe(styler_grid, use_container_width=True)
+    st.dataframe(styler_score, use_container_width=True, hide_index=True)
 
     # ---------- Scenario diagnosis table ----------
     st.subheader("Scenario Diagnosis")
