@@ -297,30 +297,6 @@ def scenario_name(rf_t: str, lf_t: str) -> str:
     }
     return f"{rev_map.get(rf_t, rf_t)} / {lab_map.get(lf_t, lf_t)}"
 
-    def highlight_active(val, row_idx, col_idx):
-        lf_here = lf_rows[row_idx]
-        rf_here = rf_cols[col_idx]
-        if (lf_here == active_lf_tier) and (rf_here == active_rf_tier):
-            return "background-color: #fdd835; color: #000; font-weight: 700;"
-        return ""
-
-    styler = df.style.format(precision=0)
-    for r in range(len(lf_rows)):
-        for c in range(len(rf_cols)):
-            styler = styler.set_properties(
-                subset=(df.index[r], df.columns[c]),
-                **{"text-align": "center", "font-weight": "500"},
-            )
-            styler = styler.apply(
-                lambda s, r=r, c=c: [highlight_active(v, r, c) for v in s],
-                axis=1,
-                subset=(df.index[r], df.columns[c]),
-            )
-    styler = styler.set_table_styles(
-        [{"selector": "th", "props": [("text-align", "center")]}]
-    ).hide(axis="index", level=None)
-    return df, styler
-
 def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
     rf_cols = TIER_ORDER
     lf_rows = TIER_ORDER
@@ -330,6 +306,7 @@ def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
         for rf in rf_cols:
             row.append(SCENARIO_MAP[(lf, rf)])
         data.append(row)
+
     df = pd.DataFrame(
         data,
         index=[f"LF: {r}" for r in lf_rows],
@@ -355,9 +332,11 @@ def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
                 axis=1,
                 subset=(df.index[r], df.columns[c]),
             )
+
     styler = styler.set_table_styles(
         [{"selector": "th", "props": [("text-align", "center")]}]
     ).hide(axis="index", level=None)
+
     return df, styler
 
    # ---------- KPI bars (Executive style) ----------
