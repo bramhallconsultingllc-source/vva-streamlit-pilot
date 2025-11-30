@@ -830,12 +830,7 @@ if st.session_state.assessment_ready:
 
     st.dataframe(styler_score, use_container_width=True, hide_index=True)
 
-    # ---------- Top 3 ----------
-    st.subheader("Top 3 Actions (Immediate)")
-    for idx, item in enumerate(actions["top3"], start=1):
-        st.write(f"{idx}. {item}")
-
-    # ---------- Extended Actions (executive layout) ----------
+       # ---------- Prescriptive Actions (executive layout) ----------
     st.subheader("Extended Actions (Playbook)")
 
     def render_action_bucket(label: str, items: list[str]):
