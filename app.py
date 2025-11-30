@@ -154,7 +154,6 @@ st.divider()
 
 TIER_ORDER = ["Critical", "At Risk", "Stable", "Excellent"]  # RF left→right, LF top→bottom
 
-
 def tier_from_score(score: float) -> str:
     if score >= 100:
         return "Excellent"
@@ -163,7 +162,6 @@ def tier_from_score(score: float) -> str:
     if 90 <= score <= 94:
         return "At Risk"
     return "Critical"
-
 
 tier = tier_from_score  # alias, kept for backward compatibility
 
