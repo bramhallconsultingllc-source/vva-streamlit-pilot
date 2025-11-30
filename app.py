@@ -728,58 +728,64 @@ if st.session_state.assessment_ready:
     kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
 
     # ----- Calculation table with highlighted Scenario row -----
-    calc_df = pd.DataFrame(
-        {
-            "Metric": [
-                "Total visits",
-                "Net revenue collected",
-                "Total labor cost",
-                "Net Revenue per Visit (NRPV)",
-                "Labor Cost per Visit (LCV)",
-                "Revenue benchmark target (NRPV target)",
-                "Labor benchmark target (LCV target)",
-                "Labor cost as % of revenue (SWB%)",
-                "Revenue score (RF)",
-                "Labor score (LF)",
-                "VVI (NRPV ÷ LCV)",
-                "VVI score (normalized 0–100)",
-                "Scenario",
-            ],
-            "Value": [
-                f"{int(visits):,}",
-                format_money(net_rev),
-                format_money(labor),
-                format_money(rpv),
-                format_money(lcv),
-                format_money(rt),
-                format_money(lt),
-                f"{swb_pct * 100:.1f}%",
-                f"{rf_score} ({rf_t})",
-                f"{lf_score} ({lf_t})",
-                f"{vvi_raw:.3f}",
-                f"{vvi_score} ({vvi_t})",
-                scenario_text,
-            ],
-        }
-    )
+calc_df = pd.DataFrame(
+    {
+        "Metric": [
+            "VVI score (normalized 0–100)",
+            "Revenue score (RF)",
+            "Labor score (LF)",
+            "Scenario",
+            "Total visits",
+            "Net revenue collected",
+            "Total labor cost",
+            "Net Revenue per Visit (NRPV)",
+            "Labor Cost per Visit (LCV)",
+            "Revenue benchmark target (NRPV target)",
+            "Labor benchmark target (LCV target)",
+            "Labor cost as % of revenue (SWB%)",
+            "VVI (NRPV ÷ LCV)",
+        ],
+        "Value": [
+            f"{vvi_score} ({vvi_t})",
+            f"{rf_score} ({rf_t})",
+            f"{lf_score} ({lf_t})",
+            scenario_text,
+            f"{int(visits):,}",
+            format_money(net_rev),
+            format_money(labor),
+            format_money(rpv),
+            format_money(lcv),
+            format_money(rt),
+            format_money(lt),
+            f"{swb_pct * 100:.1f}%",
+            f"{vvi_raw:.3f}",
+        ],
+    }
+)
 
-    st.subheader("Calculation Table")
+   st.subheader("Calculation Table")
 
-    def highlight_scenario(row):
-        if row["Metric"] == "Scenario":
-            return [
-                "font-weight:700; background-color:#f7f2d3; "
-                "border-top:1px solid #ccc; border-bottom:1px solid #ccc;"
-            ] * len(row)
-        return [""] * len(row)
+def highlight_key_rows(row):
+    key_metrics = {
+        "VVI score (normalized 0–100)",
+        "Revenue score (RF)",
+        "Labor score (LF)",
+        "Scenario",
+    }
+    if row["Metric"] in key_metrics:
+        return [
+            "font-weight:700; background-color:#f7f2d3; "
+            "border-top:1px solid #ccc; border-bottom:1px solid #ccc;"
+        ] * len(row)
+    return [""] * len(row)
 
-    calc_styler = (
-        calc_df.style
-        .apply(highlight_scenario, axis=1)
-        .set_properties(subset=["Value"], **{"white-space": "normal"})
-    )
+calc_styler = (
+    calc_df.style
+    .apply(highlight_key_rows, axis=1)
+    .set_properties(subset=["Value"], **{"white-space": "normal"})
+)
 
-    st.dataframe(calc_styler, use_container_width=True, hide_index=True)
+st.dataframe(calc_styler, use_container_width=True, hide_index=True)
 
     # ---------- Scoring table (VVI emphasized) ----------
     score_df = pd.DataFrame(
