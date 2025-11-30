@@ -1,9 +1,5 @@
 import os
 import base64
-
-# app.py — Visit Value Agent 4.0 (Pilot)
-# predict. perform. prosper.
-
 import io
 from datetime import datetime
 
@@ -31,6 +27,7 @@ def get_base64_image(path: str) -> str:
     with open(path, "rb") as f:
         data = f.read()
     return base64.b64encode(data).decode("utf-8")
+
 
 # ----------------------------
 # Page config & branded intro
@@ -85,7 +82,7 @@ intro_css = """
 .intro-line {
     width: 0;
     height: 1.5px;
-    background: #b08c3e;  /* gold-ish, matches brand */
+    background: #b08c3e;
     animation: lineGrow 1.6s ease-out forwards;
 }
 
@@ -94,8 +91,8 @@ intro_css = """
     opacity: 0;
     transform: translateY(6px);
     animation: fadeInUp 1.4s ease-out forwards;
-    animation-delay: 1.0s;  /* wait for line to mostly complete */
-    text-align: center;      /* <<< center the heading + tagline */
+    animation-delay: 1.0s;
+    text-align: center;
 }
 
 /* Animations */
@@ -151,8 +148,8 @@ st.divider()
 # ==============================
 # Core helpers & configuration
 # ==============================
-
 TIER_ORDER = ["Critical", "At Risk", "Stable", "Excellent"]  # RF left→right, LF top→bottom
+
 
 def tier_from_score(score: float) -> str:
     if score >= 100:
@@ -163,10 +160,10 @@ def tier_from_score(score: float) -> str:
         return "At Risk"
     return "Critical"
 
-tier = tier_from_score  # alias, kept for backward compatibility
 
-# ---- RF/LF Tier Bundles (from your 16-scenario matrix) ----
+tier = tier_from_score  # alias
 
+# ---- RF/LF Tier Bundles ----
 RF_ACTIONS = {
     "Excellent": [
         "Maintain revenue integrity through quarterly audits of charge capture and coding accuracy.",
@@ -272,10 +269,22 @@ SCENARIO_DIAGNOSES = {
 
 # Map (LF tier, RF tier) -> scenario number for 4×4 grid
 SCENARIO_MAP = {
-    ("Critical", "Critical"): 1, ("Critical", "At Risk"): 2, ("Critical", "Stable"): 3, ("Critical", "Excellent"): 4,
-    ("At Risk", "Critical"): 5, ("At Risk", "At Risk"): 6, ("At Risk", "Stable"): 7, ("At Risk", "Excellent"): 8,
-    ("Stable", "Critical"): 9, ("Stable", "At Risk"): 10, ("Stable", "Stable"): 11, ("Stable", "Excellent"): 12,
-    ("Excellent", "Critical"): 13, ("Excellent", "At Risk"): 14, ("Excellent", "Stable"): 15, ("Excellent", "Excellent"): 16,
+    ("Critical", "Critical"): 1,
+    ("Critical", "At Risk"): 2,
+    ("Critical", "Stable"): 3,
+    ("Critical", "Excellent"): 4,
+    ("At Risk", "Critical"): 5,
+    ("At Risk", "At Risk"): 6,
+    ("At Risk", "Stable"): 7,
+    ("At Risk", "Excellent"): 8,
+    ("Stable", "Critical"): 9,
+    ("Stable", "At Risk"): 10,
+    ("Stable", "Stable"): 11,
+    ("Stable", "Excellent"): 12,
+    ("Excellent", "Critical"): 13,
+    ("Excellent", "At Risk"): 14,
+    ("Excellent", "Stable"): 15,
+    ("Excellent", "Excellent"): 16,
 }
 
 
@@ -294,7 +303,9 @@ def scenario_name(rf_t: str, lf_t: str) -> str:
     }
     return f"{rev_map.get(rf_t, rf_t)} / {lab_map.get(lf_t, lf_t)}"
 
+
 def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
+    """(Kept for future use – scenario grid if you want it later.)"""
     rf_cols = TIER_ORDER
     lf_rows = TIER_ORDER
     data = []
@@ -336,7 +347,8 @@ def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
 
     return df, styler
 
-   # ---------- KPI bars (Executive style) ----------
+
+# ---------- KPI bars (Executive style) ----------
 def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
     labels = [
         "Visit Value Index (VVI)",
@@ -352,7 +364,7 @@ def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
 
     # Soft background bands by performance tier
     bands = [
-        (0, 90,  "#fdecea"),   # Critical / At Risk – soft red
+        (0, 90, "#fdecea"),    # Critical / At Risk – soft red
         (90, 95, "#fff4e5"),   # At Risk – soft amber
         (95, 100, "#fffbe6"),  # Stable – soft cream
         (100, x_max, "#e8f5e9"),  # Excellent – soft green
@@ -431,6 +443,7 @@ def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
     st.pyplot(fig)
     return fig
 
+
 def format_money(x: float) -> str:
     try:
         return f"${float(x):,.2f}"
@@ -458,12 +471,10 @@ def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
       - system_actions (operating rhythm / governance)
       - extended (all actions flattened, used for PDF)
       - huddle_script
-      - daily_patch
     """
-
     diagnosis = SCENARIO_DIAGNOSES.get((rf_t, lf_t), scenario_name(rf_t, lf_t))
 
-    # Tier-based bundles from your RF/LF matrices
+    # Tier-based bundles from RF/LF matrices
     rev_actions = RF_ACTIONS.get(rf_t, []).copy()
     lab_actions = LF_ACTIONS.get(lf_t, []).copy()
 
@@ -510,12 +521,12 @@ def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
         "system_actions": system_actions,
         "extended": extended_all,
         "huddle_script": huddle_script,
-           }
+    }
+
 
 # ----------------------------
 # Optional AI Insights helper
 # ----------------------------
-
 def ai_generate_insights(
     rf_score: float,
     lf_score: float,
@@ -587,6 +598,7 @@ def ai_generate_insights(
     except Exception as e:
         return False, f"AI call failed: {e}"
 
+
 # ----------------------------
 # Session state
 # ----------------------------
@@ -596,8 +608,16 @@ if "runs" not in st.session_state:
 if "assessment_ready" not in st.session_state:
     st.session_state.assessment_ready = False
 
+
+def reset_assessment():
+    """Clear assessment state and restart app."""
+    st.session_state.assessment_ready = False
+    # Keep portfolio, just reset the current run
+    st.experimental_rerun()
+
+
 # ----------------------------
-# Input Form (all at once
+# Input Form (all at once)
 # ----------------------------
 st.markdown("### Input")
 
@@ -632,12 +652,14 @@ with st.form("vvi_inputs"):
     )
 
     st.markdown("---")
-    st.markdown("**Optional**  \n"
-                "<span style='font-size:0.8rem;color:#777;'>"
-                "These optional inputs use industry-standard averages, "
-                "but you can update them to better reflect your organization."
-                "</span>",
-                unsafe_allow_html=True)
+    st.markdown(
+        "**Optional**  \n"
+        "<span style='font-size:0.8rem;color:#777;'>"
+        "These optional inputs use industry-standard averages, "
+        "but you can update them to better reflect your organization."
+        "</span>",
+        unsafe_allow_html=True,
+    )
 
     r_target = st.number_input(
         "Budgeted NOR per Visit",
@@ -663,19 +685,16 @@ with st.form("vvi_inputs"):
 # Results
 # ----------------------------
 if submitted:
-    # mark that we have a run to show
     st.session_state.assessment_ready = True
 
 if st.session_state.assessment_ready:
-    # now do exactly what you had before inside `if submitted:`
-    visits = float(visits)
-    net_rev = float(net_rev)
-    labor = float(labor_cost)
+    # Use current widget values for all downstream logic
+    visits = float(st.session_state.visits_input)
+    net_rev = float(st.session_state.net_rev_input)
+    labor = float(st.session_state.labor_cost_input)
+    rt = float(st.session_state.rev_target_input)
+    lt = float(st.session_state.lab_target_input)
     period = "Custom"
-    rt = float(r_target)
-    lt = float(l_target)
-
-    # (rest of your calculations, tables, Extended Actions, simulator, AI, PDF, portfolio, etc.)
 
     if visits <= 0 or net_rev <= 0 or labor <= 0:
         st.warning(
@@ -763,10 +782,6 @@ if st.session_state.assessment_ready:
 
     st.dataframe(calc_styler, use_container_width=True, hide_index=True)
 
-    # (…then keep all your existing scoring table, scenario diagnosis,
-    # actions, simulator, AI insights, PDF, portfolio code exactly as you
-    # already have it, just under this `if submitted:` block.)
-
     # ---------- Scoring table (VVI emphasized) ----------
     score_df = pd.DataFrame(
         {
@@ -826,7 +841,7 @@ if st.session_state.assessment_ready:
     )
     st.table(scenario_df)
 
-        # ---------- Top 3 ----------
+    # ---------- Top 3 ----------
     st.subheader("Top 3 Actions (Immediate)")
     for idx, item in enumerate(actions["top3"], start=1):
         st.write(f"{idx}. {item}")
@@ -834,7 +849,7 @@ if st.session_state.assessment_ready:
     # ---------- Extended Actions (executive layout) ----------
     st.subheader("Extended Actions (Playbook)")
 
-    def render_action_bucket(label, items):
+    def render_action_bucket(label: str, items: list[str]):
         """Show 3–4 priority actions, tuck the rest into an expander."""
         if not items:
             st.write("_No actions for this bucket._")
@@ -850,29 +865,6 @@ if st.session_state.assessment_ready:
             "</div>",
             unsafe_allow_html=True,
         )
-        st.markdown("""
-    <div style="
-        background:#fff8e1;
-        border-left:4px solid #b08c3e;
-        padding:0.75rem 1rem;
-        border-radius:4px;
-        margin-top:1.2rem;
-    ">
-      <h4 style="margin-top:0;margin-bottom:0.5rem;">AI Insights (optional)</h4>
-      <p style="margin-top:0;margin-bottom:0.5rem;font-size:0.9rem;color:#555;">
-        Enable only when you want an executive narrative summary.  
-        (This uses your organization's OpenAI key.)
-      </p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    ai_choice = st.radio(
-        "Generate AI executive narrative?",
-        ["Off", "On"],
-        index=0,
-        key="ai_choice_main",
-        horizontal=True
-    )
 
         # Primary list
         for idx, text in enumerate(primary, start=1):
@@ -897,10 +889,6 @@ if st.session_state.assessment_ready:
 
     with tab_sys:
         render_action_bucket("Operating Rhythm", actions.get("system_actions", []))
-
-    # ---------- Huddle Script ----------
-    with st.expander("Huddle Script (copy/paste)", expanded=False):
-        st.code(actions["huddle_script"])
 
     # ---------- Impact Simulator (optional what-if) ----------
     with st.expander("Optional: Simulate impact of improvement", expanded=False):
@@ -992,7 +980,7 @@ if st.session_state.assessment_ready:
         ax_sim.spines["top"].set_visible(False)
         st.pyplot(fig_sim)
 
-        # ---------- AI Insights (optional, in-page) ----------
+    # ---------- AI Insights (optional, in-page) ----------
     st.subheader("AI Insights (optional)")
 
     ai_choice = st.radio(
@@ -1161,4 +1149,4 @@ if st.session_state.assessment_ready:
 
     st.divider()
     if st.button("Start a New Assessment"):
-        reset()
+        reset_assessment()
