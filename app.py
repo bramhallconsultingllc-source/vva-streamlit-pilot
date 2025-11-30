@@ -137,7 +137,7 @@ intro_html = """
 
 <div class='intro-text'>
     <h2>Welcome to the Visit Value Index&trade; (VVI)</h2>
-    <p style="margin-top:0.4rem;font-style:italic;color:#555;">
+    <p style="margin-top:0.4rem;font-style:italic;color:#555;text-align:center;">
         predict. perform. prosper.
     </p>
 </div>
