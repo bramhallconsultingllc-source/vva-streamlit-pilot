@@ -499,8 +499,6 @@ def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
         "• Reliability: close charts same day; handoffs clear; escalate bottlenecks early"
     )
 
-    )
-
     # Flattened list used for PDF export
     extended_all = extended_rf_lf + system_actions
 
