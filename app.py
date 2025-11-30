@@ -724,7 +724,7 @@ if st.session_state.assessment_ready:
     actions = prescriptive_actions(rf_t, lf_t, rpv_gap)
     scenario_text = actions["diagnosis"]
 
-       st.success("Assessment complete. See results below.")
+    st.success("Assessment complete. See results below.")
     kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
 
     # ----- Calculation table with key metrics on top -----
