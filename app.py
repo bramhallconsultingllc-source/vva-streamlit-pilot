@@ -767,7 +767,7 @@ if st.session_state.step >= 7:
     st.success("Assessment complete. See results below.")
     kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
     
-    # ---------- Calculation table ----------
+        # ---------- Calculation table ----------
     calc_df = pd.DataFrame(
         {
             "Metric": [
@@ -802,7 +802,8 @@ if st.session_state.step >= 7:
             ],
         }
     )
-       st.subheader("Calculation Table")
+
+    st.subheader("Calculation Table")
 
     def highlight_scenario(row):
         if row["Metric"] == "Scenario":
