@@ -461,12 +461,6 @@ def format_money(x: float) -> str:
     except Exception:
         return "$0.00"
 
-def format_money(x: float) -> str:
-    try:
-        return f"${float(x):,.2f}"
-    except Exception:
-        return "$0.00"
-
 
 def pos_should_be_top3(
     rpv_gap: float,
