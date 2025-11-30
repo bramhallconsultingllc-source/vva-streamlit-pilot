@@ -821,25 +821,49 @@ if submitted:
     for idx, item in enumerate(actions["top3"], start=1):
         st.write(f"{idx}. {item}")
 
-    # ---------- Extended Actions, organized ----------
-    st.subheader("Extended Actions")
+   # ---------- Extended Actions (executive layout) ----------
+st.subheader("Extended Actions (Playbook)")
 
-    col_rev, col_lab, col_sys = st.columns(3)
+def render_action_bucket(label: str, items: list[str]):
+    """Show 3–4 priority actions, tuck the rest into an expander."""
+    if not items:
+        st.write("_No actions for this bucket._")
+        return
 
-    with col_rev:
-        st.markdown("**Revenue Actions**")
-        for item in actions.get("rev_actions", []):
-            st.write(f"- {item}")
+    primary = items[:4]
+    extra = items[4:]
 
-    with col_lab:
-        st.markdown("**Labor Actions**")
-        for item in actions.get("lab_actions", []):
-            st.write(f"- {item}")
+    st.markdown(f"#### {label}")
+    st.markdown(
+        "<div style='font-size:0.9rem;color:#666;margin-bottom:0.35rem;'>"
+        "Priority actions to execute first."
+        "</div>",
+        unsafe_allow_html=True,
+    )
 
-    with col_sys:
-        st.markdown("**Operating Rhythm**")
-        for item in actions.get("system_actions", []):
-            st.write(f"- {item}")
+    # Primary list
+    for idx, text in enumerate(primary, start=1):
+        st.markdown(f"**{idx}.** {text}")
+
+    # Extra list in an expander
+    if extra:
+        with st.expander("Show additional actions"):
+            for text in extra:
+                st.markdown(f"- {text}")
+
+# Tabs: one pane per theme
+tab_rev, tab_lab, tab_sys = st.tabs(
+    ["Revenue Focus", "Labor & Throughput", "Operating Rhythm"]
+)
+
+with tab_rev:
+    render_action_bucket("Revenue Actions", actions.get("rev_actions", []))
+
+with tab_lab:
+    render_action_bucket("Labor Actions", actions.get("lab_actions", []))
+
+with tab_sys:
+    render_action_bucket("Operating Rhythm", actions.get("system_actions", []))
 
     # ---------- Huddle Script ----------
     with st.expander("Huddle Script (copy/paste)", expanded=False):
