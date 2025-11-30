@@ -841,13 +841,10 @@ if submitted:
         for item in actions.get("system_actions", []):
             st.write(f"- {item}")
 
-    # ---------- Huddle & Daily Patch ----------
+    # ---------- Huddle Script ----------
     with st.expander("Huddle Script (copy/paste)", expanded=False):
         st.code(actions["huddle_script"])
-
-    with st.expander("Daily Reminder Patch", expanded=False):
-        st.write(actions["daily_patch"])
-        
+       
     # ---------- Impact Simulator (optional what-if) ----------
     with st.expander("Optional: Simulate impact of improvement", expanded=False):
         st.caption(
