@@ -824,22 +824,6 @@ if st.session_state.assessment_ready:
 
     st.dataframe(styler_score, use_container_width=True, hide_index=True)
 
-    # ---------- Scenario diagnosis table ----------
-    st.subheader("Scenario Diagnosis")
-
-    scenario_df = pd.DataFrame(
-        {
-            "Item": ["Diagnosis", "Period", "Revenue Tier (RF)", "Labor Tier (LF)"],
-            "Value": [
-                actions["diagnosis"],
-                period,
-                rf_t,
-                lf_t,
-            ],
-        }
-    )
-    st.table(scenario_df)
-
     # ---------- Top 3 ----------
     st.subheader("Top 3 Actions (Immediate)")
     for idx, item in enumerate(actions["top3"], start=1):
