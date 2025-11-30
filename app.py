@@ -608,12 +608,11 @@ if "runs" not in st.session_state:
 if "assessment_ready" not in st.session_state:
     st.session_state.assessment_ready = False
 
-
 def reset_assessment():
     """Clear assessment state and restart app."""
     st.session_state.assessment_ready = False
     # Keep portfolio, just reset the current run
-    st.experimental_rerun()
+    st.rerun()
 
 
 # ----------------------------
