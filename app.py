@@ -850,7 +850,7 @@ if st.session_state.assessment_ready:
             "</div>",
             unsafe_allow_html=True,
         )
-           st.markdown("""
+        st.markdown("""
     <div style="
         background:#fff8e1;
         border-left:4px solid #b08c3e;
