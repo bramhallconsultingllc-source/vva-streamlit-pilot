@@ -297,22 +297,6 @@ def scenario_name(rf_t: str, lf_t: str) -> str:
     }
     return f"{rev_map.get(rf_t, rf_t)} / {lab_map.get(lf_t, lf_t)}"
 
-
-def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
-    rf_cols = TIER_ORDER
-    lf_rows = TIER_ORDER
-    data = []
-    for lf in lf_rows:
-        row = []
-        for rf in rf_cols:
-            row.append(SCENARIO_MAP[(lf, rf)])
-        data.append(row)
-    df = pd.DataFrame(
-        data,
-        index=[f"LF: {r}" for r in lf_rows],
-        columns=[f"RF: {c}" for c in rf_cols],
-    )
-
     def highlight_active(val, row_idx, col_idx):
         lf_here = lf_rows[row_idx]
         rf_here = rf_cols[col_idx]
