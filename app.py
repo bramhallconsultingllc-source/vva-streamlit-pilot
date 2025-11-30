@@ -510,8 +510,7 @@ def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
         "system_actions": system_actions,
         "extended": extended_all,
         "huddle_script": huddle_script,
-        "daily_patch": daily_patch,
-    }
+           }
 
 # ----------------------------
 # Optional AI Insights helper
