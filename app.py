@@ -499,9 +499,6 @@ def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
         "• Reliability: close charts same day; handoffs clear; escalate bottlenecks early"
     )
 
-    daily_patch = (
-        "Daily reminder: review Top 3 levers, confirm staffing vs demand, "
-        "call out risks early, and recognize wins in real time."
     )
 
     # Flattened list used for PDF export
