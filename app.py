@@ -846,7 +846,28 @@ if st.session_state.step >= 7:
         }
     )
     st.subheader("Calculation Table")
-    st.dataframe(calc_df, use_container_width=True, hide_index=True)
+
+def highlight_scenario(row):
+    if row["Metric"] == "Scenario":
+        # Executive call-out styling for the Scenario row
+        return [
+            "font-weight:700; background-color:#f7f2d3; "
+            "border-top:1px solid #ccc; border-bottom:1px solid #ccc;"
+        ] * len(row)
+    return [""] * len(row)
+
+calc_styler = (
+    calc_df.style
+    .apply(highlight_scenario, axis=1)
+    # Let long text (diagnosis) wrap in the Value column
+    .set_properties(subset=["Value"], **{"white-space": "normal"})
+)
+
+st.dataframe(
+    calc_styler,
+    use_container_width=True,
+    hide_index=True,
+)
 
        # ---------- Scoring table (VVI emphasized) ----------
     score_df = pd.DataFrame(
