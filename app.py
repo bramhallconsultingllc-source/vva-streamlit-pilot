@@ -799,7 +799,7 @@ calc_df = pd.DataFrame(
     }
 )
 
-    st.subheader("VVI / RF / LF Scoring Table")
+st.subheader("VVI / RF / LF Scoring Table")
 
     def highlight_vvi(row):
         if row.name == 0:
