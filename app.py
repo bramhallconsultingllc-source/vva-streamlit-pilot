@@ -2,7 +2,7 @@ import os
 import base64
 
 # app.py — Visit Value Agent 4.0 (Pilot)
-# Bramhall Consulting, LLC — predict. perform. prosper.
+# predict. perform. prosper.
 
 import io
 from datetime import datetime
