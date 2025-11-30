@@ -969,22 +969,24 @@ if st.session_state.assessment_ready:
         ax_sim.spines["top"].set_visible(False)
         st.pyplot(fig_sim)
 
-    # ---------- AI Insights (optional) ----------
-    with st.sidebar:
-        use_ai = st.toggle(
-            "Enable AI Insights (optional)",
-            value=False,
-            help="Uses your OpenAI key in Streamlit Secrets",
-        )
-
+        # ---------- AI Insights (optional, in-page) ----------
     st.subheader("AI Insights (optional)")
-    if not use_ai:
+
+    ai_choice = st.radio(
+        "Use AI to generate a short executive narrative?",
+        ["Off", "On"],
+        index=0,
+        horizontal=True,
+        help="Uses your OpenAI key in Streamlit Secrets.",
+    )
+
+    if ai_choice == "Off":
         st.info(
-            "AI is off. Turn it on in the left sidebar to generate narrative insights. "
-            "Your scores & actions above are still fully available."
+            "AI is off. Turn it on above to generate a concise narrative for leaders. "
+            "Your scores & actions above are still fully available without AI."
         )
     else:
-        if st.button("Generate AI Insights with AI"):
+        if st.button("Generate AI Insights"):
             ok, md = ai_generate_insights(
                 rf_score=rf_score,
                 lf_score=lf_score,
