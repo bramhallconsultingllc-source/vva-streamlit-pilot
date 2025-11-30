@@ -831,7 +831,7 @@ if st.session_state.assessment_ready:
     st.dataframe(styler_score, use_container_width=True, hide_index=True)
 
        # ---------- Prescriptive Actions (executive layout) ----------
-    st.subheader("Extended Actions (Playbook)")
+    st.subheader("Prescriptive Actions (Playbook)")
 
     def render_action_bucket(label: str, items: list[str]):
         """Show 3–4 priority actions, tuck the rest into an expander."""
