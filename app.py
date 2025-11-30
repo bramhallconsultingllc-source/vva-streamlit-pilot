@@ -831,7 +831,7 @@ if st.session_state.assessment_ready:
     for idx, item in enumerate(actions["top3"], start=1):
         st.write(f"{idx}. {item}")
 
-       # ---------- Extended Actions (executive layout) ----------
+    # ---------- Extended Actions (executive layout) ----------
     st.subheader("Extended Actions (Playbook)")
 
     def render_action_bucket(label, items):
@@ -850,6 +850,29 @@ if st.session_state.assessment_ready:
             "</div>",
             unsafe_allow_html=True,
         )
+           st.markdown("""
+    <div style="
+        background:#fff8e1;
+        border-left:4px solid #b08c3e;
+        padding:0.75rem 1rem;
+        border-radius:4px;
+        margin-top:1.2rem;
+    ">
+      <h4 style="margin-top:0;margin-bottom:0.5rem;">AI Insights (optional)</h4>
+      <p style="margin-top:0;margin-bottom:0.5rem;font-size:0.9rem;color:#555;">
+        Enable only when you want an executive narrative summary.  
+        (This uses your organization's OpenAI key.)
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    ai_choice = st.radio(
+        "Generate AI executive narrative?",
+        ["Off", "On"],
+        index=0,
+        key="ai_choice_main",
+        horizontal=True
+    )
 
         # Primary list
         for idx, text in enumerate(primary, start=1):
@@ -892,26 +915,25 @@ if st.session_state.assessment_ready:
             "Adjust by:",
             ["Percent change", "Dollar change"],
             horizontal=True,
-            key="sim_mode",
         )
 
         c1, c2 = st.columns(2)
         if mode == "Percent change":
             nrpv_delta_pct = c1.number_input(
-                "NRPV change (%)", value=5.0, step=1.0, format="%.1f", key="nrpv_pct"
+                "NRPV change (%)", value=5.0, step=1.0, format="%.1f"
             )
             lcv_delta_pct = c2.number_input(
-                "LCV change (%)", value=-5.0, step=1.0, format="%.1f", key="lcv_pct"
+                "LCV change (%)", value=-5.0, step=1.0, format="%.1f"
             )
 
             sim_rpv = rpv * (1 + nrpv_delta_pct / 100.0)
             sim_lcv = lcv * (1 + lcv_delta_pct / 100.0)
         else:
             nrpv_delta_amt = c1.number_input(
-                "NRPV change ($)", value=5.0, step=1.0, format="%.2f", key="nrpv_amt"
+                "NRPV change ($)", value=5.0, step=1.0, format="%.2f"
             )
             lcv_delta_amt = c2.number_input(
-                "LCV change ($)", value=-5.0, step=1.0, format="%.2f", key="lcv_amt"
+                "LCV change ($)", value=-5.0, step=1.0, format="%.2f"
             )
 
             sim_rpv = rpv + nrpv_delta_amt
@@ -970,29 +992,15 @@ if st.session_state.assessment_ready:
         ax_sim.spines["top"].set_visible(False)
         st.pyplot(fig_sim)
 
-    # ---------- AI Insights (optional, in-page) ----------
-    st.markdown("""
-    <div style="
-        background:#fff8e1;
-        border-left:4px solid #b08c3e;
-        padding:0.75rem 1rem;
-        border-radius:4px;
-        margin-top:1.2rem;
-    ">
-      <h4 style="margin-top:0;margin-bottom:0.5rem;">AI Insights (optional)</h4>
-      <p style="margin-top:0;margin-bottom:0.5rem;font-size:0.9rem;color:#555;">
-        Enable only when you want an executive narrative summary.<br>
-        (This uses your organization's OpenAI key.)
-      </p>
-    </div>
-    """, unsafe_allow_html=True)
+        # ---------- AI Insights (optional, in-page) ----------
+    st.subheader("AI Insights (optional)")
 
     ai_choice = st.radio(
-        "Generate AI executive narrative?",
+        "Use AI to generate a short executive narrative?",
         ["Off", "On"],
         index=0,
-        key="ai_choice_main",
         horizontal=True,
+        help="Uses your OpenAI key in Streamlit Secrets.",
     )
 
     if ai_choice == "Off":
@@ -1001,7 +1009,7 @@ if st.session_state.assessment_ready:
             "Your scores & actions above are still fully available without AI."
         )
     else:
-        if st.button("Generate AI Insights", type="primary"):
+        if st.button("Generate AI Insights"):
             ok, md = ai_generate_insights(
                 rf_score=rf_score,
                 lf_score=lf_score,
