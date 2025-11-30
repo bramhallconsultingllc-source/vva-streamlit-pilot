@@ -876,7 +876,7 @@ score_df = pd.DataFrame(
 
 st.subheader("VVI / RF / LF Scoring Table")
 
-    def highlight_vvi(row):
+def highlight_vvi(row):
         if row.name == 0:
             return [
                 "font-weight:700; background-color:#f7f2d3; "
