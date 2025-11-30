@@ -97,6 +97,7 @@ intro_css = """
     transform: translateY(6px);
     animation: fadeInUp 1.4s ease-out forwards;
     animation-delay: 1.0s;  /* wait for line to mostly complete */
+    text-align: center;      /* <<< center the heading + tagline */
 }
 
 /* Animations */
