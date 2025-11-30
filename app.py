@@ -843,13 +843,29 @@ if st.session_state.assessment_ready:
         primary = items[:4]
         extra = items[4:]
 
-        st.markdown(f"#### {label}")
-        st.markdown(
-            "<div style='font-size:0.9rem;color:#666;margin-bottom:0.35rem;'>"
-            "Priority actions to execute first."
-            "</div>",
-            unsafe_allow_html=True,
-        )
+           st.markdown("""
+    <div style="
+        background:#fff8e1;
+        border-left:4px solid #b08c3e;
+        padding:0.75rem 1rem;
+        border-radius:4px;
+        margin-top:1.2rem;
+    ">
+      <h4 style="margin-top:0;margin-bottom:0.5rem;">AI Insights (optional)</h4>
+      <p style="margin-top:0;margin-bottom:0.5rem;font-size:0.9rem;color:#555;">
+        Enable only when you want an executive narrative summary.  
+        (This uses your organization's OpenAI key.)
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    ai_choice = st.radio(
+        "Generate AI executive narrative?",
+        ["Off", "On"],
+        index=0,
+        key="ai_choice_main",
+        horizontal=True
+    )
 
         # Primary list
         for idx, text in enumerate(primary, start=1):
