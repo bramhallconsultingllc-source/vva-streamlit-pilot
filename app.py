@@ -848,7 +848,7 @@ st.dataframe(
 )
 
        # ---------- Scoring table (VVI emphasized) ----------
-    score_df = pd.DataFrame(
+score_df = pd.DataFrame(
         {
             "Index": [
                 "Visit Value Index (VVI)",
