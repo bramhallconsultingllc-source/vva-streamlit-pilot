@@ -23,7 +23,6 @@ try:
 except Exception:
     OpenAI = None  # app still runs if OpenAI SDK isn't installed
 
-
 # ----------------------------
 # Helpers
 # ----------------------------
@@ -32,7 +31,6 @@ def get_base64_image(path: str) -> str:
     with open(path, "rb") as f:
         data = f.read()
     return base64.b64encode(data).decode("utf-8")
-
 
 # ----------------------------
 # Page config & branded intro
