@@ -588,10 +588,13 @@ def ai_generate_insights(
         return False, f"AI call failed: {e}"
 
 # ----------------------------
-# Session state (just for portfolio now)
+# Session state
 # ----------------------------
 if "runs" not in st.session_state:
-    st.session_state.runs = []  # list of dicts (name + results)
+    st.session_state.runs = []
+
+if "assessment_ready" not in st.session_state:
+    st.session_state.assessment_ready = False
 
 # ----------------------------
 # Input Form (all at once
@@ -660,12 +663,19 @@ with st.form("vvi_inputs"):
 # Results
 # ----------------------------
 if submitted:
+    # mark that we have a run to show
+    st.session_state.assessment_ready = True
+
+if st.session_state.assessment_ready:
+    # now do exactly what you had before inside `if submitted:`
     visits = float(visits)
     net_rev = float(net_rev)
     labor = float(labor_cost)
-    period = "Custom"   # or add a selectbox above if you still want Week/Month/etc.
+    period = "Custom"
     rt = float(r_target)
     lt = float(l_target)
+
+    # (rest of your calculations, tables, Extended Actions, simulator, AI, PDF, portfolio, etc.)
 
     if visits <= 0 or net_rev <= 0 or labor <= 0:
         st.warning(
