@@ -784,142 +784,38 @@ if st.session_state.assessment_ready:
     with tab_sys:
         render_action_bucket("Operating Rhythm", actions.get("system_actions", []))
 
-        # ---------- Impact Simulator (optional what-if) ----------
-    with st.expander("Optional: Simulate impact of improvement", expanded=False):
-        st.caption(
-            "Adjust Net Revenue per Visit (NRPV) and Labor Cost per Visit (LCV) "
-            "by dollars or percent to see how VVI, RF, and LF could move if "
-            "your prescriptive actions are successful. This does not change your "
-            "core scores above; it is a what-if view."
-        )
+            # ---------- AI Insights (optional, in-page) ----------
+    st.subheader("AI Insights (optional)")
 
-        mode = st.radio(
-            "Adjust by:",
-            ["Percent change", "Dollar change"],
-            horizontal=True,
-        )
-
-        c_sim1, c_sim2 = st.columns(2)
-        if mode == "Percent change":
-            nrpv_delta_pct = c_sim1.number_input(
-                "NRPV change (%)", value=5.0, step=1.0, format="%.1f"
-            )
-            lcv_delta_pct = c_sim2.number_input(
-                "LCV change (%)", value=-5.0, step=1.0, format="%.1f"
-            )
-
-            sim_rpv = rpv * (1 + nrpv_delta_pct / 100.0)
-            sim_lcv = lcv * (1 + lcv_delta_pct / 100.0)
-        else:
-            nrpv_delta_amt = c_sim1.number_input(
-                "NRPV change ($)", value=5.0, step=1.0, format="%.2f"
-            )
-            lcv_delta_amt = c_sim2.number_input(
-                "LCV change ($)", value=-5.0, step=1.0, format="%.2f"
-            )
-
-            sim_rpv = rpv + nrpv_delta_amt
-            sim_lcv = lcv + lcv_delta_amt
-
-        # Guardrails
-        sim_rpv = max(sim_rpv, 0.01)
-        sim_lcv = max(sim_lcv, 0.01)
-
-        # Recompute scores under the simulated scenario
-        sim_rf_raw = sim_rpv / rt
-        sim_lf_raw = lt / sim_lcv
-        sim_vvi_raw = sim_rpv / sim_lcv
-        sim_vvi_target = (rt / lt) if (rt and lt) else 1.67
-        sim_rf_score = sim_rf_raw * 100
-        sim_lf_score = sim_lf_raw * 100
-        sim_vvi_score = (sim_vvi_raw / sim_vvi_target) * 100
-
-        sim_df = pd.DataFrame(
-            {
-                "Index": ["Current", "Simulated"],
-                "NRPV": [format_money(rpv), format_money(sim_rpv)],
-                "LCV": [format_money(lcv), format_money(sim_lcv)],
-                "VVI Score": [f"{vvi_score:.1f}", f"{sim_vvi_score:.1f}"],
-                "RF Score": [f"{rf_score:.1f}", f"{sim_rf_score:.1f}"],
-                "LF Score": [f"{lf_score:.1f}", f"{sim_lf_score:.1f}"],
-            }
-        )
-
-        st.write("**Simulated impact (does not overwrite actual results):**")
-        st.dataframe(sim_df, use_container_width=True, hide_index=True)
-
-        # Horizontal bar chart with target line at 100
-        fig_sim, ax_sim = plt.subplots(figsize=(6, 2.5))
-        labels = ["VVI", "RF", "LF"]
-        current_vals = [vvi_score, rf_score, lf_score]
-        sim_vals = [sim_vvi_score, sim_rf_score, sim_lf_score]
-        x = np.arange(len(labels))
-        bar_width = 0.35
-
-        # Bars
-        ax_sim.barh(
-            [i + bar_width for i in x],
-            current_vals,
-            height=bar_width,
-            label="Current",
-        )
-        ax_sim.barh(
-            x,
-            sim_vals,
-            height=bar_width,
-            label="Simulated",
-        )
-
-        # Vertical target line at score 100
-        ax_sim.axvline(
-            100,
-            linestyle="--",
-            linewidth=1.2,
-            alpha=0.7,
-        )
-
-        # Labels & cosmetics
-        ax_sim.set_yticks([i + bar_width / 2 for i in x])
-        ax_sim.set_yticklabels(labels)
-        ax_sim.set_xlabel("Score (0–100+)")
-        ax_sim.legend()
-        ax_sim.spines["right"].set_visible(False)
-        ax_sim.spines["top"].set_visible(False)
-
-        st.pyplot(fig_sim)
-
-# ---------- AI Insights (optional, in-page) ----------
-st.subheader("AI Insights (optional)")
-
-ai_choice = st.radio(
-    "Use AI to generate a short executive narrative?",
-    ["Off", "On"],
-    index=0,
-    horizontal=True,
-    help="Uses your OpenAI key in Streamlit Secrets.",
-)
-
-if ai_choice == "Off":
-    st.info(
-        "AI is off. Turn it on above to generate a concise narrative for leaders. "
-        "Your scores & actions above are still fully available without AI."
+    ai_choice = st.radio(
+        "Use AI to generate a short executive narrative?",
+        ["Off", "On"],
+        index=0,
+        horizontal=True,
+        help="Uses your OpenAI key in Streamlit Secrets.",
     )
-else:
-    if st.button("Generate AI Insights"):
-        ok, md = ai_generate_insights(
-            rf_score=rf_score,
-            lf_score=lf_score,
-            vvi_score=vvi_score,
-            rpv=rpv,
-            lpv=lcv,
-            swb_pct=swb_pct,
-            scenario_text=scenario_text,
-            period=period,
+
+    if ai_choice == "Off":
+        st.info(
+            "AI is off. Turn it on above to generate a concise narrative for leaders. "
+            "Your scores & actions above are still fully available without AI."
         )
-        if ok:
-            st.markdown(md)
-        else:
-            st.warning(md)
+    else:
+        if st.button("Generate AI Insights"):
+            ok, md = ai_generate_insights(
+                rf_score=rf_score,
+                lf_score=lf_score,
+                vvi_score=vvi_score,
+                rpv=rpv,
+                lpv=lcv,
+                swb_pct=swb_pct,
+                scenario_text=scenario_text,
+                period=period,
+            )
+            if ok:
+                st.markdown(md)
+            else:
+                st.warning(md)
 
     # ---------- Print-ready PDF export ----------
     def make_pdf_buffer():
@@ -927,10 +823,10 @@ else:
         c = canvas.Canvas(buf, pagesize=LETTER)
         w, h = LETTER
 
-        # Header (black & gold)
+        # Header
         c.setFillColor(colors.black)
         c.rect(0, h - 60, w, 60, fill=1, stroke=0)
-        c.setFillColorRGB(0.48, 0.39, 0.0)  # gold-ish
+        c.setFillColorRGB(0.48, 0.39, 0.0)
         c.setFont("Helvetica-Bold", 16)
         c.drawString(40, h - 40, "Visit Value Agent 4.0 — Executive Summary")
         c.setFillColor(colors.white)
@@ -952,18 +848,9 @@ else:
 
         line("Period:", period)
         line("Scenario:", actions["diagnosis"])
-        line(
-            "VVI:",
-            f"{vvi_score:.2f} ({vvi_t})",
-        )
-        line(
-            "RF / LF:",
-            f"{rf_score:.2f}% ({rf_t})  |  {lf_score:.2f}% ({lf_t})",
-        )
-        line(
-            "NRPV / LCV / SWB%:",
-            f"{format_money(rpv)}  |  {format_money(lcv)}  |  {swb_pct*100:.1f}%",
-        )
+        line("VVI:", f"{vvi_score:.2f} ({vvi_t})")
+        line("RF / LF:", f"{rf_score:.2f}% ({rf_t})  |  {lf_score:.2f}% ({lf_t})")
+        line("NRPV / LCV / SWB%:", f"{format_money(rpv)}  |  {format_money(lcv)}  |  {swb_pct*100:.1f}%")
         y -= 6
 
         c.setFont("Helvetica-Bold", 12)
@@ -984,14 +871,12 @@ else:
             y -= 14
             if y < 80:
                 c.showPage()
-                # Re-draw a simple header on new page
                 y = h - 80
                 c.setFont("Helvetica-Bold", 12)
                 c.drawString(40, y, "Extended Actions (cont.)")
                 y -= 18
                 c.setFont("Helvetica", 11)
 
-        # Footer
         c.setFont("Helvetica-Oblique", 9)
         c.setFillColor(colors.grey)
         c.drawRightString(
@@ -1014,6 +899,7 @@ else:
     st.subheader("Save this run")
     default_name = f"Clinic {len(st.session_state.runs) + 1}"
     run_name = st.text_input("Name this clinic/run:", value=default_name)
+
     if st.button("Save to portfolio"):
         st.session_state.runs.append(
             {
@@ -1033,27 +919,26 @@ else:
 
         def color_by_vvi(row):
             try:
-                vvi_val = float(row["VVI"])
+                v = float(row["VVI"])
             except Exception:
                 return [""] * len(row)
-            if vvi_val >= 100:
-                color = "#d9f2d9"  # light green
-            elif vvi_val >= 95:
-                color = "#fff7cc"  # light yellow
-            elif vvi_val >= 90:
-                color = "#ffe0b3"  # light orange
+            if v >= 100:
+                color = "#d9f2d9"
+            elif v >= 95:
+                color = "#fff7cc"
+            elif v >= 90:
+                color = "#ffe0b3"
             else:
-                color = "#f8cccc"  # light red
+                color = "#f8cccc"
             return [f"background-color: {color}"] * len(row)
 
-        styler_comp = comp.style.apply(color_by_vvi, axis=1)
-        st.dataframe(styler_comp, use_container_width=True, hide_index=True)
+        st.dataframe(comp.style.apply(color_by_vvi, axis=1), use_container_width=True, hide_index=True)
 
-        _, c_port2 = st.columns([3, 1])
-        with c_port2:
-            if st.button("Reset portfolio", help="Clear all saved clinics/runs."):
+        _, c_reset = st.columns([3, 1])
+        with c_reset:
+            if st.button("Reset portfolio"):
                 st.session_state.runs = []
-                st.success("Portfolio has been cleared.")
+                st.success("Portfolio cleared.")
 
     st.divider()
     if st.button("Start a New Assessment"):
