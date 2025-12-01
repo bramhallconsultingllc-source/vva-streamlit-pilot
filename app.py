@@ -586,7 +586,7 @@ if st.session_state.assessment_ready:
     # ---------- Executive Metric Summary (3-block layout) ----------
     st.markdown("## Executive Metric Summary")
 
-       # Hero VVI card centered
+    # Hero VVI card centered
     left_spacer, hero_col, right_spacer = st.columns([1, 2, 1])
     vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
 
