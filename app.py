@@ -359,7 +359,7 @@ def scenario_name(rf_t: str, lf_t: str) -> str:
 
 
 def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
-    """(Kept for future use – scenario grid if you want it later.)"""
+ 
     rf_cols = TIER_ORDER
     lf_rows = TIER_ORDER
     data = []
