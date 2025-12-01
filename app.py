@@ -724,24 +724,24 @@ if st.session_state.assessment_ready:
         unsafe_allow_html=True,
     )
 
-        # --- Supporting metrics table (instead of two-column HTML) ---
+            # --- Supporting metrics table (Metric | Value) ---
     st.markdown("#### Supporting Metrics")
 
     metrics_rows = [
-        ("Operational inputs", "Total visits", f"{int(visits):,}"),
-        ("Operational inputs", "Net revenue", format_money(net_rev)),
-        ("Operational inputs", "Labor cost (SWB)", format_money(labor)),
-        ("Operational inputs", "SWB%", f"{swb_pct * 100:.1f}%"),
-        ("Per-visit economics", "NRPV", format_money(rpv)),
-        ("Per-visit economics", "LCV", format_money(lcv)),
-        ("Per-visit economics", "NRPV target", format_money(rt)),
-        ("Per-visit economics", "LCV target", format_money(lt)),
-        ("Per-visit economics", "VVI raw (NRPV ÷ LCV)", f"{vvi_raw:.3f}"),
+        ("Total visits", f"{int(visits):,}"),
+        ("Net revenue", format_money(net_rev)),
+        ("Labor cost (SWB)", format_money(labor)),
+        ("SWB%", f"{swb_pct * 100:.1f}%"),
+        ("NRPV", format_money(rpv)),
+        ("LCV", format_money(lcv)),
+        ("NRPV target", format_money(rt)),
+        ("LCV target", format_money(lt)),
+        ("VVI raw (NRPV ÷ LCV)", f"{vvi_raw:.3f}"),
     ]
 
     metrics_df = pd.DataFrame(
         metrics_rows,
-        columns=["Category", "Metric", "Value"],
+        columns=["Metric", "Value"],
     )
 
     metrics_styler = metrics_df.style.set_properties(**{"text-align": "left"})
