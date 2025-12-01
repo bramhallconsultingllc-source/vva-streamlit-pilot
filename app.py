@@ -774,34 +774,37 @@ if st.session_state.assessment_ready:
     st.subheader("Calculation Table")
 
     def highlight_calc(row):
-        """Color VVI / RF / LF rows by tier, Scenario row in neutral gold."""
-        metric = row["Metric"]
-        styles = [""] * len(row)
+    """
+    Color ONLY the 'Value' cell for VVI / RF / LF based on tier.
+    Add a subtle horizontal divider before the detailed metrics
+    (i.e., above 'Total visits').
+    """
+    metric = row["Metric"]
+    styles = [""] * len(row)
 
-        # Map each metric row to its tier
-        metric_tier = None
-        if metric == "VVI score (normalized 0–100)":
-            metric_tier = vvi_t
-        elif metric == "Revenue score (RF)":
-            metric_tier = rf_t
-        elif metric == "Labor score (LF)":
-            metric_tier = lf_t
+    # Tier-based coloring for the first three KPI rows (Value column only)
+    metric_tier = None
+    if metric == "VVI score (normalized 0–100)":
+        metric_tier = vvi_t
+    elif metric == "Revenue score (RF)":
+        metric_tier = rf_t
+    elif metric == "Labor score (LF)":
+        metric_tier = lf_t
 
-        # Apply tier colors
-        if metric_tier:
-            bg = TIER_COLORS.get(metric_tier, "")
-            if bg:
-                for i in range(len(styles)):
-                    styles[i] = f"background-color:{bg}; font-weight:700;"
+    if metric_tier:
+        bg = TIER_COLORS.get(metric_tier, "")
+        if bg:
+            styles[1] = f"background-color:{bg}; font-weight:700;"  # Value col
 
-        # Scenario row styling (always the same)
-        elif metric == "Scenario":
-            styles = [
-                "font-weight:700; background-color:#f7f2d3; "
-                "border-top:1px solid #ccc; border-bottom:1px solid #ccc;"
-            ] * len(row)
+    # Neutral Scenario row – no background, just text
+    # (nothing special needed here)
 
-        return styles
+    # Add a subtle section divider above the "detail" section
+    if metric == "Total visits":
+        for i in range(len(styles)):
+            styles[i] += "border-top:2px solid #d0d0d0;"
+
+    return styles
 
     calc_styler = (
         calc_df.style
