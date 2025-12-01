@@ -584,7 +584,7 @@ if st.session_state.assessment_ready:
 
     st.success("Assessment complete. See results below.")
 
-    # ---------- Executive Summary heading ----------
+        # ---------- Executive Summary heading ----------
     st.markdown(
         "<h2 style='text-align:center; margin-bottom:0.5rem;'>Executive Summary</h2>",
         unsafe_allow_html=True,
@@ -632,9 +632,9 @@ if st.session_state.assessment_ready:
 """
         st.markdown(vvi_html, unsafe_allow_html=True)
 
-    st.markdown("")  # small spacing
+    st.markdown("")  # small spacing under hero card
 
-        # ---------- RF / LF horizontal mini-cards ----------
+    # ---------- RF / LF horizontal mini-cards ----------
     c_rf, c_lf = st.columns(2)
     rf_bg = TIER_COLORS.get(rf_t, "#f5f5f5")
     lf_bg = TIER_COLORS.get(lf_t, "#f5f5f5")
@@ -642,78 +642,103 @@ if st.session_state.assessment_ready:
     with c_rf:
         st.markdown(
             f"""
-            <div style="
-                background:{rf_bg};
-                padding:0.85rem 1.0rem;
-                border-radius:10px;
-                border-top:3px solid rgba(0,0,0,0.06);
-                box-shadow:0 6px 16px rgba(0,0,0,0.06);
-            ">
-                <div style="font-size:0.7rem; letter-spacing:0.11em;
-                            text-transform:uppercase; color:#666;
-                            margin-bottom:0.15rem;">
-                    Revenue Factor (RF)
-                </div>
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                    <div style="font-size:1.4rem; font-weight:700; color:#222;">
-                        {rf_score:.0f}%
-                    </div>
-                    <div style="
-                        font-size:0.78rem;
-                        padding:0.16rem 0.6rem;
-                        border-radius:999px;
-                        background:rgba(0,0,0,0.03);
-                        font-weight:600;
-                        color:#333;
-                    ">
-                        {rf_t}
-                    </div>
-                </div>
-                <div style="font-size:0.78rem; color:#555; margin-top:0.25rem;">
-                    Actual NRPV vs. budgeted NRPV
-                </div>
-            </div>
-            """,
+<div style="
+    background:{rf_bg};
+    padding:0.85rem 1.0rem;
+    border-radius:10px;
+    border-top:3px solid rgba(0,0,0,0.06);
+    box-shadow:0 6px 16px rgba(0,0,0,0.06);
+">
+    <div style="font-size:0.7rem; letter-spacing:0.11em;
+                text-transform:uppercase; color:#666;
+                margin-bottom:0.15rem;">
+        Revenue Factor (RF)
+    </div>
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-size:1.4rem; font-weight:700; color:#222;">
+            {rf_score:.0f}%
+        </div>
+        <div style="
+            font-size:0.78rem;
+            padding:0.16rem 0.6rem;
+            border-radius:999px;
+            background:rgba(0,0,0,0.03);
+            font-weight:600;
+            color:#333;
+        ">
+            {rf_t}
+        </div>
+    </div>
+    <div style="font-size:0.78rem; color:#555; margin-top:0.25rem;">
+        Actual NRPV vs. budgeted NRPV
+    </div>
+</div>
+""",
             unsafe_allow_html=True,
         )
 
     with c_lf:
         st.markdown(
             f"""
-            <div style="
-                background:{lf_bg};
-                padding:0.85rem 1.0rem;
-                border-radius:10px;
-                border-top:3px solid rgba(0,0,0,0.06);
-                box-shadow:0 6px 16px rgba(0,0,0,0.06);
-            ">
-                <div style="font-size:0.7rem; letter-spacing:0.11em;
-                            text-transform:uppercase; color:#666;
-                            margin-bottom:0.15rem;">
-                    Labor Factor (LF)
-                </div>
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                    <div style="font-size:1.4rem; font-weight:700; color:#222;">
-                        {lf_score:.0f}%
-                    </div>
-                    <div style="
-                        font-size:0.78rem;
-                        padding:0.16rem 0.6rem;
-                        border-radius:999px;
-                        background:rgba(0,0,0,0.03);
-                        font-weight:600;
-                        color:#333;
-                    ">
-                        {lf_t}
-                    </div>
-                </div>
-                <div style="font-size:0.78rem; color:#555; margin-top:0.25rem;">
-                    Budgeted LCV vs. actual LCV
-                </div>
-            </div>
-            """,
+<div style="
+    background:{lf_bg};
+    padding:0.85rem 1.0rem;
+    border-radius:10px;
+    border-top:3px solid rgba(0,0,0,0.06);
+    box-shadow:0 6px 16px rgba(0,0,0,0.06);
+">
+    <div style="font-size:0.7rem; letter-spacing:0.11em;
+                text-transform:uppercase; color:#666;
+                margin-bottom:0.15rem;">
+        Labor Factor (LF)
+    </div>
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-size:1.4rem; font-weight:700; color:#222;">
+            {lf_score:.0f}%
+        </div>
+        <div style="
+            font-size:0.78rem;
+            padding:0.16rem 0.6rem;
+            border-radius:999px;
+            background:rgba(0,0,0,0.03);
+            font-weight:600;
+            color:#333;
+        ">
+            {lf_t}
+        </div>
+    </div>
+    <div style="font-size:0.78rem; color:#555; margin-top:0.25rem;">
+        Budgeted LCV vs. actual LCV
+    </div>
+</div>
+""",
             unsafe_allow_html=True,
         )
+
+    # ---------- Scenario strip (below RF / LF) ----------
+    st.markdown(
+        f"""
+<div style="
+    margin-top:1.3rem;
+    margin-bottom:1.6rem;
+    padding:1.2rem 1.2rem;
+    border-radius:12px;
+    background:#f7f7f7;
+    border-left:4px solid #e0e0e0;
+    font-size:1.0rem;
+    text-align:center;
+">
+    <div style="font-size:0.8rem; text-transform:uppercase;
+                letter-spacing:0.14em; color:#555; margin-bottom:0.35rem;">
+        Scenario
+    </div>
+    <div style="color:#222; font-size:1.05rem; line-height:1.5;">
+        {scenario_text}
+    </div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
     
     # ---------- Prescriptive Actions (executive layout) ----------
     st.subheader("Prescriptive Actions (Playbook)")
