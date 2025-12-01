@@ -584,10 +584,13 @@ if st.session_state.assessment_ready:
 
     st.success("Assessment complete. See results below.")
 
-    # ---------- Executive Metric Summary (3-block layout) ----------
-    st.markdown("## Executive Metric Summary")
+        # ---------- Executive Summary (3-block layout) ----------
+    st.markdown(
+        "<h2 style='text-align:center; margin-bottom:0.5rem;'>Executive Summary</h2>",
+        unsafe_allow_html=True,
+    )
 
-           # Hero VVI card centered
+    # Hero VVI card centered
     left_spacer, hero_col, right_spacer = st.columns([1, 2, 1])
     vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
 
