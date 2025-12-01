@@ -656,7 +656,7 @@ if st.session_state.assessment_ready:
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between;">
         <div style="font-size:1.4rem; font-weight:700; color:#222;">
-            {rf_score:.0f}%
+            {rf_score:.0f}
         </div>
         <div style="
             font-size:0.78rem;
@@ -694,7 +694,7 @@ if st.session_state.assessment_ready:
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between;">
         <div style="font-size:1.4rem; font-weight:700; color:#222;">
-            {lf_score:.0f}%
+            {lf_score:.0f}
         </div>
         <div style="
             font-size:0.78rem;
