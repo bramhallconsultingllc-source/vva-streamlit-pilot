@@ -584,18 +584,69 @@ if st.session_state.assessment_ready:
 
     st.success("Assessment complete. See results below.")
 
-        # ---------- Executive Summary (3-block layout) ----------
+    # ---------- Executive Summary heading ----------
     st.markdown(
         "<h2 style='text-align:center; margin-bottom:0.5rem;'>Executive Summary</h2>",
         unsafe_allow_html=True,
     )
 
-    # Hero VVI card centered
-left_spacer, hero_col, right_spacer = st.columns([1, 2, 1])
-vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
+    # ---------- Hero VVI card centered ----------
+    left_spacer, hero_col, right_spacer = st.columns([1, 2, 1])
+    vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
 
-with hero_col:
-    vvi_html = f"""
+    with hero_col:
+        vvi_html = f"""
+<div style="
+    background:{vvi_bg};
+    padding:1.3rem 1.5rem;
+    border-radius:14px;
+    border-top:5px solid #b08c3e;
+    box-shadow:0 10px 24px rgba(0,0,0,0.10);
+    text-align:center;
+">
+    <div style="font-size:0.7rem; letter-spacing:0.14em;
+                text-transform:uppercase; color:#666;
+                margin-bottom:0.4rem;">
+        Visit Value Index (VVI)
+    </div>
+    <div style="font-size:2.3rem; font-weight:750; color:#222;">
+        {vvi_score:.1f}
+    </div>
+    <div style="font-size:0.9rem; color:#444; margin-top:0.2rem;">
+        Overall performance vs. benchmark
+    </div>
+    <div style="margin-top:0.6rem; font-size:0.86rem; color:#333;">
+        Tier:
+        <span style="
+            display:inline-block;
+            padding:0.15rem 0.55rem;
+            border-radius:999px;
+            background:rgba(0,0,0,0.04);
+            font-weight:600;
+            font-size:0.8rem;
+        ">
+            {vvi_t}
+        </span>
+    </div>
+</div>
+"""
+        st.markdown(vvi_html, unsafe_allow_html=True)
+
+    st.markdown("")  # small spacing
+
+    # ---------- RF / LF horizontal mini-cards ----------
+    c_rf, c_lf = st.columns(2)
+    rf_bg = TIER_COLORS.get(rf_t, "#f5f5f5")
+    lf_bg = TIER_COLORS.get(lf_t, "#f5f5f5")
+
+    with c_rf:
+        ...
+    with c_lf:
+        ...
+
+    # ---------- Scenario strip (one time only) ----------
+    st.markdown(
+        f"""
 <div style="
     margin-top:1.3rem;
     margin-bottom:1.6rem;
@@ -611,114 +662,6 @@ with hero_col:
         Scenario
     </div>
     <div style="color:#222; font-size:1.05rem; line-height:1.5;">
-        {scenario_text}
-    </div>
-</div>
-
-"""
-    st.markdown(vvi_html, unsafe_allow_html=True)
-
-    st.markdown("")  # small spacing
-  
-    # RF / LF horizontal mini-cards underneath (no dials)
-    c_rf, c_lf = st.columns(2)
-    rf_bg = TIER_COLORS.get(rf_t, "#f5f5f5")
-    lf_bg = TIER_COLORS.get(lf_t, "#f5f5f5")
-
-    with c_rf:
-        st.markdown(
-            f"""
-            <div style="
-                background:{rf_bg};
-                padding:0.85rem 1.0rem;
-                border-radius:10px;
-                border-top:3px solid rgba(0,0,0,0.06);
-                box-shadow:0 6px 16px rgba(0,0,0,0.06);
-            ">
-                <div style="font-size:0.7rem; letter-spacing:0.11em;
-                            text-transform:uppercase; color:#666;
-                            margin-bottom:0.15rem;">
-                    Revenue Factor (RF)
-                </div>
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                    <div style="font-size:1.4rem; font-weight:700; color:#222;">
-                        {rf_score:.0f}%
-                    </div>
-                    <div style="
-                        font-size:0.78rem;
-                        padding:0.16rem 0.6rem;
-                        border-radius:999px;
-                        background:rgba(0,0,0,0.03);
-                        font-weight:600;
-                        color:#333;
-                    ">
-                        {rf_t}
-                    </div>
-                </div>
-                <div style="font-size:0.78rem; color:#555; margin-top:0.25rem;">
-                    Actual NRPV vs. budgeted NRPV
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    with c_lf:
-        st.markdown(
-            f"""
-            <div style="
-                background:{lf_bg};
-                padding:0.85rem 1.0rem;
-                border-radius:10px;
-                border-top:3px solid rgba(0,0,0,0.06);
-                box-shadow:0 6px 16px rgba(0,0,0,0.06);
-            ">
-                <div style="font-size:0.7rem; letter-spacing:0.11em;
-                            text-transform:uppercase; color:#666;
-                            margin-bottom:0.15rem;">
-                    Labor Factor (LF)
-                </div>
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                    <div style="font-size:1.4rem; font-weight:700; color:#222;">
-                        {lf_score:.0f}%
-                    </div>
-                    <div style="
-                        font-size:0.78rem;
-                        padding:0.16rem 0.6rem;
-                        border-radius:999px;
-                        background:rgba(0,0,0,0.03);
-                        font-weight:600;
-                        color:#333;
-                    ">
-                        {lf_t}
-                    </div>
-                </div>
-                <div style="font-size:0.78rem; color:#555; margin-top:0.25rem;">
-                    Budgeted LCV vs. actual LCV
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-            # Scenario strip (just below KPI block)
-    st.markdown(
-        f"""
-<div style="
-    margin-top:1.1rem;
-    margin-bottom:1.3rem;
-    padding:0.9rem 1.0rem;
-    border-radius:10px;
-    background:#f7f7f7;
-    border-left:4px solid #e0e0e0;
-    font-size:0.9rem;
-    text-align:center;
-">
-    <div style="font-size:0.7rem; text-transform:uppercase;
-                letter-spacing:0.12em; color:#777; margin-bottom:0.25rem;">
-        Scenario
-    </div>
-    <div style="color:#333;">
         {scenario_text}
     </div>
 </div>
