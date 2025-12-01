@@ -376,27 +376,26 @@ from matplotlib.patches import Wedge
 
 def render_half_gauge(value: float, label: str, tier_name: str, max_value: float = 120.0):
     """
-    Draw a half-donut gauge for 0–max_value, shown as a percentage.
-    `value` is your RF / LF score (e.g., 89.0).
+    Draw a top half-donut gauge for 0–max_value, shown as a percentage.
+    `value` is your RF / LF score (e.g., 89.0 -> 89%).
     """
-    # Normalize 0–max_value to 0–1 for the arc
+    # Clamp 0..max_value
     frac = max(0.0, min(value / max_value, 1.0))
 
-    # Choose color from tier
     fill_color = TIER_COLORS.get(tier_name, "#b0b0b0")
 
-    fig, ax = plt.subplots(figsize=(2.6, 2.0))
+    fig, ax = plt.subplots(figsize=(3.0, 2.4))
     ax.set_aspect("equal")
     ax.axis("off")
 
-    # Background arc (light gray)
+    # Background arc (full pale semicircle)
     bg = Wedge(
         center=(0, 0),
         r=1.0,
         theta1=180,
         theta2=0,
-        width=0.30,
-        facecolor="#f0f0f0",
+        width=0.28,
+        facecolor="#f4f4f4",
         edgecolor="none",
     )
 
@@ -406,7 +405,7 @@ def render_half_gauge(value: float, label: str, tier_name: str, max_value: float
         r=1.0,
         theta1=180,
         theta2=180 - 180 * frac,
-        width=0.30,
+        width=0.28,
         facecolor=fill_color,
         edgecolor="none",
     )
@@ -414,21 +413,22 @@ def render_half_gauge(value: float, label: str, tier_name: str, max_value: float
     ax.add_patch(bg)
     ax.add_patch(fg)
 
-    # Percent text (RF/LF shown as percentage of 100)
+    # Percent in center of gauge
     ax.text(
         0,
-        -0.05,
+        0.10,
         f"{value:.0f}%",
         ha="center",
         va="center",
-        fontsize=12,
+        fontsize=13,
         fontweight="bold",
         color="#222222",
     )
-    # Label
+
+    # Label under gauge
     ax.text(
         0,
-        -0.45,
+        -0.55,
         label,
         ha="center",
         va="center",
@@ -436,8 +436,9 @@ def render_half_gauge(value: float, label: str, tier_name: str, max_value: float
         color="#555555",
     )
 
-    ax.set_xlim(-1.1, 1.1)
-    ax.set_ylim(-1.1, 0.7)
+    # Make sure the whole semicircle is visible
+    ax.set_xlim(-1.2, 1.2)
+    ax.set_ylim(-0.8, 1.2)
 
     st.pyplot(fig)
 
