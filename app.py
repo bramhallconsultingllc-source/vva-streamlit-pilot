@@ -699,27 +699,28 @@ if st.session_state.assessment_ready:
             unsafe_allow_html=True,
         )
 
-    # Scenario strip (just below KPI block)
+        # Scenario strip (just below KPI block)
     st.markdown(
         f"""
-        <div style="
-            margin-top:1.1rem;
-            margin-bottom:1.3rem;
-            padding:0.9rem 1.0rem;
-            border-radius:10px;
-            background:#fff9ea;
-            border-left:4px solid #b08c3e;
-            font-size:0.9rem;
-        ">
-            <div style="font-size:0.7rem; text-transform:uppercase;
-                        letter-spacing:0.12em; color:#777; margin-bottom:0.25rem;">
-                Scenario
-            </div>
-            <div style="color:#333;">
-                {scenario_text}
-            </div>
-        </div>
-        """,
+<div style="
+    margin-top:1.1rem;
+    margin-bottom:1.3rem;
+    padding:0.9rem 1.0rem;
+    border-radius:10px;
+    background:#fff9ea;
+    border-left:4px solid #b08c3e;
+    font-size:0.9rem;
+    text-align:center;
+">
+    <div style="font-size:0.7rem; text-transform:uppercase;
+                letter-spacing:0.12em; color:#777; margin-bottom:0.25rem;">
+        Scenario
+    </div>
+    <div style="color:#333;">
+        {scenario_text}
+    </div>
+</div>
+""",
         unsafe_allow_html=True,
     )
 
