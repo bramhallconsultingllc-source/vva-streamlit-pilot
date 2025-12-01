@@ -735,7 +735,7 @@ if st.session_state.assessment_ready:
     st.success("Assessment complete. See results below.")
     kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
 
-           # ----- Calculation table with key metrics on top -----
+               # ----- Calculation table with key metrics on top -----
     calc_df = pd.DataFrame(
         {
             "Metric": [
@@ -774,37 +774,35 @@ if st.session_state.assessment_ready:
     st.subheader("Calculation Table")
 
     def highlight_calc(row):
-    """
-    Color ONLY the 'Value' cell for VVI / RF / LF based on tier.
-    Add a subtle horizontal divider before the detailed metrics
-    (i.e., above 'Total visits').
-    """
-    metric = row["Metric"]
-    styles = [""] * len(row)
+        """
+        Color ONLY the 'Value' cell for VVI / RF / LF based on tier.
+        Add a subtle horizontal divider before the detailed metrics
+        (i.e., above 'Total visits').
+        """
+        metric = row["Metric"]
+        styles = [""] * len(row)
 
-    # Tier-based coloring for the first three KPI rows (Value column only)
-    metric_tier = None
-    if metric == "VVI score (normalized 0–100)":
-        metric_tier = vvi_t
-    elif metric == "Revenue score (RF)":
-        metric_tier = rf_t
-    elif metric == "Labor score (LF)":
-        metric_tier = lf_t
+        # Tier-based coloring for the first three KPI rows (Value column only)
+        metric_tier = None
+        if metric == "VVI score (normalized 0–100)":
+            metric_tier = vvi_t
+        elif metric == "Revenue score (RF)":
+            metric_tier = rf_t
+        elif metric == "Labor score (LF)":
+            metric_tier = lf_t
 
-    if metric_tier:
-        bg = TIER_COLORS.get(metric_tier, "")
-        if bg:
-            styles[1] = f"background-color:{bg}; font-weight:700;"  # Value col
+        if metric_tier:
+            bg = TIER_COLORS.get(metric_tier, "")
+            if bg:
+                # Value column is index 1
+                styles[1] = f"background-color:{bg}; font-weight:700;"
 
-    # Neutral Scenario row – no background, just text
-    # (nothing special needed here)
+        # Add a subtle section divider above the "detail" section
+        if metric == "Total visits":
+            for i in range(len(styles)):
+                styles[i] += "border-top:2px solid #d0d0d0;"
 
-    # Add a subtle section divider above the "detail" section
-    if metric == "Total visits":
-        for i in range(len(styles)):
-            styles[i] += "border-top:2px solid #d0d0d0;"
-
-    return styles
+        return styles
 
     calc_styler = (
         calc_df.style
