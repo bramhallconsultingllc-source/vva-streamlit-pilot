@@ -11,13 +11,13 @@ import numpy as np
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
-from reportlab.lib.utils import ImageReader
 
 # --- AI (optional) ---
 try:
     from openai import OpenAI
 except Exception:
     OpenAI = None  # app still runs if OpenAI SDK isn't installed
+
 
 # ----------------------------
 # Helpers
@@ -29,13 +29,6 @@ def get_base64_image(path: str) -> str:
     return base64.b64encode(data).decode("utf-8")
 
 
-def format_money(x: float) -> str:
-    try:
-        return f"${float(x):,.2f}"
-    except Exception:
-        return "$0.00"
-
-
 # ----------------------------
 # Page config & branded intro
 # ----------------------------
@@ -45,8 +38,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# CSS for intro & supporting metrics
-# CSS for intro section
+# CSS for intro section + supporting metrics
 intro_css = """
 <style>
 .intro-container {
@@ -103,6 +95,16 @@ intro_css = """
     text-align: center;
 }
 
+/* Supporting metrics lists */
+.supporting-metrics ul {
+    margin-top: 0.25rem;
+    margin-bottom: 0.4rem;
+    padding-left: 1.1rem;
+}
+.supporting-metrics li {
+    margin-bottom: 0.12rem;
+}
+
 /* Animations */
 @keyframes lineGrow {
     0%   { width: 0; }
@@ -115,36 +117,10 @@ intro_css = """
 }
 </style>
 """
+st.markdown(intro_css, unsafe_allow_html=True)
 
 LOGO_PATH = "Logo BC.png"  # update if your filename is different
 
-# Apply CSS and render intro
-st.markdown(intro_css, unsafe_allow_html=True)
-
-/* Supporting metrics */
-# Extra CSS for supporting metrics
-st.markdown(
-    """
-<style>
-.supporting-metrics ul {
-    margin-top: 0.25rem;
-    margin-bottom: 0.4rem;
-}
-.supporting-metrics li {
-    margin-bottom: 0.12rem;
-}
-</style>
-"""
-
-LOGO_PATH = "Logo BC.png"  # update if your filename is different
-
-# Apply CSS
-st.markdown(intro_css, unsafe_allow_html=True)
-""",
-    unsafe_allow_html=True,
-)
-
-# Intro block
 st.markdown("<div class='intro-container'>", unsafe_allow_html=True)
 
 # Logo (base64 so we can attach CSS class reliably)
@@ -172,7 +148,6 @@ intro_html = """
     </p>
 </div>
 """
-
 st.markdown(intro_html, unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -196,24 +171,12 @@ def tier_from_score(score: float) -> str:
 
 tier = tier_from_score  # alias
 
-# Colors used for tier-based highlighting (soft backgrounds)
 # Colors used for tier-based highlighting
 TIER_COLORS = {
     "Excellent": "#d9f2d9",  # light green
-    "Stable": "#fff7cc",  # light yellow
-    "At Risk": "#ffe0b3",  # light orange
-    "Critical": "#f8cccc",  # light red
-}
-
-# Stronger text/badge colors for tiers
-TIER_PILL_COLORS = {
-    "Excellent": "#2e7d32",
-    "Stable": "#b08c3e",
-    "At Risk": "#ef6c00",
-    "Critical": "#c62828",
-    "Stable":    "#fff7cc",  # light yellow
-    "At Risk":   "#ffe0b3",  # light orange
-    "Critical":  "#f8cccc",  # light red
+    "Stable": "#fff7cc",     # light yellow
+    "At Risk": "#ffe0b3",    # light orange
+    "Critical": "#f8cccc",   # light red
 }
 
 # ---- RF/LF Tier Bundles ----
@@ -305,7 +268,6 @@ SCENARIO_DIAGNOSES = {
     ("Excellent", "Excellent"): "Both revenue and labor exceed benchmarks; optimal alignment — benchmark clinic.",
     ("Excellent", "Stable"): "Revenue strong; labor near benchmark with minor imbalance.",
     ("Excellent", "At Risk"): "High revenue with emerging labor strain — turnover, overtime, or burnout risk.",
-    ("Excellent", "Critical"): "Revenue strong but
     ("Excellent", "Critical"): "Revenue strong but labor inefficiency is driving significant cost escalation.",
     ("Stable", "Excellent"): "Lean staffing with steady revenue — opportunity to capture untapped throughput.",
     ("Stable", "Stable"): "Balanced, sustainable performance — risk of plateau without targeted improvement.",
@@ -319,26 +281,6 @@ SCENARIO_DIAGNOSES = {
     ("Critical", "Stable"): "Revenue decline with average labor cost — profitability margin eroding.",
     ("Critical", "At Risk"): "Dual erosion — revenue and labor efficiency slipping together.",
     ("Critical", "Critical"): "Systemic distress — low revenue, high labor cost, and workforce instability.",
-}
-
-# Map (LF tier, RF tier) -> scenario number for 4×4 grid
-SCENARIO_MAP = {
-    ("Critical", "Critical"): 1,
-    ("Critical", "At Risk"): 2,
-    ("Critical", "Stable"): 3,
-    ("Critical", "Excellent"): 4,
-    ("At Risk", "Critical"): 5,
-    ("At Risk", "At Risk"): 6,
-    ("At Risk", "Stable"): 7,
-    ("At Risk", "Excellent"): 8,
-    ("Stable", "Critical"): 9,
-    ("Stable", "At Risk"): 10,
-    ("Stable", "Stable"): 11,
-    ("Stable", "Excellent"): 12,
-    ("Excellent", "Critical"): 13,
-    ("Excellent", "At Risk"): 14,
-    ("Excellent", "Stable"): 15,
-    ("Excellent", "Excellent"): 16,
 }
 
 
@@ -356,220 +298,6 @@ def scenario_name(rf_t: str, lf_t: str) -> str:
         "Critical": "Critical Labor",
     }
     return f"{rev_map.get(rf_t, rf_t)} / {lab_map.get(lf_t, lf_t)}"
-
-
-def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
- 
-    rf_cols = TIER_ORDER
-    lf_rows = TIER_ORDER
-    data = []
-    for lf in lf_rows:
-        row = []
-        for rf in rf_cols:
-            row.append(SCENARIO_MAP[(lf, rf)])
-        data.append(row)
-
-    df = pd.DataFrame(
-        data,
-        index=[f"LF: {r}" for r in lf_rows],
-        columns=[f"RF: {c}" for c in rf_cols],
-    )
-
-    def highlight_active(val, row_idx, col_idx):
-        lf_here = lf_rows[row_idx]
-        rf_here = rf_cols[col_idx]
-        if (lf_here == active_lf_tier) and (rf_here == active_rf_tier):
-            return "background-color: #fdd835; color: #000; font-weight: 700;"
-        return ""
-
-    styler = df.style.format(precision=0)
-    for r in range(len(lf_rows)):
-        for c in range(len(rf_cols)):
-            styler = styler.set_properties(
-                subset=(df.index[r], df.columns[c]),
-                **{"text-align": "center", "font-weight": "500"},
-            )
-            styler = styler.apply(
-                lambda s, r=r, c=c: [highlight_active(v, r, c) for v in s],
-                axis=1,
-                subset=(df.index[r], df.columns[c]),
-            )
-
-    styler = styler.set_table_styles(
-        [{"selector": "th", "props": [("text-align", "center")]}]
-    ).hide(axis="index", level=None)
-
-    return df, styler
-import matplotlib.pyplot as plt
-from matplotlib.patches import Wedge
-
-from matplotlib.patches import Arc  # you can remove Wedge now if unused
-
-def render_half_gauge(value: float, label: str, tier_name: str, cap: float = 130.0):
-    """
-    Executive-style half-gauge.
-
-    - `value` is the RF/LF score (e.g., 143.2 -> shown as 143%).
-    - `cap` controls how much arc you ever draw; values above cap
-      still display their true % in the text but the arc stops at cap.
-    """
-    display_val = max(0.0, value)
-    frac = max(0.0, min(display_val, cap) / cap)
-
-    track_color = "#e0e3ea"  # neutral background
-    fill_color = TIER_COLORS.get(tier_name, "#b08c3e")  # tier-based accent
-
-    fig, ax = plt.subplots(figsize=(3.4, 2.2))
-    ax.axis("off")
-    ax.set_aspect("equal")
-
-    # Background track (full half-circle)
-    bg = Arc(
-        (0, 0),
-        2.0,
-        2.0,
-        theta1=180,
-        theta2=0,
-        linewidth=10,
-        color=track_color,
-    )
-
-    # Foreground / filled track
-    fg = Arc(
-        (0, 0),
-        2.0,
-        2.0,
-        theta1=180,
-        theta2=180 - 180 * frac,
-        linewidth=10,
-        color=fill_color,
-    )
-
-    ax.add_patch(bg)
-    ax.add_patch(fg)
-
-    # Percent text
-    ax.text(
-        0,
-        0.18,
-        f"{display_val:.0f}%",
-        ha="center",
-        va="center",
-        fontsize=14,
-        fontweight="bold",
-        color="#222222",
-    )
-
-    # Label under gauge
-    ax.text(
-        0,
-        -0.32,
-        label,
-        ha="center",
-        va="center",
-        fontsize=9.5,
-        color="#555555",
-    )
-
-    ax.set_xlim(-1.25, 1.25)
-    ax.set_ylim(-0.75, 1.25)
-
-    st.pyplot(fig)
-
-# ---------- KPI bars (Executive style) ----------
-def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
-    labels = [
-        "Visit Value Index (VVI)",
-        "Revenue Factor (RF)",
-        "Labor Factor (LF)",
-    ]
-    values = [vvi_score, rf_score, lf_score]
-
-    # Room for scores slightly above 100
-    x_max = max(120, max(values) + 10)
-
-    fig, ax = plt.subplots(figsize=(8.5, 2.8))
-
-    # Soft background bands by performance tier
-    bands = [
-        (0, 90, "#fdecea"),    # Critical / At Risk – soft red
-        (90, 95, "#fff4e5"),   # At Risk – soft amber
-        (95, 100, "#fffbe6"),  # Stable – soft cream
-        (100, x_max, "#e8f5e9"),  # Excellent – soft green
-    ]
-    for start, end, col in bands:
-        ax.axvspan(start, end, color=col, alpha=1.0, lw=0)
-
-    # Vertical reference line at 100
-    ax.axvline(100, color="#b08c3e", linestyle="--", linewidth=1)
-
-    # Arrange so VVI is visually on top
-    y_pos = [2, 1, 0]
-
-    for i, (label, val, y) in enumerate(zip(labels, values, y_pos)):
-        # Hero bar for VVI
-        if i == 0:
-            bar_color = "#b08c3e"     # brand gold
-            edge_color = "#3a2a0f"
-            height = 0.55
-        else:
-            bar_color = "#333333"     # charcoal
-            edge_color = "#1f1f1f"
-            height = 0.45
-
-        # Subtle shadow capsule behind main bar
-        ax.barh(
-            y,
-            min(val, x_max),
-            height=height + 0.10,
-            color="#000000",
-            alpha=0.06,
-            zorder=1,
-        )
-
-        # Main bar
-        ax.barh(
-            y,
-            min(val, x_max),
-            height=height,
-            color=bar_color,
-            edgecolor=edge_color,
-            linewidth=1.2,
-            zorder=2,
-        )
-
-        # Text label (score) at the end of the bar
-        text_x = min(val, x_max) + (x_max * 0.01)
-        ax.text(
-            text_x,
-            y,
-            f"{val:.1f}",
-            va="center",
-            ha="left",
-            fontsize=10,
-            fontweight="bold" if i == 0 else "normal",
-            color="#222222",
-        )
-
-    # Axes formatting
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(labels)
-    ax.set_xlim(0, x_max)
-    ax.set_xlabel("Score", fontsize=10)
-    ax.set_ylabel("")
-    ax.grid(False)
-
-    # Clean frame
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_visible(False)
-    ax.spines["bottom"].set_color("#cccccc")
-
-    plt.tight_layout()
-    ax.set_title("Key Metrics & Scores", fontsize=14, fontweight="bold", pad=10)
-
-    st.pyplot(fig)
-    return fig
 
 
 def format_money(x: float) -> str:
@@ -736,6 +464,7 @@ if "runs" not in st.session_state:
 if "assessment_ready" not in st.session_state:
     st.session_state.assessment_ready = False
 
+
 def reset_assessment():
     """Clear assessment state and restart app."""
     st.session_state.assessment_ready = False
@@ -853,65 +582,153 @@ if st.session_state.assessment_ready:
     scenario_text = actions["diagnosis"]
 
     st.success("Assessment complete. See results below.")
-    kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
 
-        # ---------- Executive Metric Summary ----------
-            # ---------- Executive Metric Summary ----------
+    # ---------- Executive Metric Summary (3-block layout) ----------
     st.markdown("## Executive Metric Summary")
 
-    # VVI hero card (only one card now)
-    # VVI hero card
+    # Hero VVI card centered
+    left_spacer, hero_col, right_spacer = st.columns([1, 2, 1])
+    vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
+
+    with hero_col:
+        st.markdown(
+            f"""
+            <div style="
+                background:{vvi_bg};
+                padding:1.3rem 1.5rem;
+                border-radius:14px;
+                border-top:5px solid #b08c3e;
+                box-shadow:0 10px 24px rgba(0,0,0,0.10);
+                text-align:left;
+            ">
+                <div style="font-size:0.7rem; letter-spacing:0.14em;
+                            text-transform:uppercase; color:#666;
+                            margin-bottom:0.25rem;">
+                    Visit Value Index (VVI)
+                </div>
+                <div style="display:flex; align-items:baseline; gap:0.45rem;">
+                    <div style="font-size:2.3rem; font-weight:750; color:#222;">
+                        {vvi_score:.1f}
+                    </div>
+                    <div style="font-size:0.9rem; color:#444;">
+                        overall performance vs. benchmark
+                    </div>
+                </div>
+                <div style="margin-top:0.4rem; font-size:0.86rem; color:#333;">
+                    Tier:
+                    <span style="
+                        display:inline-block;
+                        padding:0.15rem 0.55rem;
+                        border-radius:999px;
+                        background:rgba(0,0,0,0.04);
+                        font-weight:600;
+                        font-size:0.8rem;
+                    ">
+                        {vvi_t}
+                    </span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("")  # small spacing
+
+    # RF / LF horizontal mini-cards underneath (no dials)
+    c_rf, c_lf = st.columns(2)
+    rf_bg = TIER_COLORS.get(rf_t, "#f5f5f5")
+    lf_bg = TIER_COLORS.get(lf_t, "#f5f5f5")
+
+    with c_rf:
+        st.markdown(
+            f"""
+            <div style="
+                background:{rf_bg};
+                padding:0.85rem 1.0rem;
+                border-radius:10px;
+                border-top:3px solid rgba(0,0,0,0.06);
+                box-shadow:0 6px 16px rgba(0,0,0,0.06);
+            ">
+                <div style="font-size:0.7rem; letter-spacing:0.11em;
+                            text-transform:uppercase; color:#666;
+                            margin-bottom:0.15rem;">
+                    Revenue Factor (RF)
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <div style="font-size:1.4rem; font-weight:700; color:#222;">
+                        {rf_score:.0f}%
+                    </div>
+                    <div style="
+                        font-size:0.78rem;
+                        padding:0.16rem 0.6rem;
+                        border-radius:999px;
+                        background:rgba(0,0,0,0.03);
+                        font-weight:600;
+                        color:#333;
+                    ">
+                        {rf_t}
+                    </div>
+                </div>
+                <div style="font-size:0.78rem; color:#555; margin-top:0.25rem;">
+                    Actual NRPV vs. budgeted NRPV
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with c_lf:
+        st.markdown(
+            f"""
+            <div style="
+                background:{lf_bg};
+                padding:0.85rem 1.0rem;
+                border-radius:10px;
+                border-top:3px solid rgba(0,0,0,0.06);
+                box-shadow:0 6px 16px rgba(0,0,0,0.06);
+            ">
+                <div style="font-size:0.7rem; letter-spacing:0.11em;
+                            text-transform:uppercase; color:#666;
+                            margin-bottom:0.15rem;">
+                    Labor Factor (LF)
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <div style="font-size:1.4rem; font-weight:700; color:#222;">
+                        {lf_score:.0f}%
+                    </div>
+                    <div style="
+                        font-size:0.78rem;
+                        padding:0.16rem 0.6rem;
+                        border-radius:999px;
+                        background:rgba(0,0,0,0.03);
+                        font-weight:600;
+                        color:#333;
+                    ">
+                        {lf_t}
+                    </div>
+                </div>
+                <div style="font-size:0.78rem; color:#555; margin-top:0.25rem;">
+                    Budgeted LCV vs. actual LCV
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # Scenario strip (just below KPI block)
     st.markdown(
         f"""
         <div style="
-            background:{TIER_COLORS.get(vvi_t, '#f5f5f5')};
-            padding:1.1rem 1.2rem;
-            border-radius:12px;
-            border-top:4px solid #b08c3e;
-            box-shadow:0 6px 14px rgba(0,0,0,0.08);
-            max-width:480px;
-            max-width:520px;
-        ">
-            <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
-                Visit Value Index (VVI)
-            </div>
-            <div style="font-size:1.8rem; font-weight:700; margin-bottom:0.1rem;">
-                {vvi_score:.1f}
-            </div>
-            <div style="font-size:0.85rem; color:#333;">
-                Tier: <strong>{vvi_t}</strong>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    # RF / LF gauges directly underneath the hero card
-    # Small vertical spacer
-    st.markdown("<div style='height:0.6rem;'></div>", unsafe_allow_html=True)
-
-    # RF / LF gauges directly underneath
-    g_rf, g_lf = st.columns(2)
-    with g_rf:
-        render_half_gauge(rf_score, "Revenue Factor (RF)", rf_t)
-    with g_lf:
-        render_half_gauge(lf_score, "Labor Factor (LF)", lf_t)
-
-    # Scenario strip
-    st.markdown(
-        f"""
-        <div style="
-            margin-top:0.5rem;
-            margin-bottom:1.2rem;
-            margin-top:0.6rem;
-            margin-bottom:1.0rem;
+            margin-top:1.1rem;
+            margin-bottom:1.3rem;
             padding:0.9rem 1.0rem;
             border-radius:10px;
             background:#fff9ea;
             border-left:4px solid #b08c3e;
             font-size:0.9rem;
         ">
-            <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; color:#777; margin-bottom:0.25rem;">
+            <div style="font-size:0.7rem; text-transform:uppercase;
+                        letter-spacing:0.12em; color:#777; margin-bottom:0.25rem;">
                 Scenario
             </div>
             <div style="color:#333;">
@@ -921,8 +738,6 @@ if st.session_state.assessment_ready:
         """,
         unsafe_allow_html=True,
     )
-
-    # (then your Supporting Metrics / scoring table / actions / etc continue here)
 
     # --- Supporting metrics grid (no dataframe) ---
     st.markdown("#### Supporting Metrics")
@@ -1001,7 +816,7 @@ if st.session_state.assessment_ready:
 
     st.dataframe(styler_score, use_container_width=True, hide_index=True)
 
-       # ---------- Prescriptive Actions (executive layout) ----------
+    # ---------- Prescriptive Actions (executive layout) ----------
     st.subheader("Prescriptive Actions (Playbook)")
 
     def render_action_bucket(label: str, items: list[str]):
@@ -1060,22 +875,22 @@ if st.session_state.assessment_ready:
             horizontal=True,
         )
 
-        c1, c2 = st.columns(2)
+        c_sim1, c_sim2 = st.columns(2)
         if mode == "Percent change":
-            nrpv_delta_pct = c1.number_input(
+            nrpv_delta_pct = c_sim1.number_input(
                 "NRPV change (%)", value=5.0, step=1.0, format="%.1f"
             )
-            lcv_delta_pct = c2.number_input(
+            lcv_delta_pct = c_sim2.number_input(
                 "LCV change (%)", value=-5.0, step=1.0, format="%.1f"
             )
 
             sim_rpv = rpv * (1 + nrpv_delta_pct / 100.0)
             sim_lcv = lcv * (1 + lcv_delta_pct / 100.0)
         else:
-            nrpv_delta_amt = c1.number_input(
+            nrpv_delta_amt = c_sim1.number_input(
                 "NRPV change ($)", value=5.0, step=1.0, format="%.2f"
             )
-            lcv_delta_amt = c2.number_input(
+            lcv_delta_amt = c_sim2.number_input(
                 "LCV change ($)", value=-5.0, step=1.0, format="%.2f"
             )
 
@@ -1111,7 +926,7 @@ if st.session_state.assessment_ready:
         labels = ["VVI", "RF", "LF"]
         current_vals = [vvi_score, rf_score, lf_score]
         sim_vals = [sim_vvi_score, sim_rf_score, sim_lf_score]
-        x = range(len(labels))
+        x = np.arange(len(labels))
         bar_width = 0.35
 
         ax_sim.barh(
@@ -1200,8 +1015,12 @@ if st.session_state.assessment_ready:
         line("Period:", period)
         line("Scenario:", actions["diagnosis"])
         line(
+            "VVI:",
+            f"{vvi_score:.2f} ({vvi_t})",
+        )
+        line(
             "RF / LF:",
-            f"{rf_score:.2f} ({rf_t})  |  {lf_score:.2f} ({lf_t})",
+            f"{rf_score:.2f}% ({rf_t})  |  {lf_score:.2f}% ({lf_t})",
         )
         line(
             "NRPV / LCV / SWB%:",
@@ -1225,18 +1044,14 @@ if st.session_state.assessment_ready:
         for ex in actions["extended"]:
             c.drawString(50, y, f"• {ex}")
             y -= 14
-            if y < 140:
+            if y < 80:
                 c.showPage()
+                # Re-draw a simple header on new page
                 y = h - 80
-
-        # Embed KPI chart
-        img_buf = io.BytesIO()
-        kpi_fig.savefig(img_buf, format="png", dpi=150, bbox_inches="tight")
-        img_buf.seek(0)
-        img = ImageReader(img_buf)
-        c.drawImage(
-            img, 40, 80, width=w - 80, height=180, preserveAspectRatio=True, mask="auto"
-        )
+                c.setFont("Helvetica-Bold", 12)
+                c.drawString(40, y, "Extended Actions (cont.)")
+                y -= 18
+                c.setFont("Helvetica", 11)
 
         # Footer
         c.setFont("Helvetica-Oblique", 9)
@@ -1296,7 +1111,7 @@ if st.session_state.assessment_ready:
         styler_comp = comp.style.apply(color_by_vvi, axis=1)
         st.dataframe(styler_comp, use_container_width=True, hide_index=True)
 
-        c_port1, c_port2 = st.columns([3, 1])
+        _, c_port2 = st.columns([3, 1])
         with c_port2:
             if st.button("Reset portfolio", help="Clear all saved clinics/runs."):
                 st.session_state.runs = []
