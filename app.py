@@ -885,16 +885,16 @@ ax_sim.spines["top"].set_visible(False)
 
 st.pyplot(fig_sim)
 
-    # ---------- AI Insights (optional, in-page) ----------
-    st.subheader("AI Insights (optional)")
+# ---------- AI Insights (optional, in-page) ----------
+st.subheader("AI Insights (optional)")
 
-    ai_choice = st.radio(
-        "Use AI to generate a short executive narrative?",
-        ["Off", "On"],
-        index=0,
-        horizontal=True,
-        help="Uses your OpenAI key in Streamlit Secrets.",
-    )
+ai_choice = st.radio(
+    "Use AI to generate a short executive narrative?",
+    ["Off", "On"],
+    index=0,
+    horizontal=True,
+    help="Uses your OpenAI key in Streamlit Secrets.",
+)
 
     if ai_choice == "Off":
         st.info(
