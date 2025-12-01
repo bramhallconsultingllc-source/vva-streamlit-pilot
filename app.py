@@ -847,32 +847,43 @@ if st.session_state.assessment_ready:
         st.dataframe(sim_df, use_container_width=True, hide_index=True)
 
         fig_sim, ax_sim = plt.subplots(figsize=(6, 2.5))
-        labels = ["VVI", "RF", "LF"]
-        current_vals = [vvi_score, rf_score, lf_score]
-        sim_vals = [sim_vvi_score, sim_rf_score, sim_lf_score]
-        x = np.arange(len(labels))
-        bar_width = 0.35
+labels = ["VVI", "RF", "LF"]
+current_vals = [vvi_score, rf_score, lf_score]
+sim_vals = [sim_vvi_score, sim_rf_score, sim_lf_score]
+x = np.arange(len(labels))
+bar_width = 0.35
 
-        ax_sim.barh(
-            [i + bar_width for i in x],
-            current_vals,
-            height=bar_width,
-            label="Current",
-        )
-        ax_sim.barh(
-            x,
-            sim_vals,
-            height=bar_width,
-            label="Simulated",
-        )
+# Bars
+ax_sim.barh(
+    [i + bar_width for i in x],
+    current_vals,
+    height=bar_width,
+    label="Current",
+)
+ax_sim.barh(
+    x,
+    sim_vals,
+    height=bar_width,
+    label="Simulated",
+)
 
-        ax_sim.set_yticks([i + bar_width / 2 for i in x])
-        ax_sim.set_yticklabels(labels)
-        ax_sim.set_xlabel("Score (0–100+)")
-        ax_sim.legend()
-        ax_sim.spines["right"].set_visible(False)
-        ax_sim.spines["top"].set_visible(False)
-        st.pyplot(fig_sim)
+# --- Add vertical target line at score 100 ---
+ax_sim.axvline(
+    100,
+    linestyle="--",
+    linewidth=1.2,
+    alpha=0.7
+)
+
+# Labels & cosmetics
+ax_sim.set_yticks([i + bar_width / 2 for i in x])
+ax_sim.set_yticklabels(labels)
+ax_sim.set_xlabel("Score (0–100+)")
+ax_sim.legend()
+ax_sim.spines["right"].set_visible(False)
+ax_sim.spines["top"].set_visible(False)
+
+st.pyplot(fig_sim)
 
     # ---------- AI Insights (optional, in-page) ----------
     st.subheader("AI Insights (optional)")
