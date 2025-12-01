@@ -773,7 +773,7 @@ Scoring Tiers (0–100+)
 )
 
     # ---------- Prescriptive Actions (executive layout) ----------
-    st.subheader("Prescriptive Actions (Playbook)")
+st.subheader("Prescriptive Actions (Playbook)")
 
     def render_action_bucket(label: str, items: list[str]):
         """Show 3–4 priority actions, tuck the rest into an expander."""
