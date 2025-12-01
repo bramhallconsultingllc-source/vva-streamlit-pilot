@@ -735,100 +735,138 @@ if st.session_state.assessment_ready:
     st.success("Assessment complete. See results below.")
     kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
 
-               # ----- Calculation table with key metrics on top -----
-    calc_df = pd.DataFrame(
-        {
-            "Metric": [
-                "VVI score (normalized 0–100)",
-                "Revenue score (RF)",
-                "Labor score (LF)",
-                "Scenario",
-                "Total visits",
-                "Net revenue collected",
-                "Total labor cost",
-                "Net Revenue per Visit (NRPV)",
-                "Labor Cost per Visit (LCV)",
-                "Revenue benchmark target (NRPV target)",
-                "Labor benchmark target (LCV target)",
-                "Labor cost as % of revenue (SWB%)",
-                "VVI (NRPV ÷ LCV)",
-            ],
-            "Value": [
-                f"{vvi_score} ({vvi_t})",
-                f"{rf_score} ({rf_t})",
-                f"{lf_score} ({lf_t})",
-                scenario_text,
-                f"{int(visits):,}",
-                format_money(net_rev),
-                format_money(labor),
-                format_money(rpv),
-                format_money(lcv),
-                format_money(rt),
-                format_money(lt),
-                f"{swb_pct * 100:.1f}%",
-                f"{vvi_raw:.3f}",
-            ],
+                  # ----- Executive summary layout (replaces Calculation Table) -----
+    st.subheader("Executive Metric Summary")
+
+    # Small CSS tweak to tighten spacing
+    st.markdown(
+        """
+        <style>
+        .metric-grid p {
+            margin-bottom: 0.2rem;
         }
+        </style>
+        """,
+        unsafe_allow_html=True,
     )
 
-    st.subheader("Calculation Table")
-
-    def highlight_calc(row):
+    # --- Hero metric cards (VVI / RF / LF) ---
+    def metric_card(title: str, value: str, tier_label: str, bg_color: str) -> str:
+        return f"""
+        <div style="
+            border-radius: 0.75rem;
+            padding: 0.9rem 1.1rem;
+            background:{bg_color};
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.05);
+        ">
+          <div style="font-size:0.75rem; text-transform:uppercase;
+                      letter-spacing:0.06em; color:#555;">
+            {title}
+          </div>
+          <div style="font-size:1.4rem; font-weight:700; margin-top:0.15rem;">
+            {value}
+          </div>
+          <div style="font-size:0.8rem; color:#555; margin-top:0.15rem;">
+            Tier: <strong>{tier_label}</strong>
+          </div>
+        </div>
         """
-        Color ONLY the 'Value' cell for VVI / RF / LF based on tier.
-        Draw a subtle box around the first four metrics
-        (VVI, RF, LF, Scenario).
-        """
-        metric = row["Metric"]
-        styles = [""] * len(row)
 
-        # ----- Tier-based coloring for KPI rows (Value column only) -----
-        metric_tier = None
-        if metric == "VVI score (normalized 0–100)":
-            metric_tier = vvi_t
-        elif metric == "Revenue score (RF)":
-            metric_tier = rf_t
-        elif metric == "Labor score (LF)":
-            metric_tier = lf_t
+    # Choose colors from your tier palette
+    vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
+    rf_bg  = TIER_COLORS.get(rf_t,  "#f5f5f5")
+    lf_bg  = TIER_COLORS.get(lf_t,  "#f5f5f5")
 
-        if metric_tier:
-            bg = TIER_COLORS.get(metric_tier, "")
-            if bg:
-                # Value column is index 1
-                styles[1] = f"background-color:{bg}; font-weight:700;"
+    c_vvi, c_rf, c_lf = st.columns(3)
 
-        # ----- Subtle box around the first 4 metrics -----
-        top_block_metrics = {
-            "VVI score (normalized 0–100)",
-            "Revenue score (RF)",
-            "Labor score (LF)",
-            "Scenario",
-        }
+    with c_vvi:
+        st.markdown(
+            metric_card(
+                "Visit Value Index (VVI)",
+                f"{vvi_score:.1f}",
+                vvi_t,
+                vvi_bg,
+            ),
+            unsafe_allow_html=True,
+        )
 
-        if metric in top_block_metrics:
-            # left/right border for the whole block
-            for i in range(len(styles)):
-                styles[i] += "border-left:2px solid #d0d0d0; border-right:2px solid #d0d0d0;"
+    with c_rf:
+        st.markdown(
+            metric_card(
+                "Revenue Factor (RF)",
+                f"{rf_score:.1f}",
+                rf_t,
+                rf_bg,
+            ),
+            unsafe_allow_html=True,
+        )
 
-        # top border on the very first metric
-        if metric == "VVI score (normalized 0–100)":
-            for i in range(len(styles)):
-                styles[i] += "border-top:2px solid #d0d0d0;"
+    with c_lf:
+        st.markdown(
+            metric_card(
+                "Labor Factor (LF)",
+                f"{lf_score:.1f}",
+                lf_t,
+                lf_bg,
+            ),
+            unsafe_allow_html=True,
+        )
 
-        # bottom border on the Scenario row to close the box
-        if metric == "Scenario":
-            for i in range(len(styles)):
-                styles[i] += "border-bottom:2px solid #d0d0d0;"
+    # --- Scenario card ---
+    scenario_html = f"""
+    <div style="
+        margin-top:1.2rem;
+        padding:1rem 1.1rem;
+        border-left:4px solid #b08c3e;
+        border-radius:0.5rem;
+        background:#faf7f0;
+        box-shadow:0 1px 2px rgba(0,0,0,0.04);
+    ">
+      <div style="font-size:0.8rem; text-transform:uppercase;
+                  letter-spacing:0.08em; color:#777; margin-bottom:0.25rem;">
+        Scenario
+      </div>
+      <div style="font-size:0.95rem; color:#333;">
+        {scenario_text}
+      </div>
+    </div>
+    """
+    st.markdown(scenario_html, unsafe_allow_html=True)
 
-        return styles
+    # --- Supporting metrics grid (no dataframe) ---
+    st.markdown("#### Supporting Metrics")
 
-    calc_styler = (
-        calc_df.style
-        .apply(highlight_calc, axis=1)
-        .set_properties(subset=["Value"], **{"white-space": "normal"})
-    )
+    left_md = f"""
+    <div class="metric-grid">
+    <p><strong>Operational inputs</strong></p>
+    <ul>
+      <li><strong>Total visits:</strong> {int(visits):,}</li>
+      <li><strong>Net revenue:</strong> {format_money(net_rev)}</li>
+      <li><strong>Labor cost (SWB):</strong> {format_money(labor)}</li>
+      <li><strong>SWB%:</strong> {swb_pct * 100:.1f}%</li>
+    </ul>
+    </div>
+    """
 
-    st.dataframe(calc_styler, use_container_width=True, hide_index=True)
+    right_md = f"""
+    <div class="metric-grid">
+    <p><strong>Per-visit economics</strong></p>
+    <ul>
+      <li><strong>NRPV:</strong> {format_money(rpv)}</li>
+      <li><strong>LCV:</strong> {format_money(lcv)}</li>
+      <li><strong>NRPV target:</strong> {format_money(rt)}</li>
+      <li><strong>LCV target:</strong> {format_money(lt)}</li>
+      <li><strong>VVI raw (NRPV ÷ LCV):</strong> {vvi_raw:.3f}</li>
+    </ul>
+    </div>
+    """
+
+    g1, g2 = st.columns(2)
+    with g1:
+        st.markdown(left_md, unsafe_allow_html=True)
+    with g2:
+        st.markdown(right_md, unsafe_allow_html=True)
 
     # ---------- Scoring table (VVI emphasized) ----------
     score_df = pd.DataFrame(
