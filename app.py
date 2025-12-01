@@ -773,16 +773,16 @@ if st.session_state.assessment_ready:
 
     st.subheader("Calculation Table")
 
-    def highlight_calc(row):
+        def highlight_calc(row):
         """
         Color ONLY the 'Value' cell for VVI / RF / LF based on tier.
-        Add a subtle horizontal divider before the detailed metrics
-        (i.e., above 'Total visits').
+        Draw a subtle box around the first four metrics
+        (VVI, RF, LF, Scenario).
         """
         metric = row["Metric"]
         styles = [""] * len(row)
 
-        # Tier-based coloring for the first three KPI rows (Value column only)
+        # ----- Tier-based coloring for KPI rows (Value column only) -----
         metric_tier = None
         if metric == "VVI score (normalized 0–100)":
             metric_tier = vvi_t
@@ -797,10 +797,28 @@ if st.session_state.assessment_ready:
                 # Value column is index 1
                 styles[1] = f"background-color:{bg}; font-weight:700;"
 
-        # Add a subtle section divider above the "detail" section
-        if metric == "Total visits":
+        # ----- Subtle box around the first 4 metrics -----
+        top_block_metrics = {
+            "VVI score (normalized 0–100)",
+            "Revenue score (RF)",
+            "Labor score (LF)",
+            "Scenario",
+        }
+
+        if metric in top_block_metrics:
+            # left/right border for the whole block
+            for i in range(len(styles)):
+                styles[i] += "border-left:2px solid #d0d0d0; border-right:2px solid #d0d0d0;"
+
+        # top border on the very first metric
+        if metric == "VVI score (normalized 0–100)":
             for i in range(len(styles)):
                 styles[i] += "border-top:2px solid #d0d0d0;"
+
+        # bottom border on the Scenario row to close the box
+        if metric == "Scenario":
+            for i in range(len(styles)):
+                styles[i] += "border-bottom:2px solid #d0d0d0;"
 
         return styles
 
