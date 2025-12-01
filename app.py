@@ -740,7 +740,7 @@ if st.session_state.assessment_ready:
         unsafe_allow_html=True,
     )
 
-            # ---------- Tier Legend ----------
+    # ---------- Tier Legend ----------
     st.markdown(
         """
 <div style="
