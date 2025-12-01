@@ -826,10 +826,10 @@ if st.session_state.assessment_ready:
     st.success("Assessment complete. See results below.")
     kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
 
-        # ---------- Executive Metric Summary ----------
+            # ---------- Executive Metric Summary ----------
     st.markdown("## Executive Metric Summary")
 
-    # VVI hero card (only one card now)
+    # VVI hero card
     st.markdown(
         f"""
         <div style="
@@ -838,7 +838,7 @@ if st.session_state.assessment_ready:
             border-radius:12px;
             border-top:4px solid #b08c3e;
             box-shadow:0 6px 14px rgba(0,0,0,0.08);
-            max-width:480px;
+            max-width:520px;
         ">
             <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
                 Visit Value Index (VVI)
@@ -854,7 +854,10 @@ if st.session_state.assessment_ready:
         unsafe_allow_html=True,
     )
 
-    # RF / LF gauges directly underneath the hero card
+    # Small vertical spacer
+    st.markdown("<div style='height:0.6rem;'></div>", unsafe_allow_html=True)
+
+    # RF / LF gauges directly underneath
     g_rf, g_lf = st.columns(2)
     with g_rf:
         render_half_gauge(rf_score, "Revenue Factor (RF)", rf_t)
@@ -865,8 +868,8 @@ if st.session_state.assessment_ready:
     st.markdown(
         f"""
         <div style="
-            margin-top:0.5rem;
-            margin-bottom:1.2rem;
+            margin-top:0.6rem;
+            margin-bottom:1.0rem;
             padding:0.9rem 1.0rem;
             border-radius:10px;
             background:#fff9ea;
@@ -883,6 +886,8 @@ if st.session_state.assessment_ready:
         """,
         unsafe_allow_html=True,
     )
+
+    # (then your Supporting Metrics / scoring table / actions / etc continue here)
 
     # --- Supporting metrics grid (no dataframe) ---
     st.markdown("#### Supporting Metrics")
