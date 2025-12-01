@@ -112,19 +112,32 @@ LOGO_PATH = "Logo BC.png"  # update if your filename is different
 
 # Apply CSS and render intro
 st.markdown(intro_css, unsafe_allow_html=True)
+
+# Extra CSS for supporting metrics
 st.markdown(
     """
-    <style>
-    .supporting-metrics ul {
-        margin-top: 0.25rem;
-        margin-bottom: 0.4rem;
-    }
-    .supporting-metrics li {
-        margin-bottom: 0.12rem;
-    }
-    </style>
-    """,
+<style>
+.supporting-metrics ul {
+    margin-top: 0.25rem;
+    margin-bottom: 0.4rem;
+}
+.supporting-metrics li {
+    margin-bottom: 0.12rem;
+}
+</style>
+""",
     unsafe_allow_html=True,
+)
+
+st.markdown("<div class='intro-container'>", unsafe_allow_html=True)
+
+# Logo (base64 so we can attach CSS class reliably)
+if os.path.exists(LOGO_PATH):
+    img_data = get_base64_image(LOGO_PATH)
+    st.markdown(
+        f'<img src="data:image/png;base64,{img_data}" class="intro-logo" />',
+        unsafe_allow_html=True,
+    )
 else:
     st.caption(
         f"(Logo file '{LOGO_PATH}' not found — update LOGO_PATH or add the image to the app root.)"
