@@ -586,7 +586,7 @@ if st.session_state.assessment_ready:
     # ---------- Executive Metric Summary (3-block layout) ----------
     st.markdown("## Executive Metric Summary")
 
-    # Hero VVI card centered
+        # Hero VVI card centered
     left_spacer, hero_col, right_spacer = st.columns([1, 2, 1])
     vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
 
@@ -599,14 +599,15 @@ if st.session_state.assessment_ready:
                 border-radius:14px;
                 border-top:5px solid #b08c3e;
                 box-shadow:0 10px 24px rgba(0,0,0,0.10);
-                text-align:left;
+                text-align:center;  /* CHANGED from left to center */
             ">
                 <div style="font-size:0.7rem; letter-spacing:0.14em;
                             text-transform:uppercase; color:#666;
                             margin-bottom:0.25rem;">
                     Visit Value Index (VVI)
                 </div>
-                <div style="display:flex; align-items:baseline; gap:0.45rem;">
+                <div style="display:flex; align-items:baseline; gap:0.45rem;
+                            justify-content:center;">  <!-- ADDED justify-content -->
                     <div style="font-size:2.3rem; font-weight:750; color:#222;">
                         {vvi_score:.1f}
                     </div>
