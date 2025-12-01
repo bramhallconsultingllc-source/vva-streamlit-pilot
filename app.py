@@ -591,11 +591,11 @@ if st.session_state.assessment_ready:
     )
 
     # Hero VVI card centered
-    left_spacer, hero_col, right_spacer = st.columns([1, 2, 1])
-    vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
+left_spacer, hero_col, right_spacer = st.columns([1, 2, 1])
+vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
 
-    with hero_col:
-        vvi_html = f"""
+with hero_col:
+    vvi_html = f"""
 <div style="
     margin-top:1.3rem;
     margin-bottom:1.6rem;
@@ -616,7 +616,7 @@ if st.session_state.assessment_ready:
 </div>
 
 """
-        st.markdown(vvi_html, unsafe_allow_html=True)
+    st.markdown(vvi_html, unsafe_allow_html=True)
 
     st.markdown("")  # small spacing
   
