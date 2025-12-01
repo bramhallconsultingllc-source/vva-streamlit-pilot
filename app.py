@@ -775,32 +775,33 @@ st.markdown(
     # ---------- Prescriptive Actions (executive layout) ----------
 st.subheader("Prescriptive Actions (Playbook)")
 
-    def render_action_bucket(label: str, items: list[str]):
-        """Show 3–4 priority actions, tuck the rest into an expander."""
-        if not items:
-            st.write("_No actions for this bucket._")
-            return
 
-        primary = items[:4]
-        extra = items[4:]
+def render_action_bucket(label: str, items: list[str]):
+    """Show 3–4 priority actions, tuck the rest into an expander."""
+    if not items:
+        st.write("_No actions for this bucket._")
+        return
 
-        st.markdown(f"#### {label}")
-        st.markdown(
-            "<div style='font-size:0.9rem;color:#666;margin-bottom:0.35rem;'>"
-            "Priority actions to execute first."
-            "</div>",
-            unsafe_allow_html=True,
-        )
+    primary = items[:4]
+    extra = items[4:]
 
-        # Primary list
-        for idx, text in enumerate(primary, start=1):
-            st.markdown(f"**{idx}.** {text}")
+    st.markdown(f"#### {label}")
+    st.markdown(
+        "<div style='font-size:0.9rem;color:#666;margin-bottom:0.35rem;'>"
+        "Priority actions to execute first."
+        "</div>",
+        unsafe_allow_html=True,
+    )
 
-        # Extra list in an expander
-        if extra:
-            with st.expander("Show additional actions"):
-                for text in extra:
-                    st.markdown(f"- {text}")
+    # Primary list
+    for idx, text in enumerate(primary, start=1):
+        st.markdown(f"**{idx}.** {text}")
+
+    # Extra list in an expander
+    if extra:
+        with st.expander("Show additional actions"):
+            for text in extra:
+                st.markdown(f"- {text}")
 
     # Tabs: one pane per theme
     tab_rev, tab_lab, tab_sys = st.tabs(
