@@ -586,51 +586,53 @@ if st.session_state.assessment_ready:
     # ---------- Executive Metric Summary (3-block layout) ----------
     st.markdown("## Executive Metric Summary")
 
-                # Hero VVI card centered
+       # Hero VVI card centered
     left_spacer, hero_col, right_spacer = st.columns([1, 2, 1])
     vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
 
     with hero_col:
         st.markdown(
             f"""
-            <div style="
-                background:{vvi_bg};
-                padding:1.3rem 1.5rem;
-                border-radius:14px;
-                border-top:5px solid #b08c3e;
-                box-shadow:0 10px 24px rgba(0,0,0,0.10);
-                text-align:center;
-            ">
-                <div style="font-size:0.7rem; letter-spacing:0.14em;
-                            text-transform:uppercase; color:#666;
-                            margin-bottom:0.4rem;">
-                    Visit Value Index (VVI)
-                </div>
+<div style="
+    background:{vvi_bg};
+    padding:1.3rem 1.5rem;
+    border-radius:14px;
+    border-top:5px solid #b08c3e;
+    box-shadow:0 10px 24px rgba(0,0,0,0.10);
+    text-align:center;
+">
+    <div style="font-size:0.7rem; letter-spacing:0.14em;
+                text-transform:uppercase; color:#666;
+                margin-bottom:0.4rem;">
+        Visit Value Index (VVI)
+    </div>
 
-                <div style="font-size:2.3rem; font-weight:750; color:#222;">
-                    {vvi_score:.1f}
-                </div>
-                <div style="font-size:0.9rem; color:#444; margin-top:0.2rem;">
-                    Overall performance vs. benchmark
-                </div>
+    <div style="font-size:2.3rem; font-weight:750; color:#222;">
+        {vvi_score:.1f}
+    </div>
+    <div style="font-size:0.9rem; color:#444; margin-top:0.2rem;">
+        Overall performance vs. benchmark
+    </div>
 
-                <div style="margin-top:0.6rem; font-size:0.86rem; color:#333;">
-                    Tier:
-                    <span style="
-                        display:inline-block;
-                        padding:0.15rem 0.55rem;
-                        border-radius:999px;
-                        background:rgba(0,0,0,0.04);
-                        font-weight:600;
-                        font-size:0.8rem;
-                    ">
-                        {vvi_t}
-                    </span>
-                </div>
-            </div>
+    <div style="margin-top:0.6rem; font-size:0.86rem; color:#333;">
+        Tier:
+        <span style="
+            display:inline-block;
+            padding:0.15rem 0.55rem;
+            border-radius:999px;
+            background:rgba(0,0,0,0.04);
+            font-weight:600;
+            font-size:0.8rem;
+        ">
+            {vvi_t}
+        </span>
+    </div>
+</div>
             """,
             unsafe_allow_html=True,
         )
+
+    st.markdown("")  # small spacing
 
     st.markdown("")  # small spacing
 
