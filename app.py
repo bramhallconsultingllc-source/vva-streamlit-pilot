@@ -163,6 +163,14 @@ def tier_from_score(score: float) -> str:
 
 tier = tier_from_score  # alias
 
+# Colors used for tier-based highlighting
+TIER_COLORS = {
+    "Excellent": "#d9f2d9",  # light green
+    "Stable":    "#fff7cc",  # light yellow
+    "At Risk":   "#ffe0b3",  # light orange
+    "Critical":  "#f8cccc",  # light red
+}
+
 # ---- RF/LF Tier Bundles ----
 RF_ACTIONS = {
     "Excellent": [
