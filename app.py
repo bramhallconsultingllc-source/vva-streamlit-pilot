@@ -670,7 +670,7 @@ if st.session_state.assessment_ready:
         </div>
     </div>
     <div style="font-size:0.78rem; color:#555; margin-top:0.25rem;">
-        Actual NRPV vs. budgeted NRPV
+        Actual NRPV vs. Benchmark/Budgeted NRPV
     </div>
 </div>
 """,
