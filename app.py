@@ -746,50 +746,7 @@ if st.session_state.assessment_ready:
 
     metrics_styler = metrics_df.style.set_properties(**{"text-align": "left"})
     st.dataframe(metrics_styler, use_container_width=True, hide_index=True)
-
-    # ---------- Scoring table (VVI emphasized) ----------
-    score_df = pd.DataFrame(
-        {
-            "Index": [
-                "Visit Value Index (VVI)",
-                "Revenue Factor (RF)",
-                "Labor Factor (LF)",
-            ],
-            "Formula": [
-                "NRPV ÷ LCV (normalized vs. benchmark ratio)",
-                "NRPV ÷ Target NRPV",
-                "Target LCV ÷ LCV",
-            ],
-            "Raw Value": [
-                f"{vvi_raw:.3f}",
-                f"{rf_raw:.3f}",
-                f"{lf_raw:.3f}",
-            ],
-            "Weighted Score (0–100)": [
-                f"{vvi_score:.2f}",
-                f"{rf_score:.2f}",
-                f"{lf_score:.2f}",
-            ],
-            "Tier": [vvi_t, rf_t, lf_t],
-        }
-    )
-
-    st.subheader("VVI / RF / LF Scoring Table")
-
-    def highlight_vvi(row):
-        if row.name == 0:
-            return [
-                "font-weight:700; background-color:#f7f2d3; "
-                "border-top:1px solid #ccc; border-bottom:1px solid #ccc;"
-            ] * len(row)
-        return [""] * len(row)
-
-    styler_score = score_df.style.apply(highlight_vvi, axis=1).set_properties(
-        **{"text-align": "left"}
-    )
-
-    st.dataframe(styler_score, use_container_width=True, hide_index=True)
-
+    
     # ---------- Prescriptive Actions (executive layout) ----------
     st.subheader("Prescriptive Actions (Playbook)")
 
