@@ -821,91 +821,46 @@ if st.session_state.assessment_ready:
     st.success("Assessment complete. See results below.")
     kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
 
-    # ---------- Executive Metric Summary cards ----------
+        # ---------- Executive Metric Summary ----------
     st.markdown("## Executive Metric Summary")
 
-    c_vvi, c_rf, c_lf = st.columns(3)
-
-    # Map tiers to soft background colors (already defined in TIER_COLORS)
-    vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
-    rf_bg = TIER_COLORS.get(rf_t, "#f5f5f5")
-    lf_bg = TIER_COLORS.get(lf_t, "#f5f5f5")
-
-    with c_vvi:
-        st.markdown(
-            f"""
-            <div style="
-                background:{vvi_bg};
-                padding:1.1rem 1.2rem;
-                border-radius:12px;
-                border-top:4px solid #b08c3e;
-                box-shadow:0 6px 14px rgba(0,0,0,0.08);
-            ">
-                <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
-                    Visit Value Index (VVI)
-                </div>
-                <div style="font-size:1.4rem; font-weight:700; margin-bottom:0.1rem;">
-                    {vvi_score:.1f}
-                </div>
-                <div style="font-size:0.82rem; color:#333;">
-                    Tier: <strong>{vvi_t}</strong>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    with c_rf:
-        st.markdown(
-            f"""
-            <div style="
-                background:{rf_bg};
-                padding:1.0rem 1.1rem;
-                border-radius:12px;
-                border-top:2px solid rgba(0,0,0,0.04);
-            ">
-                <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
-                    Revenue Factor (RF)
-                </div>
-                <div style="font-size:1.3rem; font-weight:700; margin-bottom:0.1rem;">
-                    {rf_score:.1f}
-                </div>
-                <div style="font-size:0.82rem; color:#333;">
-                    Tier: <strong>{rf_t}</strong>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    with c_lf:
-        st.markdown(
-            f"""
-            <div style="
-                background:{lf_bg};
-                padding:1.0rem 1.1rem;
-                border-radius:12px;
-                border-top:2px solid rgba(0,0,0,0.04);
-            ">
-                <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
-                    Labor Factor (LF)
-                </div>
-                <div style="font-size:1.3rem; font-weight:700; margin-bottom:0.1rem;">
-                    {lf_score:.1f}
-                </div>
-                <div style="font-size:0.82rem; color:#333;">
-                    Tier: <strong>{lf_t}</strong>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    # Scenario strip (keep this just below the cards)
+    # VVI hero card (only one card now)
     st.markdown(
         f"""
         <div style="
-            margin-top:1.0rem;
+            background:{TIER_COLORS.get(vvi_t, '#f5f5f5')};
+            padding:1.1rem 1.2rem;
+            border-radius:12px;
+            border-top:4px solid #b08c3e;
+            box-shadow:0 6px 14px rgba(0,0,0,0.08);
+            max-width:480px;
+        ">
+            <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
+                Visit Value Index (VVI)
+            </div>
+            <div style="font-size:1.8rem; font-weight:700; margin-bottom:0.1rem;">
+                {vvi_score:.1f}
+            </div>
+            <div style="font-size:0.85rem; color:#333;">
+                Tier: <strong>{vvi_t}</strong>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # RF / LF gauges directly underneath the hero card
+    g_rf, g_lf = st.columns(2)
+    with g_rf:
+        render_half_gauge(rf_score, "Revenue Factor (RF)", rf_t)
+    with g_lf:
+        render_half_gauge(lf_score, "Labor Factor (LF)", lf_t)
+
+    # Scenario strip
+    st.markdown(
+        f"""
+        <div style="
+            margin-top:0.5rem;
             margin-bottom:1.2rem;
             padding:0.9rem 1.0rem;
             border-radius:10px;
@@ -923,13 +878,6 @@ if st.session_state.assessment_ready:
         """,
         unsafe_allow_html=True,
     )
-
-    # --- RF / LF gauges just below the hero VVI card ---
-    g_rf, g_lf = st.columns(2)
-    with g_rf:
-        render_half_gauge(rf_score, "Revenue Factor (RF)", rf_t)
-    with g_lf:
-        render_half_gauge(lf_score, "Labor Factor (LF)", lf_t)
 
     # --- Supporting metrics grid (no dataframe) ---
     st.markdown("#### Supporting Metrics")
