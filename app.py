@@ -715,7 +715,7 @@ if st.session_state.assessment_ready:
             unsafe_allow_html=True,
         )
 
-        # ---------- Scenario strip (below RF / LF) ----------
+    # ---------- Scenario strip (below RF / LF) ----------
     st.markdown(
         f"""
 <div style="
