@@ -374,53 +374,59 @@ def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
 import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge
 
-def render_half_gauge(value: float, label: str, tier_name: str, max_value: float = 120.0):
-    """
-    Draw a top half-donut gauge for 0–max_value, shown as a percentage.
-    `value` is your RF / LF score (e.g., 89.0 -> 89%).
-    """
-    # Clamp 0..max_value
-    frac = max(0.0, min(value / max_value, 1.0))
+from matplotlib.patches import Arc  # you can remove Wedge now if unused
 
-    fill_color = TIER_COLORS.get(tier_name, "#b0b0b0")
+def render_half_gauge(value: float, label: str, tier_name: str, cap: float = 130.0):
+    """
+    Executive-style half-gauge.
 
-    fig, ax = plt.subplots(figsize=(3.0, 2.4))
-    ax.set_aspect("equal")
+    - `value` is the RF/LF score (e.g., 143.2 -> shown as 143%).
+    - `cap` controls how much arc you ever draw; values above cap
+      still display their true % in the text but the arc stops at cap.
+    """
+    display_val = max(0.0, value)
+    frac = max(0.0, min(display_val, cap) / cap)
+
+    track_color = "#e0e3ea"  # neutral background
+    fill_color = TIER_COLORS.get(tier_name, "#b08c3e")  # tier-based accent
+
+    fig, ax = plt.subplots(figsize=(3.4, 2.2))
     ax.axis("off")
+    ax.set_aspect("equal")
 
-    # Background arc (full pale semicircle)
-    bg = Wedge(
-        center=(0, 0),
-        r=1.0,
+    # Background track (full half-circle)
+    bg = Arc(
+        (0, 0),
+        2.0,
+        2.0,
         theta1=180,
         theta2=0,
-        width=0.28,
-        facecolor="#f4f4f4",
-        edgecolor="none",
+        linewidth=10,
+        color=track_color,
     )
 
-    # Filled arc (tier color)
-    fg = Wedge(
-        center=(0, 0),
-        r=1.0,
+    # Foreground / filled track
+    fg = Arc(
+        (0, 0),
+        2.0,
+        2.0,
         theta1=180,
         theta2=180 - 180 * frac,
-        width=0.28,
-        facecolor=fill_color,
-        edgecolor="none",
+        linewidth=10,
+        color=fill_color,
     )
 
     ax.add_patch(bg)
     ax.add_patch(fg)
 
-    # Percent in center of gauge
+    # Percent text
     ax.text(
         0,
-        0.10,
-        f"{value:.0f}%",
+        0.18,
+        f"{display_val:.0f}%",
         ha="center",
         va="center",
-        fontsize=13,
+        fontsize=14,
         fontweight="bold",
         color="#222222",
     )
@@ -428,17 +434,16 @@ def render_half_gauge(value: float, label: str, tier_name: str, max_value: float
     # Label under gauge
     ax.text(
         0,
-        -0.55,
+        -0.32,
         label,
         ha="center",
         va="center",
-        fontsize=9,
+        fontsize=9.5,
         color="#555555",
     )
 
-    # Make sure the whole semicircle is visible
-    ax.set_xlim(-1.2, 1.2)
-    ax.set_ylim(-0.8, 1.2)
+    ax.set_xlim(-1.25, 1.25)
+    ax.set_ylim(-0.75, 1.25)
 
     st.pyplot(fig)
 
