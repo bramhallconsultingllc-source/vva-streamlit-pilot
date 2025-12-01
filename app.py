@@ -699,7 +699,7 @@ if st.session_state.assessment_ready:
             unsafe_allow_html=True,
         )
 
-        # Scenario strip (just below KPI block)
+            # Scenario strip (just below KPI block)
     st.markdown(
         f"""
 <div style="
@@ -707,8 +707,8 @@ if st.session_state.assessment_ready:
     margin-bottom:1.3rem;
     padding:0.9rem 1.0rem;
     border-radius:10px;
-    background:#fff9ea;
-    border-left:4px solid #b08c3e;
+    background:#f7f7f7;
+    border-left:4px solid #e0e0e0;
     font-size:0.9rem;
     text-align:center;
 ">
