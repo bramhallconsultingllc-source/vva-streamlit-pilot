@@ -592,7 +592,7 @@ if st.session_state.assessment_ready:
 
     with hero_col:
         st.markdown(
-            f"""
+        f"""
 <div style="
     background:{vvi_bg};
     padding:1.3rem 1.5rem;
