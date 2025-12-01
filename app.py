@@ -773,7 +773,7 @@ if st.session_state.assessment_ready:
 
     st.subheader("Calculation Table")
 
-        def highlight_calc(row):
+    def highlight_calc(row):
         """
         Color ONLY the 'Value' cell for VVI / RF / LF based on tier.
         Draw a subtle box around the first four metrics
