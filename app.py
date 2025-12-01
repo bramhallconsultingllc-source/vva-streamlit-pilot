@@ -724,39 +724,28 @@ if st.session_state.assessment_ready:
         unsafe_allow_html=True,
     )
 
-    # --- Supporting metrics grid (no dataframe) ---
+        # --- Supporting metrics table (instead of two-column HTML) ---
     st.markdown("#### Supporting Metrics")
 
-    left_md = f"""
-    <div class="metric-grid supporting-metrics">
-      <p><strong>Operational inputs</strong></p>
-      <ul>
-        <li><strong>Total visits:</strong> {int(visits):,}</li>
-        <li><strong>Net revenue:</strong> {format_money(net_rev)}</li>
-        <li><strong>Labor cost (SWB):</strong> {format_money(labor)}</li>
-        <li><strong>SWB%:</strong> {swb_pct * 100:.1f}%</li>
-      </ul>
-    </div>
-    """
+    metrics_rows = [
+        ("Operational inputs", "Total visits", f"{int(visits):,}"),
+        ("Operational inputs", "Net revenue", format_money(net_rev)),
+        ("Operational inputs", "Labor cost (SWB)", format_money(labor)),
+        ("Operational inputs", "SWB%", f"{swb_pct * 100:.1f}%"),
+        ("Per-visit economics", "NRPV", format_money(rpv)),
+        ("Per-visit economics", "LCV", format_money(lcv)),
+        ("Per-visit economics", "NRPV target", format_money(rt)),
+        ("Per-visit economics", "LCV target", format_money(lt)),
+        ("Per-visit economics", "VVI raw (NRPV ÷ LCV)", f"{vvi_raw:.3f}"),
+    ]
 
-    right_md = f"""
-    <div class="metric-grid supporting-metrics">
-      <p><strong>Per-visit economics</strong></p>
-      <ul>
-        <li><strong>NRPV:</strong> {format_money(rpv)}</li>
-        <li><strong>LCV:</strong> {format_money(lcv)}</li>
-        <li><strong>NRPV target:</strong> {format_money(rt)}</li>
-        <li><strong>LCV target:</strong> {format_money(lt)}</li>
-        <li><strong>VVI raw (NRPV ÷ LCV):</strong> {vvi_raw:.3f}</li>
-      </ul>
-    </div>
-    """
+    metrics_df = pd.DataFrame(
+        metrics_rows,
+        columns=["Category", "Metric", "Value"],
+    )
 
-    g1, g2 = st.columns(2)
-    with g1:
-        st.markdown(left_md, unsafe_allow_html=True)
-    with g2:
-        st.markdown(right_md, unsafe_allow_html=True)
+    metrics_styler = metrics_df.style.set_properties(**{"text-align": "left"})
+    st.dataframe(metrics_styler, use_container_width=True, hide_index=True)
 
     # ---------- Scoring table (VVI emphasized) ----------
     score_df = pd.DataFrame(
