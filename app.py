@@ -596,23 +596,25 @@ if st.session_state.assessment_ready:
 
     with hero_col:
         vvi_html = f"""
-<div style="background:{vvi_bg}; padding:1.3rem 1.5rem; border-radius:14px; border-top:5px solid #b08c3e; box-shadow:0 10px 24px rgba(0,0,0,0.10); text-align:center;">
-  <div style="font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase; color:#666; margin-bottom:0.4rem;">
-    Visit Value Index (VVI)
-  </div>
-  <div style="font-size:2.3rem; font-weight:750; color:#222;">
-    {vvi_score:.1f}
-  </div>
-  <div style="font-size:0.9rem; color:#444; margin-top:0.2rem;">
-    Overall performance vs. benchmark
-  </div>
-  <div style="margin-top:0.6rem; font-size:0.86rem; color:#333;">
-    Tier:
-    <span style="display:inline-block; padding:0.15rem 0.55rem; border-radius:999px; background:rgba(0,0,0,0.04); font-weight:600; font-size:0.8rem;">
-      {vvi_t}
-    </span>
-  </div>
+<div style="
+    margin-top:1.3rem;
+    margin-bottom:1.6rem;
+    padding:1.2rem 1.2rem;
+    border-radius:12px;
+    background:#f7f7f7;
+    border-left:4px solid #e0e0e0;
+    font-size:1.0rem;
+    text-align:center;
+">
+    <div style="font-size:0.8rem; text-transform:uppercase;
+                letter-spacing:0.14em; color:#555; margin-bottom:0.35rem;">
+        Scenario
+    </div>
+    <div style="color:#222; font-size:1.05rem; line-height:1.5;">
+        {scenario_text}
+    </div>
 </div>
+
 """
         st.markdown(vvi_html, unsafe_allow_html=True)
 
