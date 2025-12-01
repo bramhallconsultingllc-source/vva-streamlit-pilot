@@ -670,7 +670,7 @@ if st.session_state.assessment_ready:
         </div>
     </div>
     <div style="font-size:0.78rem; color:#555; margin-top:0.25rem;">
-        Actual NRPV vs. Benchmark/Budgeted NRPV
+        Actual NRPV vs. benchmark NRPV
     </div>
 </div>
 """,
@@ -708,7 +708,7 @@ if st.session_state.assessment_ready:
         </div>
     </div>
     <div style="font-size:0.78rem; color:#555; margin-top:0.25rem;">
-        Budgeted LCV vs. actual LCV
+        Benchmark LCV vs. actual LCV
     </div>
 </div>
 """,
