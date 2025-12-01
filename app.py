@@ -727,7 +727,7 @@ if st.session_state.assessment_ready:
     st.success("Assessment complete. See results below.")
     kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
 
-    # ----- Calculation table with key metrics on top -----
+        # ----- Calculation table with key metrics on top -----
     calc_df = pd.DataFrame(
         {
             "Metric": [
@@ -765,23 +765,38 @@ if st.session_state.assessment_ready:
 
     st.subheader("Calculation Table")
 
-    def highlight_key_rows(row):
-        key_metrics = {
-            "VVI score (normalized 0–100)",
-            "Revenue score (RF)",
-            "Labor score (LF)",
-            "Scenario",
-        }
-        if row["Metric"] in key_metrics:
-            return [
+    def highlight_calc(row):
+        """Color VVI / RF / LF rows by tier, Scenario in neutral gold."""
+        metric = row["Metric"]
+        style = [""] * len(row)
+
+        # Map each metric row to its tier
+        metric_tier = None
+        if metric == "VVI score (normalized 0–100)":
+            metric_tier = vvi_t
+        elif metric == "Revenue score (RF)":
+            metric_tier = rf_t
+        elif metric == "Labor score (LF)":
+            metric_tier = lf_t
+
+        if metric_tier:
+            bg = TIER_COLORS.get(metric_tier, "")
+            if bg:
+                # color both columns, bold text
+                for i in range(len(style)):
+                    style[i] = f"background-color:{bg}; font-weight:700;"
+
+        elif metric == "Scenario":
+            style = [
                 "font-weight:700; background-color:#f7f2d3; "
                 "border-top:1px solid #ccc; border-bottom:1px solid #ccc;"
             ] * len(row)
-        return [""] * len(row)
+
+        return style
 
     calc_styler = (
         calc_df.style
-        .apply(highlight_key_rows, axis=1)
+        .apply(highlight_calc, axis=1)
         .set_properties(subset=["Value"], **{"white-space": "normal"})
     )
 
