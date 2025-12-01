@@ -371,7 +371,75 @@ def build_scenario_grid(active_rf_tier: str, active_lf_tier: str):
     ).hide(axis="index", level=None)
 
     return df, styler
+import matplotlib.pyplot as plt
+from matplotlib.patches import Wedge
 
+def render_half_gauge(value: float, label: str, tier_name: str, max_value: float = 120.0):
+    """
+    Draw a half-donut gauge for 0–max_value, shown as a percentage.
+    `value` is your RF / LF score (e.g., 89.0).
+    """
+    # Normalize 0–max_value to 0–1 for the arc
+    frac = max(0.0, min(value / max_value, 1.0))
+
+    # Choose color from tier
+    fill_color = TIER_COLORS.get(tier_name, "#b0b0b0")
+
+    fig, ax = plt.subplots(figsize=(2.6, 2.0))
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+    # Background arc (light gray)
+    bg = Wedge(
+        center=(0, 0),
+        r=1.0,
+        theta1=180,
+        theta2=0,
+        width=0.30,
+        facecolor="#f0f0f0",
+        edgecolor="none",
+    )
+
+    # Filled arc (tier color)
+    fg = Wedge(
+        center=(0, 0),
+        r=1.0,
+        theta1=180,
+        theta2=180 - 180 * frac,
+        width=0.30,
+        facecolor=fill_color,
+        edgecolor="none",
+    )
+
+    ax.add_patch(bg)
+    ax.add_patch(fg)
+
+    # Percent text (RF/LF shown as percentage of 100)
+    ax.text(
+        0,
+        -0.05,
+        f"{value:.0f}%",
+        ha="center",
+        va="center",
+        fontsize=12,
+        fontweight="bold",
+        color="#222222",
+    )
+    # Label
+    ax.text(
+        0,
+        -0.45,
+        label,
+        ha="center",
+        va="center",
+        fontsize=9,
+        color="#555555",
+    )
+
+    ax.set_xlim(-1.1, 1.1)
+    ax.set_ylim(-1.1, 0.7)
+
+    st.pyplot(fig)
 
 # ---------- KPI bars (Executive style) ----------
 def render_kpi_bars(vvi_score: float, rf_score: float, lf_score: float):
