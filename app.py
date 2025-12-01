@@ -752,134 +752,134 @@ if st.session_state.assessment_ready:
     st.success("Assessment complete. See results below.")
     kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
 
-                  # ---------- Executive Metric Summary cards ----------
-st.markdown("## Executive Metric Summary")
+    # ---------- Executive Metric Summary cards ----------
+    st.markdown("## Executive Metric Summary")
 
-c_vvi, c_rf, c_lf = st.columns(3)
+    c_vvi, c_rf, c_lf = st.columns(3)
 
-# Map tiers to soft background colors (already defined in TIER_COLORS)
-vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
-rf_bg = TIER_COLORS.get(rf_t, "#f5f5f5")
-lf_bg = TIER_COLORS.get(lf_t, "#f5f5f5")
+    # Map tiers to soft background colors (already defined in TIER_COLORS)
+    vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
+    rf_bg = TIER_COLORS.get(rf_t, "#f5f5f5")
+    lf_bg = TIER_COLORS.get(lf_t, "#f5f5f5")
 
-with c_vvi:
+    with c_vvi:
+        st.markdown(
+            f"""
+            <div style="
+                background:{vvi_bg};
+                padding:1.1rem 1.2rem;
+                border-radius:12px;
+                border-top:4px solid #b08c3e;
+                box-shadow:0 6px 14px rgba(0,0,0,0.08);
+            ">
+                <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
+                    Visit Value Index (VVI)
+                </div>
+                <div style="font-size:1.4rem; font-weight:700; margin-bottom:0.1rem;">
+                    {vvi_score:.1f}
+                </div>
+                <div style="font-size:0.82rem; color:#333;">
+                    Tier: <strong>{vvi_t}</strong>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with c_rf:
+        st.markdown(
+            f"""
+            <div style="
+                background:{rf_bg};
+                padding:1.0rem 1.1rem;
+                border-radius:12px;
+                border-top:2px solid rgba(0,0,0,0.04);
+            ">
+                <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
+                    Revenue Factor (RF)
+                </div>
+                <div style="font-size:1.3rem; font-weight:700; margin-bottom:0.1rem;">
+                    {rf_score:.1f}
+                </div>
+                <div style="font-size:0.82rem; color:#333;">
+                    Tier: <strong>{rf_t}</strong>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with c_lf:
+        st.markdown(
+            f"""
+            <div style="
+                background:{lf_bg};
+                padding:1.0rem 1.1rem;
+                border-radius:12px;
+                border-top:2px solid rgba(0,0,0,0.04);
+            ">
+                <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
+                    Labor Factor (LF)
+                </div>
+                <div style="font-size:1.3rem; font-weight:700; margin-bottom:0.1rem;">
+                    {lf_score:.1f}
+                </div>
+                <div style="font-size:0.82rem; color:#333;">
+                    Tier: <strong>{lf_t}</strong>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # Scenario strip (keep this just below the cards)
     st.markdown(
         f"""
         <div style="
-            background:{vvi_bg};
-            padding:1.1rem 1.2rem;
-            border-radius:12px;
-            border-top:4px solid #b08c3e;
-            box-shadow:0 6px 14px rgba(0,0,0,0.08);
+            margin-top:1.0rem;
+            margin-bottom:1.2rem;
+            padding:0.9rem 1.0rem;
+            border-radius:10px;
+            background:#fff9ea;
+            border-left:4px solid #b08c3e;
+            font-size:0.9rem;
         ">
-            <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
-                Visit Value Index (VVI)
+            <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; color:#777; margin-bottom:0.25rem;">
+                Scenario
             </div>
-            <div style="font-size:1.4rem; font-weight:700; margin-bottom:0.1rem;">
-                {vvi_score:.1f}
-            </div>
-            <div style="font-size:0.82rem; color:#333;">
-                Tier: <strong>{vvi_t}</strong>
+            <div style="color:#333;">
+                {scenario_text}
             </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
-
-with c_rf:
-    st.markdown(
-        f"""
-        <div style="
-            background:{rf_bg};
-            padding:1.0rem 1.1rem;
-            border-radius:12px;
-            border-top:2px solid rgba(0,0,0,0.04);
-        ">
-            <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
-                Revenue Factor (RF)
-            </div>
-            <div style="font-size:1.3rem; font-weight:700; margin-bottom:0.1rem;">
-                {rf_score:.1f}
-            </div>
-            <div style="font-size:0.82rem; color:#333;">
-                Tier: <strong>{rf_t}</strong>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-with c_lf:
-    st.markdown(
-        f"""
-        <div style="
-            background:{lf_bg};
-            padding:1.0rem 1.1rem;
-            border-radius:12px;
-            border-top:2px solid rgba(0,0,0,0.04);
-        ">
-            <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
-                Labor Factor (LF)
-            </div>
-            <div style="font-size:1.3rem; font-weight:700; margin-bottom:0.1rem;">
-                {lf_score:.1f}
-            </div>
-            <div style="font-size:0.82rem; color:#333;">
-                Tier: <strong>{lf_t}</strong>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-# Scenario strip (keep this just below the cards)
-st.markdown(
-    f"""
-    <div style="
-        margin-top:1.0rem;
-        margin-bottom:1.2rem;
-        padding:0.9rem 1.0rem;
-        border-radius:10px;
-        background:#fff9ea;
-        border-left:4px solid #b08c3e;
-        font-size:0.9rem;
-    ">
-        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; color:#777; margin-bottom:0.25rem;">
-            Scenario
-        </div>
-        <div style="color:#333;">
-            {scenario_text}
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
 
     # --- Supporting metrics grid (no dataframe) ---
     st.markdown("#### Supporting Metrics")
 
     left_md = f"""
-    <div class="metric-grid">
-    <p><strong>Operational inputs</strong></p>
-    <ul>
-      <li><strong>Total visits:</strong> {int(visits):,}</li>
-      <li><strong>Net revenue:</strong> {format_money(net_rev)}</li>
-      <li><strong>Labor cost (SWB):</strong> {format_money(labor)}</li>
-      <li><strong>SWB%:</strong> {swb_pct * 100:.1f}%</li>
-    </ul>
+    <div class="metric-grid supporting-metrics">
+      <p><strong>Operational inputs</strong></p>
+      <ul>
+        <li><strong>Total visits:</strong> {int(visits):,}</li>
+        <li><strong>Net revenue:</strong> {format_money(net_rev)}</li>
+        <li><strong>Labor cost (SWB):</strong> {format_money(labor)}</li>
+        <li><strong>SWB%:</strong> {swb_pct * 100:.1f}%</li>
+      </ul>
     </div>
     """
 
-    right_md = f""" ... """
-    <div class="metric-grid">
-    <p><strong>Per-visit economics</strong></p>
-    <ul>
-      <li><strong>NRPV:</strong> {format_money(rpv)}</li>
-      <li><strong>LCV:</strong> {format_money(lcv)}</li>
-      <li><strong>NRPV target:</strong> {format_money(rt)}</li>
-      <li><strong>LCV target:</strong> {format_money(lt)}</li>
-      <li><strong>VVI raw (NRPV ÷ LCV):</strong> {vvi_raw:.3f}</li>
-    </ul>
+    right_md = f"""
+    <div class="metric-grid supporting-metrics">
+      <p><strong>Per-visit economics</strong></p>
+      <ul>
+        <li><strong>NRPV:</strong> {format_money(rpv)}</li>
+        <li><strong>LCV:</strong> {format_money(lcv)}</li>
+        <li><strong>NRPV target:</strong> {format_money(rt)}</li>
+        <li><strong>LCV target:</strong> {format_money(lt)}</li>
+        <li><strong>VVI raw (NRPV ÷ LCV):</strong> {vvi_raw:.3f}</li>
+      </ul>
     </div>
     """
 
