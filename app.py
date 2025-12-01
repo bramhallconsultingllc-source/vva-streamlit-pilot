@@ -111,6 +111,7 @@ intro_css = """
 LOGO_PATH = "Logo BC.png"  # update if your filename is different
 
 # Apply CSS and render intro
+st.markdown(intro_css, unsafe_allow_html=True)
 st.markdown(
     """
     <style>
