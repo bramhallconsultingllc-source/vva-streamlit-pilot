@@ -715,7 +715,7 @@ if st.session_state.assessment_ready:
             unsafe_allow_html=True,
         )
 
-    # ---------- Scenario strip (below RF / LF) ----------
+        # ---------- Scenario strip (below RF / LF) ----------
     st.markdown(
         f"""
 <div style="
@@ -741,8 +741,8 @@ if st.session_state.assessment_ready:
     )
 
     # ---------- Tier Legend ----------
-st.markdown(
-    """
+    st.markdown(
+        """
 <div style="
     margin-top:0.5rem;
     margin-bottom:1.4rem;
@@ -769,39 +769,38 @@ st.markdown(
     </div>
 </div>
 """,
-    unsafe_allow_html=True,
-)
-    
-    # ---------- Prescriptive Actions (executive layout) ----------
-st.subheader("Prescriptive Actions (Playbook)")
-
-
-def render_action_bucket(label: str, items: list[str]):
-    """Show 3–4 priority actions, tuck the rest into an expander."""
-    if not items:
-        st.write("_No actions for this bucket._")
-        return
-
-    primary = items[:4]
-    extra = items[4:]
-
-    st.markdown(f"#### {label}")
-    st.markdown(
-        "<div style='font-size:0.9rem;color:#666;margin-bottom:0.35rem;'>"
-        "Priority actions to execute first."
-        "</div>",
         unsafe_allow_html=True,
     )
 
-    # Primary list
-    for idx, text in enumerate(primary, start=1):
-        st.markdown(f"**{idx}.** {text}")
+    # ---------- Prescriptive Actions (executive layout) ----------
+    st.subheader("Prescriptive Actions (Playbook)")
 
-    # Extra list in an expander
-    if extra:
-        with st.expander("Show additional actions"):
-            for text in extra:
-                st.markdown(f"- {text}")
+    def render_action_bucket(label: str, items: list[str]):
+        """Show 3–4 priority actions, tuck the rest into an expander."""
+        if not items:
+            st.write("_No actions for this bucket._")
+            return
+
+        primary = items[:4]
+        extra = items[4:]
+
+        st.markdown(f"#### {label}")
+        st.markdown(
+            "<div style='font-size:0.9rem;color:#666;margin-bottom:0.35rem;'>"
+            "Priority actions to execute first."
+            "</div>",
+            unsafe_allow_html=True,
+        )
+
+        # Primary list
+        for idx, text in enumerate(primary, start=1):
+            st.markdown(f"**{idx}.** {text}")
+
+        # Extra list in an expander
+        if extra:
+            with st.expander("Show additional actions"):
+                for text in extra:
+                    st.markdown(f"- {text}")
 
     # Tabs: one pane per theme
     tab_rev, tab_lab, tab_sys = st.tabs(
@@ -817,7 +816,101 @@ def render_action_bucket(label: str, items: list[str]):
     with tab_sys:
         render_action_bucket("Operating Rhythm", actions.get("system_actions", []))
 
-            # ---------- AI Insights (optional, in-page) ----------
+    # ---------- Impact Simulator (optional what-if) ----------
+    with st.expander("Optional: Simulate impact of improvement", expanded=False):
+        st.caption(
+            "Adjust Net Revenue per Visit (NRPV) and Labor Cost per Visit (LCV) "
+            "by dollars or percent to see how VVI, RF, and LF could move if "
+            "your prescriptive actions are successful. This does not change your "
+            "core scores above; it is a what-if view."
+        )
+
+        mode = st.radio(
+            "Adjust by:",
+            ["Percent change", "Dollar change"],
+            horizontal=True,
+        )
+
+        c_sim1, c_sim2 = st.columns(2)
+        if mode == "Percent change":
+            nrpv_delta_pct = c_sim1.number_input(
+                "NRPV change (%)", value=5.0, step=1.0, format="%.1f"
+            )
+            lcv_delta_pct = c_sim2.number_input(
+                "LCV change (%)", value=-5.0, step=1.0, format="%.1f"
+            )
+
+            sim_rpv = rpv * (1 + nrpv_delta_pct / 100.0)
+            sim_lcv = lcv * (1 + lcv_delta_pct / 100.0)
+        else:
+            nrpv_delta_amt = c_sim1.number_input(
+                "NRPV change ($)", value=5.0, step=1.0, format="%.2f"
+            )
+            lcv_delta_amt = c_sim2.number_input(
+                "LCV change ($)", value=-5.0, step=1.0, format="%.2f"
+            )
+
+            sim_rpv = rpv + nrpv_delta_amt
+            sim_lcv = lcv + lcv_delta_amt
+
+        sim_rpv = max(sim_rpv, 0.01)
+        sim_lcv = max(sim_lcv, 0.01)
+
+        sim_rf_raw = sim_rpv / rt
+        sim_lf_raw = lt / sim_lcv
+        sim_vvi_raw = sim_rpv / sim_lcv
+        sim_vvi_target = (rt / lt) if (rt and lt) else 1.67
+        sim_rf_score = sim_rf_raw * 100
+        sim_lf_score = sim_lf_raw * 100
+        sim_vvi_score = (sim_vvi_raw / sim_vvi_target) * 100
+
+        sim_df = pd.DataFrame(
+            {
+                "Index": ["Current", "Simulated"],
+                "NRPV": [format_money(rpv), format_money(sim_rpv)],
+                "LCV": [format_money(lcv), format_money(sim_lcv)],
+                "VVI Score": [f"{vvi_score:.1f}", f"{sim_vvi_score:.1f}"],
+                "RF Score": [f"{rf_score:.1f}", f"{sim_rf_score:.1f}"],
+                "LF Score": [f"{lf_score:.1f}", f"{sim_lf_score:.1f}"],
+            }
+        )
+
+        st.write("**Simulated impact (does not overwrite actual results):**")
+        st.dataframe(sim_df, use_container_width=True, hide_index=True)
+
+        fig_sim, ax_sim = plt.subplots(figsize=(6, 2.5))
+        labels = ["VVI", "RF", "LF"]
+        current_vals = [vvi_score, rf_score, lf_score]
+        sim_vals = [sim_vvi_score, sim_rf_score, sim_lf_score]
+        x = np.arange(len(labels))
+        bar_width = 0.35
+
+        # Bars
+        ax_sim.barh(
+            [i + bar_width for i in x],
+            current_vals,
+            height=bar_width,
+            label="Current",
+        )
+        ax_sim.barh(
+            x,
+            sim_vals,
+            height=bar_width,
+            label="Simulated",
+        )
+
+        # Vertical target line at score 100
+        ax_sim.axvline(100, linestyle="--", linewidth=1.2, alpha=0.7)
+
+        ax_sim.set_yticks([i + bar_width / 2 for i in x])
+        ax_sim.set_yticklabels(labels)
+        ax_sim.set_xlabel("Score (0–100+)")
+        ax_sim.legend()
+        ax_sim.spines["right"].set_visible(False)
+        ax_sim.spines["top"].set_visible(False)
+        st.pyplot(fig_sim)
+
+    # ---------- AI Insights (optional, in-page) ----------
     st.subheader("AI Insights (optional)")
 
     ai_choice = st.radio(
@@ -883,7 +976,10 @@ def render_action_bucket(label: str, items: list[str]):
         line("Scenario:", actions["diagnosis"])
         line("VVI:", f"{vvi_score:.2f} ({vvi_t})")
         line("RF / LF:", f"{rf_score:.2f}% ({rf_t})  |  {lf_score:.2f}% ({lf_t})")
-        line("NRPV / LCV / SWB%:", f"{format_money(rpv)}  |  {format_money(lcv)}  |  {swb_pct*100:.1f}%")
+        line(
+            "NRPV / LCV / SWB%:",
+            f"{format_money(rpv)}  |  {format_money(lcv)}  |  {swb_pct*100:.1f}%",
+        )
         y -= 6
 
         c.setFont("Helvetica-Bold", 12)
@@ -965,7 +1061,11 @@ def render_action_bucket(label: str, items: list[str]):
                 color = "#f8cccc"
             return [f"background-color: {color}"] * len(row)
 
-        st.dataframe(comp.style.apply(color_by_vvi, axis=1), use_container_width=True, hide_index=True)
+        st.dataframe(
+            comp.style.apply(color_by_vvi, axis=1),
+            use_container_width=True,
+            hide_index=True,
+        )
 
         _, c_reset = st.columns([3, 1])
         with c_reset:
