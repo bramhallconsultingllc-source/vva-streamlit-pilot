@@ -735,104 +735,108 @@ if st.session_state.assessment_ready:
     st.success("Assessment complete. See results below.")
     kpi_fig = render_kpi_bars(vvi_score, rf_score, lf_score)
 
-                  # ----- Executive summary layout (replaces Calculation Table) -----
-    st.subheader("Executive Metric Summary")
+                  # ---------- Executive Metric Summary cards ----------
+st.markdown("## Executive Metric Summary")
 
-    # Small CSS tweak to tighten spacing
+c_vvi, c_rf, c_lf = st.columns(3)
+
+# Map tiers to soft background colors (already defined in TIER_COLORS)
+vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
+rf_bg = TIER_COLORS.get(rf_t, "#f5f5f5")
+lf_bg = TIER_COLORS.get(lf_t, "#f5f5f5")
+
+with c_vvi:
     st.markdown(
-        """
-        <style>
-        .metric-grid p {
-            margin-bottom: 0.2rem;
-        }
-        </style>
+        f"""
+        <div style="
+            background:{vvi_bg};
+            padding:1.1rem 1.2rem;
+            border-radius:12px;
+            border-top:4px solid #b08c3e;
+            box-shadow:0 6px 14px rgba(0,0,0,0.08);
+        ">
+            <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
+                Visit Value Index (VVI)
+            </div>
+            <div style="font-size:1.4rem; font-weight:700; margin-bottom:0.1rem;">
+                {vvi_score:.1f}
+            </div>
+            <div style="font-size:0.82rem; color:#333;">
+                Tier: <strong>{vvi_t}</strong>
+            </div>
+        </div>
         """,
         unsafe_allow_html=True,
     )
 
-    # --- Hero metric cards (VVI / RF / LF) ---
-    def metric_card(title: str, value: str, tier_label: str, bg_color: str) -> str:
-        return f"""
+with c_rf:
+    st.markdown(
+        f"""
         <div style="
-            border-radius: 0.75rem;
-            padding: 0.9rem 1.1rem;
-            background:{bg_color};
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-            border: 1px solid rgba(0,0,0,0.05);
+            background:{rf_bg};
+            padding:1.0rem 1.1rem;
+            border-radius:12px;
+            border-top:2px solid rgba(0,0,0,0.04);
         ">
-          <div style="font-size:0.75rem; text-transform:uppercase;
-                      letter-spacing:0.06em; color:#555;">
-            {title}
-          </div>
-          <div style="font-size:1.4rem; font-weight:700; margin-top:0.15rem;">
-            {value}
-          </div>
-          <div style="font-size:0.8rem; color:#555; margin-top:0.15rem;">
-            Tier: <strong>{tier_label}</strong>
-          </div>
+            <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
+                Revenue Factor (RF)
+            </div>
+            <div style="font-size:1.3rem; font-weight:700; margin-bottom:0.1rem;">
+                {rf_score:.1f}
+            </div>
+            <div style="font-size:0.82rem; color:#333;">
+                Tier: <strong>{rf_t}</strong>
+            </div>
         </div>
-        """
+        """,
+        unsafe_allow_html=True,
+    )
 
-    # Choose colors from your tier palette
-    vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
-    rf_bg  = TIER_COLORS.get(rf_t,  "#f5f5f5")
-    lf_bg  = TIER_COLORS.get(lf_t,  "#f5f5f5")
+with c_lf:
+    st.markdown(
+        f"""
+        <div style="
+            background:{lf_bg};
+            padding:1.0rem 1.1rem;
+            border-radius:12px;
+            border-top:2px solid rgba(0,0,0,0.04);
+        ">
+            <div style="font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#555; margin-bottom:0.25rem;">
+                Labor Factor (LF)
+            </div>
+            <div style="font-size:1.3rem; font-weight:700; margin-bottom:0.1rem;">
+                {lf_score:.1f}
+            </div>
+            <div style="font-size:0.82rem; color:#333;">
+                Tier: <strong>{lf_t}</strong>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    c_vvi, c_rf, c_lf = st.columns(3)
-
-    with c_vvi:
-        st.markdown(
-            metric_card(
-                "Visit Value Index (VVI)",
-                f"{vvi_score:.1f}",
-                vvi_t,
-                vvi_bg,
-            ),
-            unsafe_allow_html=True,
-        )
-
-    with c_rf:
-        st.markdown(
-            metric_card(
-                "Revenue Factor (RF)",
-                f"{rf_score:.1f}",
-                rf_t,
-                rf_bg,
-            ),
-            unsafe_allow_html=True,
-        )
-
-    with c_lf:
-        st.markdown(
-            metric_card(
-                "Labor Factor (LF)",
-                f"{lf_score:.1f}",
-                lf_t,
-                lf_bg,
-            ),
-            unsafe_allow_html=True,
-        )
-
-    # --- Scenario card ---
-    scenario_html = f"""
+# Scenario strip (keep this just below the cards)
+st.markdown(
+    f"""
     <div style="
-        margin-top:1.2rem;
-        padding:1rem 1.1rem;
+        margin-top:1.0rem;
+        margin-bottom:1.2rem;
+        padding:0.9rem 1.0rem;
+        border-radius:10px;
+        background:#fff9ea;
         border-left:4px solid #b08c3e;
-        border-radius:0.5rem;
-        background:#faf7f0;
-        box-shadow:0 1px 2px rgba(0,0,0,0.04);
+        font-size:0.9rem;
     ">
-      <div style="font-size:0.8rem; text-transform:uppercase;
-                  letter-spacing:0.08em; color:#777; margin-bottom:0.25rem;">
-        Scenario
-      </div>
-      <div style="font-size:0.95rem; color:#333;">
-        {scenario_text}
-      </div>
+        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; color:#777; margin-bottom:0.25rem;">
+            Scenario
+        </div>
+        <div style="color:#333;">
+            {scenario_text}
+        </div>
     </div>
-    """
-    st.markdown(scenario_html, unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True,
+)
 
     # --- Supporting metrics grid (no dataframe) ---
     st.markdown("#### Supporting Metrics")
