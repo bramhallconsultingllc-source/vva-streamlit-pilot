@@ -926,9 +926,9 @@ if st.session_state.assessment_ready:
     # --- RF / LF gauges just below the hero VVI card ---
     g_rf, g_lf = st.columns(2)
     with g_rf:
-        render_half_gauge(rf_score, "Revenue Factor (RF)", rf_t)
+        render_full_gauge(rf_score, "Revenue Factor (RF)", rf_t)
     with g_lf:
-        render_half_gauge(lf_score, "Labor Factor (LF)", lf_t)
+        render_full_gauge(lf_score, "Labor Factor (LF)", lf_t)
 
     # --- Supporting metrics grid (no dataframe) ---
     st.markdown("#### Supporting Metrics")
