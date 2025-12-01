@@ -896,7 +896,7 @@ ai_choice = st.radio(
     help="Uses your OpenAI key in Streamlit Secrets.",
 )
 
-    if ai_choice == "Off":
+        if ai_choice == "Off":
         st.info(
             "AI is off. Turn it on above to generate a concise narrative for leaders. "
             "Your scores & actions above are still fully available without AI."
