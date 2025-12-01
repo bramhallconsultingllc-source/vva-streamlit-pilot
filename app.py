@@ -870,7 +870,7 @@ st.markdown(
     </div>
     """
 
-    right_md = f"""
+    right_md = f""" ... """
     <div class="metric-grid">
     <p><strong>Per-visit economics</strong></p>
     <ul>
