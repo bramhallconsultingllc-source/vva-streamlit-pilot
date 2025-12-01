@@ -118,30 +118,19 @@ intro_css = """
 }
 </style>
 """
-st.markdown(
-    f"""
-<div style="
-    margin-top:1.1rem;
-    margin-bottom:1.3rem;
-    padding:0.9rem 1.0rem;
-    border-radius:10px;
-    background:#fff9ea;
-    border-left:4px solid #b08c3e;
-    font-size:0.9rem;
-    text-align:center;
-">
-    <div style="font-size:0.7rem; text-transform:uppercase;
-                letter-spacing:0.12em; color:#777; margin-bottom:0.25rem;">
-        Scenario
-    </div>
-    <div style="color:#333;">
-        {scenario_text}
-    </div>
-</div>
-""",
-    unsafe_allow_html=True,
-    )
+st.markdown(intro_css, unsafe_allow_html=True)
 
+LOGO_PATH = "Logo BC.png"
+
+st.markdown("<div class='intro-container'>", unsafe_allow_html=True)
+
+# Logo
+if os.path.exists(LOGO_PATH):
+    img_data = get_base64_image(LOGO_PATH)
+    st.markdown(
+        f'<img src="data:image/png;base64,{img_data}" class="intro-logo" />',
+        unsafe_allow_html=True,
+    )
 else:
     st.caption(
         f"(Logo file '{LOGO_PATH}' not found — update LOGO_PATH or add the image to the app root.)"
