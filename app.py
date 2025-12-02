@@ -290,8 +290,7 @@ SCENARIO_LOOKUP = {
 }
 
 INSIGHT_PACKS = {
-    # You’ll paste the text for Scenarios 1–3 here from the doc
-    "scenario_01": {
+      "scenario_01": {
         "id": 1,
         "rf_tier": "Excellent",
         "lf_tier": "Excellent",
