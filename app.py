@@ -652,14 +652,14 @@ if st.session_state.assessment_ready:
 
     st.markdown("")  # small spacing under hero card
 
-    # ---------- RF / LF horizontal mini-cards ----------
+        # ---------- RF / LF horizontal mini-cards ----------
     c_rf, c_lf = st.columns(2)
     rf_bg = TIER_COLORS.get(rf_t, "#f5f5f5")
     lf_bg = TIER_COLORS.get(lf_t, "#f5f5f5")
 
     with c_rf:
         st.markdown(
-            f"""
+            f'''
 <div style="
     background:{rf_bg};
     padding:0.85rem 1.0rem;
@@ -691,13 +691,13 @@ if st.session_state.assessment_ready:
         Actual NRPV vs. benchmark NRPV
     </div>
 </div>
-""",
+            ''',
             unsafe_allow_html=True,
         )
 
     with c_lf:
         st.markdown(
-            f"""
+            f'''
 <div style="
     background:{lf_bg};
     padding:0.85rem 1.0rem;
@@ -729,13 +729,13 @@ if st.session_state.assessment_ready:
         Benchmark LCV vs. actual LCV
     </div>
 </div>
-""",
+            ''',
             unsafe_allow_html=True,
         )
-    
-        # ---------- Scenario strip (below RF / LF) ----------
+
+    # ---------- Diagnostic Scenario strip ----------
     st.markdown(
-        f"""
+        f'''
 <div style="
     margin-top:1.3rem;
     margin-bottom:1.6rem;
@@ -754,33 +754,33 @@ if st.session_state.assessment_ready:
         {scenario_text}
     </div>
 </div>
-""",
+        ''',
         unsafe_allow_html=True,
     )
 
     # ---------- Prescriptive Actions heading ----------
-st.markdown(
-    """
-    <h3 style='margin-top:1.2rem; margin-bottom:0.6rem;'>
-        Prescriptive Actions
-    </h3>
-    """,
-    unsafe_allow_html=True,
-)
+    st.markdown(
+        """
+<h3 style='margin-top:1.2rem; margin-bottom:0.6rem;'>
+    Prescriptive Actions
+</h3>
+        """,
+        unsafe_allow_html=True,
+    )
 
-# ---------- Tabs: one pane per theme ----------
-tab_rev, tab_lab, tab_sys = st.tabs(
-    ["Revenue Focus", "Labor & Throughput", "Operating Rhythm"]
-)
+    # ---------- Tabs: one pane per theme ----------
+    tab_rev, tab_lab, tab_sys = st.tabs(
+        ["Revenue Focus", "Labor & Throughput", "Operating Rhythm"]
+    )
 
-with tab_rev:
-    render_action_bucket("Revenue Actions", actions.get("rev_actions", []))
+    with tab_rev:
+        render_action_bucket("Revenue Actions", actions.get("rev_actions", []))
 
-with tab_lab:
-    render_action_bucket("Labor Actions", actions.get("lab_actions", []))
+    with tab_lab:
+        render_action_bucket("Labor Actions", actions.get("lab_actions", []))
 
-with tab_sys:
-    render_action_bucket("Operating Rhythm", actions.get("system_actions", []))
+    with tab_sys:
+        render_action_bucket("Operating Rhythm", actions.get("system_actions", []))
 
     # ---------- Impact Simulator (optional what-if) ----------
     with st.expander("Optional: Simulate impact of improvement", expanded=False):
@@ -790,7 +790,6 @@ with tab_sys:
             "your prescriptive actions are successful. This does not change your "
             "core scores above; it is a what-if view."
         )
-        ...
 
         mode = st.radio(
             "Adjust by:",
