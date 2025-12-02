@@ -575,10 +575,10 @@ if st.session_state.assessment_ready:
         unsafe_allow_html=True,
     )
 
-    # ---------- Tier Legend (collapsible) ----------
+        # ---------- Tier Legend (collapsible) ----------
     with st.expander("Scoring Tiers (0–100+)", expanded=False):
         st.markdown(
-            """
+            '''
 <div style="
     margin-top:0.2rem;
     margin-bottom:0.4rem;
@@ -604,7 +604,7 @@ if st.session_state.assessment_ready:
         <b>Critical</b>: Below 90 <span style="color:#555;">(Immediate corrective focus)</span>
     </div>
 </div>
-""",
+            ''',
             unsafe_allow_html=True,
         )
     
