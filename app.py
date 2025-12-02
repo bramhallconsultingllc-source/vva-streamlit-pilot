@@ -59,16 +59,16 @@ intro_css = """
 /* Mobile responsiveness — larger logo on phone screens */
 @media (max-width: 600px) {
     .intro-logo {
-        max-width: 160px !important;
-        width: 160px !important;
+        max-width: 200px !important;
+        width: 200px !important;
         margin-top: 0.6rem !important;
     }
 }
 
 @media (max-width: 400px) {
     .intro-logo {
-        max-width: 140px !important;
-        width: 140px !important;
+        max-width: 180px !important;
+        width: 180px !important;
         margin-top: 0.6rem !important;
     }
 }
