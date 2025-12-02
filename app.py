@@ -396,7 +396,6 @@ def render_action_bucket(title: str, items):
         unsafe_allow_html=True,
     )
 
-    # Simple numbered list
     for i, item in enumerate(items, start=1):
         st.markdown(f"{i}. {item}")
 
