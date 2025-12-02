@@ -1234,7 +1234,7 @@ if st.session_state.assessment_ready:
                 st.warning(md)
 
     # ---------- Print-ready PDF export ----------
-    def make_pdf_buffer():
+        def make_pdf_buffer():
         buf = io.BytesIO()
         c = canvas.Canvas(buf, pagesize=LETTER)
         w, h = LETTER
@@ -1263,7 +1263,7 @@ if st.session_state.assessment_ready:
             y -= 16
 
         line("Period:", period)
-        line("Scenario:", actions["diagnosis"])
+        line("Scenario:", scenario_text)  # 👈 use scenario_text instead of actions["diagnosis"]
         line("VVI:", f"{vvi_score:.2f} ({vvi_t})")
         line("RF / LF:", f"{rf_score:.2f}% ({rf_t})  |  {lf_score:.2f}% ({lf_t})")
         line(
@@ -1276,7 +1276,7 @@ if st.session_state.assessment_ready:
         c.drawString(40, y, "Top 3 Actions")
         y -= 14
         c.setFont("Helvetica", 11)
-        for i, t3 in enumerate(actions["top3"], start=1):
+        for i, t3 in enumerate(top3_actions, start=1):  # 👈 uses top3_actions list
             c.drawString(50, y, f"{i}) {t3}")
             y -= 14
 
@@ -1285,7 +1285,7 @@ if st.session_state.assessment_ready:
         c.drawString(40, y, "Extended Actions")
         y -= 14
         c.setFont("Helvetica", 11)
-        for ex in actions["extended"]:
+        for ex in extended_actions:  # 👈 uses extended_actions list
             c.drawString(50, y, f"• {ex}")
             y -= 14
             if y < 80:
@@ -1306,6 +1306,7 @@ if st.session_state.assessment_ready:
         c.save()
         buf.seek(0)
         return buf
+
 
     st.download_button(
         "Download Executive Summary (PDF)",
