@@ -813,19 +813,19 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-    # Tabs: one pane per theme
-    tab_rev, tab_lab, tab_sys = st.tabs(
-        ["Revenue Focus", "Labor & Throughput", "Operating Rhythm"]
-    )
+# Tabs: one pane per theme
+tab_rev, tab_lab, tab_sys = st.tabs(
+    ["Revenue Focus", "Labor & Throughput", "Operating Rhythm"]
+)
 
-    with tab_rev:
-        render_action_bucket("Revenue Actions", actions.get("rev_actions", []))
+with tab_rev:
+    render_action_bucket("Revenue Actions", actions.get("rev_actions", []))
 
-    with tab_lab:
-        render_action_bucket("Labor Actions", actions.get("lab_actions", []))
+with tab_lab:
+    render_action_bucket("Labor Actions", actions.get("lab_actions", []))
 
-    with tab_sys:
-        render_action_bucket("Operating Rhythm", actions.get("system_actions", []))
+with tab_sys:
+    render_action_bucket("Operating Rhythm", actions.get("system_actions", []))
 
     # ---------- Impact Simulator (optional what-if) ----------
     with st.expander("Optional: Simulate impact of improvement", expanded=False):
