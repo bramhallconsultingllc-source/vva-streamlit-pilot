@@ -989,7 +989,7 @@ if st.session_state.assessment_ready:
 
     st.markdown("")  # small spacing under hero card
 
-    # ---------- RF / LF horizontal mini-cards ----------
+# ---------- RF / LF horizontal mini-cards ----------
 c_rf, c_lf = st.columns(2)
 rf_bg = TIER_COLORS.get(rf_t, "#f5f5f5")
 lf_bg = TIER_COLORS.get(lf_t, "#f5f5f5")
