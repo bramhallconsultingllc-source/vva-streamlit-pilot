@@ -749,7 +749,7 @@ if st.session_state.assessment_ready:
 ">
     <div style="font-size:0.8rem; text-transform:uppercase;
                 letter-spacing:0.14em; color:#555; margin-bottom:0.35rem;">
-        Scenario
+        Diagnostic Scenario
     </div>
     <div style="color:#222; font-size:1.05rem; line-height:1.5;">
         {scenario_text}
