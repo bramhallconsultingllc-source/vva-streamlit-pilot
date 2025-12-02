@@ -1083,8 +1083,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ---------- Insight Pack Detail (5 expanders) ----------
-render_insight_pack_expanders(insight_pack)
+    # ---------- Insight Pack Detail (5 expanders) ----------
+    render_insight_pack_expanders(insight_pack)
 
 
     # ---------- Impact Simulator (optional what-if) ----------
