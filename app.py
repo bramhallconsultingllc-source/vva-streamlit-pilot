@@ -990,13 +990,13 @@ if st.session_state.assessment_ready:
     st.markdown("")  # small spacing under hero card
 
     # ---------- RF / LF horizontal mini-cards ----------
-    c_rf, c_lf = st.columns(2)
-    rf_bg = TIER_COLORS.get(rf_t, "#f5f5f5")
-    lf_bg = TIER_COLORS.get(lf_t, "#f5f5f5")
+c_rf, c_lf = st.columns(2)
+rf_bg = TIER_COLORS.get(rf_t, "#f5f5f5")
+lf_bg = TIER_COLORS.get(lf_t, "#f5f5f5")
 
-    with c_rf:
-        st.markdown(
-            f"""
+with c_rf:
+    st.markdown(
+        f"""
 <div style="
     background:{rf_bg};
     padding:0.85rem 1.0rem;
@@ -1028,13 +1028,13 @@ if st.session_state.assessment_ready:
         Actual NRPV vs. benchmark NRPV
     </div>
 </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        """,
+        unsafe_allow_html=True,
+    )
 
-        with c_lf:
-        st.markdown(
-            f"""
+with c_lf:  # ✅ fixed — now aligned with c_rf
+    st.markdown(
+        f"""
 <div style="
     background:{lf_bg};
     padding:0.85rem 1.0rem;
@@ -1066,24 +1066,25 @@ if st.session_state.assessment_ready:
         Benchmark LCV vs. actual LCV
     </div>
 </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    # 🔥 ADD THIS DIVIDER + SPACING HERE
-    st.markdown(
-        """
-        <hr style="
-            border: none;
-            border-top: 1px solid #e6e6e6;
-            margin-top: 30px;
-            margin-bottom: 30px;
-        ">
         """,
         unsafe_allow_html=True,
     )
 
-    # ---------- Insight Pack Detail (5 expanders) ----------
+# 🔥 ADD THIS DIVIDER + SPACING HERE
+st.markdown(
+    """
+    <hr style="
+        border: none;
+        border-top: 1px solid #e6e6e6;
+        margin-top: 30px;
+        margin-bottom: 30px;
+    ">
+    """,
+    unsafe_allow_html=True,
+)
+
+# ---------- Insight Pack Detail (5 expanders) ----------
+
 
 
             
