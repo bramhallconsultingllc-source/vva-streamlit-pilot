@@ -1180,40 +1180,7 @@ if st.session_state.assessment_ready:
         ax_sim.spines["right"].set_visible(False)
         ax_sim.spines["top"].set_visible(False)
         st.pyplot(fig_sim)
-
-    # ---------- AI Insights (optional, in-page) ----------
-    st.subheader("AI Insights (optional)")
-
-    ai_choice = st.radio(
-        "Use AI to generate a short executive narrative?",
-        ["Off", "On"],
-        index=0,
-        horizontal=True,
-        help="Uses your OpenAI key in Streamlit Secrets.",
-    )
-
-    if ai_choice == "Off":
-        st.info(
-            "AI is off. Turn it on above to generate a concise narrative for leaders. "
-            "Your scores & actions above are still fully available without AI."
-        )
-    else:
-        if st.button("Generate AI Insights"):
-            ok, md = ai_generate_insights(
-                rf_score=rf_score,
-                lf_score=lf_score,
-                vvi_score=vvi_score,
-                rpv=rpv,
-                lpv=lcv,
-                swb_pct=swb_pct,
-                scenario_text=scenario_text,
-                period=period,
-            )
-            if ok:
-                st.markdown(md)
-            else:
-                st.warning(md)
-
+    
     # ---------- Print-ready PDF export ----------
     def make_pdf_buffer():
         buf = io.BytesIO()
