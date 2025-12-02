@@ -327,59 +327,9 @@ def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
       - lab_actions (labor-focused)
       - system_actions (operating rhythm / governance)
       - extended (all actions flattened, used for PDF)
-      - huddle_script
-    """
-    diagnosis = SCENARIO_DIAGNOSES.get((rf_t, lf_t), scenario_name(rf_t, lf_t))
+          "huddle_script": huddle_script,
+}
 
-    # Tier-based bundles from RF/LF matrices
-    rev_actions = RF_ACTIONS.get(rf_t, []).copy()
-    lab_actions = LF_ACTIONS.get(lf_t, []).copy()
-
-    combined = rev_actions + lab_actions
-    if not combined:
-        combined = ["Sustain current performance and monitor for drift."]
-
-    # Top 3 from combined RF + LF
-    top3 = combined[:3]
-    extended_rf_lf = combined[3:]
-
-    # POS lever (revenue-focused)
-    pos_push = "Run a POS co-pay capture push (scripts, training, accountability)."
-    pos_audit = "Quick POS audit (co-pay scripts, training, ClearPay accountability)."
-
-    if rf_t in ("Critical", "At Risk", "Stable"):
-        if pos_should_be_top3(rpv_gap):
-            top3.append(pos_push)
-            rev_actions.append(pos_push)
-        else:
-            extended_rf_lf.append(pos_audit)
-            rev_actions.append(pos_audit)
-
-    # System / cadence actions common to all scenarios
-    system_actions = [
-        "Daily 5-minute huddle: review Top 3 levers, VPDA drivers, and risks.",
-    ]
-
-    huddle_script = (
-        "5-Minute Morning Huddle:\n"
-        "• Today’s priorities: Top 3 levers above\n"
-        "• Throughput focus: door-to-room < 10 min; room-to-provider < 15 min\n"
-        "• Reliability: close charts same day; handoffs clear; escalate bottlenecks early"
-    )
-
-    # Flattened list used for PDF export
-    extended_all = extended_rf_lf + system_actions
-
-    return {
-        "diagnosis": diagnosis,
-        "top3": top3[:3],
-        "rev_actions": rev_actions,
-        "lab_actions": lab_actions,
-        "system_actions": system_actions,
-        "extended": extended_all,
-        "huddle_script": huddle_script,
-    }
-    
 # ----------------------------
 # Rendering helpers
 # ----------------------------
@@ -412,6 +362,8 @@ def ai_generate_insights(
     scenario_text: str,
     period: str,
 ):
+    ...
+
     """
     Returns (ok, markdown_text). ok=False with a friendly reason if AI is not configured.
     AI only explains; it must NOT change or restate the numbers incorrectly.
