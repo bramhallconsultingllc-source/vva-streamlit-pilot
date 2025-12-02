@@ -437,11 +437,10 @@ if "assessment_ready" not in st.session_state:
 
 
 def reset_assessment():
-    """Clear assessment state and restart app."""
+    # Clear assessment state and restart app.
     st.session_state.assessment_ready = False
     # Keep portfolio, just reset the current run
     st.rerun()
-
 
 # ----------------------------
 # Input Form (all at once)
