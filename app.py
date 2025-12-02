@@ -1215,19 +1215,9 @@ if st.session_state.assessment_ready:
     )
 
     
-    # ---------- Tabs: one pane per theme ----------
-    tab_rev, tab_lab, tab_sys = st.tabs(
-        ["Revenue Focus", "Labor & Throughput", "Operating Rhythm"]
-    )
+        # ---------- Insight Pack Detail (5 expanders) ----------
+    render_insight_pack_expanders(insight_pack)
 
-    with tab_rev:
-        render_action_bucket("Revenue Actions", actions.get("rev_actions", []))
-
-    with tab_lab:
-        render_action_bucket("Labor Actions", actions.get("lab_actions", []))
-
-    with tab_sys:
-        render_action_bucket("Operating Rhythm", actions.get("system_actions", []))
 
     # ---------- Impact Simulator (optional what-if) ----------
     with st.expander("Optional: Simulate impact of improvement", expanded=False):
