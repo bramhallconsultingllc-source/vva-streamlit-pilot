@@ -608,12 +608,12 @@ if st.session_state.assessment_ready:
             unsafe_allow_html=True,
         )
     
-    # ---------- Hero VVI card centered ----------
+        # ---------- Hero VVI card centered ----------
     left_spacer, hero_col, right_spacer = st.columns([1, 2, 1])
     vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
 
     with hero_col:
-        vvi_html = f"""
+        vvi_html = f'''
 <div style="
     background:{vvi_bg};
     padding:1.3rem 1.5rem;
@@ -647,7 +647,7 @@ if st.session_state.assessment_ready:
         </span>
     </div>
 </div>
-"""
+        '''
         st.markdown(vvi_html, unsafe_allow_html=True)
 
     st.markdown("")  # small spacing under hero card
