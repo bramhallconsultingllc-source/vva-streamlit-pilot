@@ -962,7 +962,7 @@ if st.session_state.assessment_ready:
     lf_raw = (lt / lcv) if lcv else 0.0
     rf_score = round(rf_raw * 100, 2)
     lf_score = round(lf_raw * 100, 2)
-    rf_t = tier(rf_score)
+        rf_t = tier(rf_score)
     lf_t = tier(lf_score)
 
     # VVI (raw) and normalized using benchmark ratio
@@ -971,9 +971,40 @@ if st.session_state.assessment_ready:
     vvi_score = round((vvi_raw / vvi_target) * 100, 2)
     vvi_t = tier(vvi_score)
 
-    rpv_gap = max(0.0, rt - rpv)
-    actions = prescriptive_actions(rf_t, lf_t, rpv_gap)
-    scenario_text = actions["diagnosis"]
+    # Static Insight Pack for RF/LF
+    scenario_key, insight_pack = get_insight_pack_for_tiers(rf_t, lf_t)
+
+    # For compatibility with AI + PDF, derive simple fallbacks from static pack
+    if insight_pack:
+        scenario_text = insight_pack.get("executive_narrative", "").strip() or insight_pack.get("label", "")
+        # Use first few actions as "Top 3"
+        raw_actions = (
+            (insight_pack.get("do_tomorrow") or []) +
+            (insight_pack.get("next_7_days") or [])
+        )
+        top3_actions = raw_actions[:3]
+        extended_actions = (
+            (insight_pack.get("do_tomorrow") or []) +
+            (insight_pack.get("next_7_days") or []) +
+            (insight_pack.get("next_30_60_days") or []) +
+            (insight_pack.get("next_60_90_days") or [])
+        )
+    else:
+        scenario_text = f"{rf_t} Revenue / {lf_t} Labor"
+        top3_actions = []
+        extended_actions = []
+
+    # Backwards compatibility dict so the rest of your code still works
+    actions = {
+        "diagnosis": scenario_text,
+        "top3": top3_actions,
+        "extended": extended_actions,
+        # These keys are only used in: tabs & PDF; tabs we’ll remove below
+        "rev_actions": [],
+        "lab_actions": [],
+        "system_actions": [],
+    }
+
 
     # Professional success banner
     st.markdown(
