@@ -1234,7 +1234,7 @@ if st.session_state.assessment_ready:
                 st.warning(md)
 
     # ---------- Print-ready PDF export ----------
-        def make_pdf_buffer():
+    def make_pdf_buffer():
         buf = io.BytesIO()
         c = canvas.Canvas(buf, pagesize=LETTER)
         w, h = LETTER
