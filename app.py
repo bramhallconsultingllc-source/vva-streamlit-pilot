@@ -742,7 +742,7 @@ if st.session_state.assessment_ready:
 
     # ---------- Tier Legend ----------
 st.markdown(
-    """
+"""
 <div style="
     margin-top:0.5rem;
     margin-bottom:1.4rem;
