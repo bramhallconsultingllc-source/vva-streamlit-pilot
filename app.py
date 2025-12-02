@@ -340,7 +340,6 @@ INSIGHT_PACKS = {
         "expected_impact": [],
     },
 
-    # ✅ Fully wired example from your pack:
     "scenario_04": {
         "id": 4,
         "rf_tier": "Excellent",
