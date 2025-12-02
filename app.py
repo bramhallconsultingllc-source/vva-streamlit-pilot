@@ -379,7 +379,26 @@ def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
         "extended": extended_all,
         "huddle_script": huddle_script,
     }
+    
+# ----------------------------
+# Rendering helpers
+# ----------------------------
+def render_action_bucket(title: str, items):
+    """
+    Renders a titled list of actions in a consistent style.
+    """
+    if not items:
+        st.info(f"No actions available for {title.lower()}.")
+        return
 
+    st.markdown(
+        f"<h4 style='margin-top:0.4rem; margin-bottom:0.4rem;'>{title}</h4>",
+        unsafe_allow_html=True,
+    )
+
+    # Simple numbered list
+    for i, item in enumerate(items, start=1):
+        st.markdown(f"{i}. {item}")
 
 # ----------------------------
 # Optional AI Insights helper
