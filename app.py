@@ -604,8 +604,8 @@ if st.session_state.assessment_ready:
     st.markdown(
     """
 <div style="
-    background:#fffaf0;
-    border-left:4px solid #b08c3e;
+    background:#f5f5f5;
+    border-left:4px solid #777;
     padding:0.9rem 1.1rem;
     border-radius:6px;
     font-size:0.95rem;
