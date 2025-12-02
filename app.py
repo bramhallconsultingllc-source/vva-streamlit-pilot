@@ -1188,7 +1188,9 @@ if st.session_state.assessment_ready:
             unsafe_allow_html=True,
         )
 
-    # ---------- Diagnostic Scenario strip ----------
+        # ---------- Executive Narrative strip (replaces Diagnostic Scenario) ----------
+    executive_text = scenario_text  # already pulled from insight_pack above
+
     st.markdown(
         f"""
 <div style="
@@ -1197,21 +1199,21 @@ if st.session_state.assessment_ready:
     padding:1.2rem 1.2rem;
     border-radius:12px;
     background:#f7f7f7;
-    border-left:4px solid #e0e0e0;
+    border-left:4px solid #b08c3e;
     font-size:1.0rem;
-    text-align:center;
 ">
     <div style="font-size:0.8rem; text-transform:uppercase;
                 letter-spacing:0.14em; color:#555; margin-bottom:0.35rem;">
-        Diagnostic Scenario
+        Executive Narrative
     </div>
-    <div style="color:#222; font-size:1.05rem; line-height:1.5; font-weight:600;">
-        {scenario_text}
+    <div style="color:#222; font-size:1.0rem; line-height:1.5;">
+        {executive_text}
     </div>
 </div>
         """,
         unsafe_allow_html=True,
     )
+
     
     # ---------- Tabs: one pane per theme ----------
     tab_rev, tab_lab, tab_sys = st.tabs(
