@@ -902,37 +902,7 @@ if st.session_state.assessment_ready:
         )
     else:
         scenario_text = f"{rf_t} Revenue / {lf_t} Labor"
-        top3_actions = []
-        extended_actions = []
 
-    # Backwards compatibility dict so the rest of your code still works
-    actions = {
-        "diagnosis": scenario_text,
-        "top3": top3_actions,
-        "extended": extended_actions,
-        # These are now basically unused (tabs removed) but safe to keep
-        "rev_actions": [],
-        "lab_actions": [],
-        "system_actions": [],
-    }
-
-
-    # Professional success banner
-    st.markdown(
-        """
-<div style="
-    background:#f5f5f5;
-    border-left:4px solid #777;
-    padding:0.9rem 1.1rem;
-    border-radius:6px;
-    font-size:0.95rem;
-    color:#5a4a21;
-    margin-top:1rem;
-">
-    <strong>Assessment complete.</strong> Your Executive Summary is ready below.
-</div>
-        """,
-        unsafe_allow_html=True,
     )
 
     # ---------- Executive Summary heading ----------
