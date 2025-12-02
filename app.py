@@ -742,33 +742,34 @@ if st.session_state.assessment_ready:
 
     # ---------- Tier Legend ----------
 st.markdown(
-"""
+    """
 <div style="
-margin-top:0.5rem;
-margin-bottom:1.4rem;
-padding:1.0rem 1.2rem;
-border-radius:10px;
-background:#fafafa;
-border:1px solid #e5e5e5;
-text-align:center;
+    margin-top:0.5rem;
+    margin-bottom:1.4rem;
+    padding:1.0rem 1.2rem;
+    border-radius:10px;
+    background:#fafafa;
+    border:1px solid #e5e5e5;
+    text-align:center;
 ">
-<div style="
-font-size:0.75rem;
-letter-spacing:0.14em;
-text-transform:uppercase;
-color:#666;
-margin-bottom:0.4rem;">
-Scoring Tiers (0–100+)
-</div>
+    <div style="
+        font-size:0.75rem;
+        letter-spacing:0.14em;
+        text-transform:uppercase;
+        color:#666;
+        margin-bottom:0.4rem;
+    ">
+        Scoring Tiers (0–100+)
+    </div>
 
-<div style="font-size:0.9rem; color:#333; line-height:1.55;">
-<b>Excellent:</b> 100+ (Top performing)<br>
-<b>Stable:</b> 95–99 (Healthy, within benchmark)<br>
-<b>At Risk:</b> 90–94 (Performance drift emerging)<br>
-<b>Critical:</b> Below 90 (Immediate corrective focus)
+    <div style="font-size:0.9rem; color:#333; line-height:1.55;">
+        <b>Excellent:</b> 100+ (Top performing)<br>
+        <b>Stable:</b> 95–99 (Healthy, within benchmark)<br>
+        <b>At Risk:</b> 90–94 (Performance drift emerging)<br>
+        <b>Critical:</b> Below 90 (Immediate corrective focus)
+    </div>
 </div>
-</div>
-""",
+    """,
     unsafe_allow_html=True,
 )
 
