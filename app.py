@@ -1032,7 +1032,7 @@ if st.session_state.assessment_ready:
             unsafe_allow_html=True,
         )
 
-    with c_lf:
+        with c_lf:
         st.markdown(
             f"""
 <div style="
@@ -1069,6 +1069,22 @@ if st.session_state.assessment_ready:
             """,
             unsafe_allow_html=True,
         )
+
+    # 🔥 ADD THIS DIVIDER + SPACING HERE
+    st.markdown(
+        """
+        <hr style="
+            border: none;
+            border-top: 1px solid #e6e6e6;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        ">
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # ---------- Insight Pack Detail (5 expanders) ----------
+
 
             
         # ---------- Insight Pack Detail (5 expanders) ----------
