@@ -806,7 +806,13 @@ if st.session_state.assessment_ready:
 """,
         unsafe_allow_html=True,
     )
-    
+
+    # ---------- Prescriptive Actions heading ----------
+st.markdown(
+    "<h3 style='margin-top:1.2rem; margin-bottom:0.4rem;'>Prescriptive Actions</h3>",
+    unsafe_allow_html=True,
+)
+
     # Tabs: one pane per theme
     tab_rev, tab_lab, tab_sys = st.tabs(
         ["Revenue Focus", "Labor & Throughput", "Operating Rhythm"]
