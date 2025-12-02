@@ -319,7 +319,7 @@ def pos_should_be_top3(
 
 
 def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
-    """
+    
     Returns a dict with:
       - diagnosis
       - top3 (combined)
