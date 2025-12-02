@@ -317,19 +317,21 @@ def pos_should_be_top3(
     lift = avg_copay * copay_eligibility * leakage_rate
     return lift >= rpv_gap
 
+
 # ----------------------------
 # Prescriptive actions helper
 # ----------------------------
 def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
-    # Returns a dict with:
-    #   - diagnosis
-    #   - top3 (combined)
-    #   - rev_actions (revenue-focused)
-    #   - lab_actions (labor-focused)
-    #   - system_actions (operating rhythm / governance)
-    #   - extended (all actions flattened, used for PDF)
-    #   - huddle_script
-
+    """
+    Returns a dict with:
+      - diagnosis
+      - top3 (combined)
+      - rev_actions (revenue-focused)
+      - lab_actions (labor-focused)
+      - system_actions (operating rhythm / governance)
+      - extended (all actions flattened, used for PDF)
+      - huddle_script
+    """
     diagnosis = SCENARIO_DIAGNOSES.get((rf_t, lf_t), scenario_name(rf_t, lf_t))
 
     # Tier-based bundles from RF/LF matrices
@@ -381,11 +383,12 @@ def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
         "huddle_script": huddle_script,
     }
 
+
 # ----------------------------
 # Rendering helpers
 # ----------------------------
 def render_action_bucket(title: str, items):
-    # Render a titled list of actions in a consistent style.
+    """Render a titled list of actions in a consistent style."""
     if not items:
         st.info(f"No actions available for {title.lower()}.")
         return
@@ -397,6 +400,7 @@ def render_action_bucket(title: str, items):
 
     for i, item in enumerate(items, start=1):
         st.markdown(f"{i}. {item}")
+
 
 # ----------------------------
 # Optional AI Insights helper
@@ -483,10 +487,11 @@ if "assessment_ready" not in st.session_state:
 
 
 def reset_assessment():
-    # Clear assessment state and restart app.
+    """Clear assessment state and restart app."""
     st.session_state.assessment_ready = False
     # Keep portfolio, just reset the current run
     st.rerun()
+
 
 # ----------------------------
 # Input Form (all at once)
@@ -597,8 +602,9 @@ if st.session_state.assessment_ready:
     actions = prescriptive_actions(rf_t, lf_t, rpv_gap)
     scenario_text = actions["diagnosis"]
 
-            st.markdown(
-        '''
+    # Professional success banner
+    st.markdown(
+        """
 <div style="
     background:#f5f5f5;
     border-left:4px solid #777;
@@ -610,22 +616,22 @@ if st.session_state.assessment_ready:
 ">
     <strong>Assessment complete.</strong> Your Executive Summary is ready below.
 </div>
-        ''',
+        """,
         unsafe_allow_html=True,
     )
 
-        # ---------- Executive Summary heading ----------
+    # ---------- Executive Summary heading ----------
     st.markdown(
         "<h2 style='text-align:center; margin-bottom:0.5rem;'>Executive Summary</h2>",
         unsafe_allow_html=True,
     )
 
-            # ---------- Hero VVI card centered ----------
+    # ---------- Hero VVI card centered ----------
     left_spacer, hero_col, right_spacer = st.columns([1, 2, 1])
     vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
 
     with hero_col:
-        vvi_html = f'''
+        vvi_html = f"""
 <div style="
     background:{vvi_bg};
     padding:1.3rem 1.5rem;
@@ -659,7 +665,7 @@ if st.session_state.assessment_ready:
         </span>
     </div>
 </div>
-        '''
+        """
         st.markdown(vvi_html, unsafe_allow_html=True)
 
     st.markdown("")  # small spacing under hero card
@@ -671,7 +677,7 @@ if st.session_state.assessment_ready:
 
     with c_rf:
         st.markdown(
-            f'''
+            f"""
 <div style="
     background:{rf_bg};
     padding:0.85rem 1.0rem;
@@ -703,13 +709,13 @@ if st.session_state.assessment_ready:
         Actual NRPV vs. benchmark NRPV
     </div>
 </div>
-            ''',
+            """,
             unsafe_allow_html=True,
         )
 
     with c_lf:
         st.markdown(
-            f'''
+            f"""
 <div style="
     background:{lf_bg};
     padding:0.85rem 1.0rem;
@@ -741,13 +747,13 @@ if st.session_state.assessment_ready:
         Benchmark LCV vs. actual LCV
     </div>
 </div>
-            ''',
+            """,
             unsafe_allow_html=True,
         )
 
     # ---------- Diagnostic Scenario strip ----------
     st.markdown(
-        f'''
+        f"""
 <div style="
     margin-top:1.3rem;
     margin-bottom:1.6rem;
@@ -766,14 +772,14 @@ if st.session_state.assessment_ready:
         {scenario_text}
     </div>
 </div>
-        ''',
+        """,
         unsafe_allow_html=True,
     )
 
     # ---------- Tier Legend (collapsible) ----------
     with st.expander("Scoring Tiers (0–100+)", expanded=False):
         st.markdown(
-            '''
+            """
 <div style="
     margin-top:0.2rem;
     margin-bottom:0.4rem;
@@ -799,7 +805,7 @@ if st.session_state.assessment_ready:
         <b>Critical</b>: Below 90 <span style="color:#555;">(Immediate corrective focus)</span>
     </div>
 </div>
-            ''',
+            """,
             unsafe_allow_html=True,
         )
 
