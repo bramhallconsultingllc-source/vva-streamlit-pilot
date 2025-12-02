@@ -881,7 +881,7 @@ if st.session_state.assessment_ready:
     scenario_key, insight_pack = get_insight_pack_for_tiers(rf_t, lf_t)
 
     # For compatibility with AI + PDF, derive simple fallbacks from static pack
-        if insight_pack:
+    if insight_pack:
         scenario_text = (
             insight_pack.get("executive_narrative", "").strip()
             or insight_pack.get("label", "")
