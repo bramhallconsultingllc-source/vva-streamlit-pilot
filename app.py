@@ -881,13 +881,12 @@ if st.session_state.assessment_ready:
     scenario_key, insight_pack = get_insight_pack_for_tiers(rf_t, lf_t)
 
     # For compatibility with AI + PDF, derive simple fallbacks from static pack
-    if insight_pack:
+        if insight_pack:
         scenario_text = (
             insight_pack.get("executive_narrative", "").strip()
             or insight_pack.get("label", "")
         )
 
-        # Use first few actions as "Top 3"
         raw_actions = (
             (insight_pack.get("do_tomorrow") or [])
             + (insight_pack.get("next_7_days") or [])
@@ -902,7 +901,14 @@ if st.session_state.assessment_ready:
         )
     else:
         scenario_text = f"{rf_t} Revenue / {lf_t} Labor"
+        top3_actions = []
+        extended_actions = []
 
+    # ---------- Executive Summary heading ----------
+    st.markdown(
+        "<h2 style='text-align:center; margin-bottom:0.5rem;'>Executive Summary</h2>",
+        unsafe_allow_html=True,
+    
     )
 
     # ---------- Executive Summary heading ----------
