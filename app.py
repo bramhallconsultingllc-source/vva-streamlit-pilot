@@ -1084,8 +1084,7 @@ st.markdown(
 )
 
 # ---------- Insight Pack Detail (5 expanders) ----------
-
-    render_insight_pack_expanders(insight_pack)
+render_insight_pack_expanders(insight_pack)
 
 
     # ---------- Impact Simulator (optional what-if) ----------
