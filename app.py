@@ -601,7 +601,22 @@ if st.session_state.assessment_ready:
     actions = prescriptive_actions(rf_t, lf_t, rpv_gap)
     scenario_text = actions["diagnosis"]
 
-    st.success("Assessment complete. See results below.")
+    st.markdown(
+    """
+<div style="
+    background:#fffaf0;
+    border-left:4px solid #b08c3e;
+    padding:0.9rem 1.1rem;
+    border-radius:6px;
+    font-size:0.95rem;
+    color:#5a4a21;
+    margin-top:1rem;
+">
+    <strong>Assessment complete.</strong> Your Executive Summary is ready below.
+</div>
+""",
+    unsafe_allow_html=True,
+)
 
         # ---------- Executive Summary heading ----------
     st.markdown(
