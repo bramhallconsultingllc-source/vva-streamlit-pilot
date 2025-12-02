@@ -620,40 +620,7 @@ if st.session_state.assessment_ready:
         unsafe_allow_html=True,
     )
 
-        # ---------- Tier Legend (collapsible) ----------
-    with st.expander("Scoring Tiers (0–100+)", expanded=False):
-        st.markdown(
-            '''
-<div style="
-    margin-top:0.2rem;
-    margin-bottom:0.4rem;
-    padding:0.6rem 0.2rem;
-    font-size:0.9rem;
-    color:#333;
-    line-height:1.6;
-">
-    <div style="margin-bottom:0.25rem;">
-        <span style="font-size:1rem; margin-right:0.35rem;">🟢</span>
-        <b>Excellent</b>: 100+ <span style="color:#555;">(Top performing)</span>
-    </div>
-    <div style="margin-bottom:0.25rem;">
-        <span style="font-size:1rem; margin-right:0.35rem;">🟡</span>
-        <b>Stable</b>: 95–99 <span style="color:#555;">(Healthy, within benchmark)</span>
-    </div>
-    <div style="margin-bottom:0.25rem;">
-        <span style="font-size:1rem; margin-right:0.35rem;">🟠</span>
-        <b>At Risk</b>: 90–94 <span style="color:#555;">(Performance drift emerging)</span>
-    </div>
-    <div>
-        <span style="font-size:1rem; margin-right:0.35rem;">🔴</span>
-        <b>Critical</b>: Below 90 <span style="color:#555;">(Immediate corrective focus)</span>
-    </div>
-</div>
-            ''',
-            unsafe_allow_html=True,
-        )
-    
-        # ---------- Hero VVI card centered ----------
+            # ---------- Hero VVI card centered ----------
     left_spacer, hero_col, right_spacer = st.columns([1, 2, 1])
     vvi_bg = TIER_COLORS.get(vvi_t, "#f5f5f5")
 
@@ -697,7 +664,7 @@ if st.session_state.assessment_ready:
 
     st.markdown("")  # small spacing under hero card
 
-        # ---------- RF / LF horizontal mini-cards ----------
+    # ---------- RF / LF horizontal mini-cards ----------
     c_rf, c_lf = st.columns(2)
     rf_bg = TIER_COLORS.get(rf_t, "#f5f5f5")
     lf_bg = TIER_COLORS.get(lf_t, "#f5f5f5")
@@ -778,7 +745,7 @@ if st.session_state.assessment_ready:
             unsafe_allow_html=True,
         )
 
-        # ---------- Diagnostic Scenario strip ----------
+    # ---------- Diagnostic Scenario strip ----------
     st.markdown(
         f'''
 <div style="
@@ -802,6 +769,39 @@ if st.session_state.assessment_ready:
         ''',
         unsafe_allow_html=True,
     )
+
+    # ---------- Tier Legend (collapsible) ----------
+    with st.expander("Scoring Tiers (0–100+)", expanded=False):
+        st.markdown(
+            '''
+<div style="
+    margin-top:0.2rem;
+    margin-bottom:0.4rem;
+    padding:0.6rem 0.2rem;
+    font-size:0.9rem;
+    color:#333;
+    line-height:1.6;
+">
+    <div style="margin-bottom:0.25rem;">
+        <span style="font-size:1rem; margin-right:0.35rem;">🟢</span>
+        <b>Excellent</b>: 100+ <span style="color:#555;">(Top performing)</span>
+    </div>
+    <div style="margin-bottom:0.25rem;">
+        <span style="font-size:1rem; margin-right:0.35rem;">🟡</span>
+        <b>Stable</b>: 95–99 <span style="color:#555;">(Healthy, within benchmark)</span>
+    </div>
+    <div style="margin-bottom:0.25rem;">
+        <span style="font-size:1rem; margin-right:0.35rem;">🟠</span>
+        <b>At Risk</b>: 90–94 <span style="color:#555;">(Performance drift emerging)</span>
+    </div>
+    <div>
+        <span style="font-size:1rem; margin-right:0.35rem;">🔴</span>
+        <b>Critical</b>: Below 90 <span style="color:#555;">(Immediate corrective focus)</span>
+    </div>
+</div>
+            ''',
+            unsafe_allow_html=True,
+        )
 
     # ---------- Prescriptive Actions heading ----------
     st.markdown(
