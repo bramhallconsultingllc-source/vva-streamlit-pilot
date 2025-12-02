@@ -411,8 +411,9 @@ def ai_generate_insights(
     scenario_text: str,
     period: str,
 ):
-    ...
-    
+    # Returns (ok, markdown_text). ok=False with a friendly reason if AI is not configured.
+    # AI only explains; it must NOT change or restate the numbers incorrectly.
+
     if OpenAI is None:
         return False, "OpenAI SDK not installed. Add `openai` to requirements.txt to enable AI Insights."
 
