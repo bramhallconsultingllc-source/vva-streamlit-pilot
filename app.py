@@ -757,8 +757,7 @@ st.markdown(
         letter-spacing:0.14em;
         text-transform:uppercase;
         color:#666;
-        margin-bottom:0.4rem;
-    ">
+        margin-bottom:0.4rem;">
         Scoring Tiers (0–100+)
     </div>
 
@@ -766,42 +765,7 @@ st.markdown(
         <b>Excellent:</b> 100+ (Top performing)<br>
         <b>Stable:</b> 95–99 (Healthy, within benchmark)<br>
         <b>At Risk:</b> 90–94 (Performance drift emerging)<br>
-        <b>Critical:</b> Below 90 (Immediate corrective focus)
-    </div>
-</div>
-    """,
-    unsafe_allow_html=True,
-)
-
-    # ---------- Prescriptive Actions (executive layout) ----------
-st.subheader("Prescriptive Actions (Playbook)")
-
-    def render_action_bucket(label: str, items: list[str]):
-        """Show 3–4 priority actions, tuck the rest into an expander."""
-        if not items:
-            st.write("_No actions for this bucket._")
-            return
-
-        primary = items[:4]
-        extra = items[4:]
-
-        st.markdown(f"#### {label}")
-        st.markdown(
-            "<div style='font-size:0.9rem;color:#666;margin-bottom:0.35rem;'>"
-            "Priority actions to execute first."
-            "</div>",
-            unsafe_allow_html=True,
-        )
-
-        # Primary list
-        for idx, text in enumerate(primary, start=1):
-            st.markdown(f"**{idx}.** {text}")
-
-        # Extra list in an expander
-        if extra:
-            with st.expander("Show additional actions"):
-                for text in extra:
-                    st.markdown(f"- {text}")
+        <b>Critical:</b> Below 90 (Immediate corrective foc
 
     # Tabs: one pane per theme
     tab_rev, tab_lab, tab_sys = st.tabs(
