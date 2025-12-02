@@ -733,7 +733,7 @@ if st.session_state.assessment_ready:
             unsafe_allow_html=True,
         )
 
-    # ---------- Diagnostic Scenario strip ----------
+        # ---------- Diagnostic Scenario strip ----------
     st.markdown(
         f'''
 <div style="
@@ -760,11 +760,7 @@ if st.session_state.assessment_ready:
 
     # ---------- Prescriptive Actions heading ----------
     st.markdown(
-        """
-<h3 style='margin-top:1.2rem; margin-bottom:0.6rem;'>
-    Prescriptive Actions
-</h3>
-        """,
+        "<h3 style='margin-top:1.2rem; margin-bottom:0.6rem;'>Prescriptive Actions</h3>",
         unsafe_allow_html=True,
     )
 
