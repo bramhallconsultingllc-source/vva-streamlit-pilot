@@ -56,20 +56,20 @@ intro_css = """
     display: block;
 }
 
-/* Mobile responsiveness — shrink logo on smaller screens */
+/* Mobile responsiveness — larger logo on phone screens */
 @media (max-width: 600px) {
     .intro-logo {
-        max-width: 110px !important;
-        width: 110px !important;
-        margin-top: 0.4rem !important;
+        max-width: 160px !important;
+        width: 160px !important;
+        margin-top: 0.6rem !important;
     }
 }
 
 @media (max-width: 400px) {
     .intro-logo {
-        max-width: 95px !important;
-        width: 95px !important;
-        margin-top: 0.4rem !important;
+        max-width: 140px !important;
+        width: 140px !important;
+        margin-top: 0.6rem !important;
     }
 }
 
