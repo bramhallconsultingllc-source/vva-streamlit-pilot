@@ -911,12 +911,7 @@ if st.session_state.assessment_ready:
     
     )
 
-    # ---------- Executive Summary heading ----------
-    st.markdown(
-        "<h2 style='text-align:center; margin-bottom:0.5rem;'>Executive Summary</h2>",
-        unsafe_allow_html=True,
-    )
-    
+        
     # ---------- Tier Legend (collapsible) ----------
     with st.expander("Scoring Tiers (0–100+)", expanded=False):
         st.markdown(
