@@ -784,7 +784,7 @@ if st.session_state.assessment_ready:
                 letter-spacing:0.14em; color:#555; margin-bottom:0.35rem;">
         Diagnostic Scenario
     </div>
-    <div style="color:#222; font-size:1.05rem; line-height:1.5;">
+    <div style="color:#222; font-size:1.05rem; line-height:1.5; font-weight:600;">
         {scenario_text}
     </div>
 </div>
