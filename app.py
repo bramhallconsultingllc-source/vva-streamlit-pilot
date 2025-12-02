@@ -740,32 +740,63 @@ if st.session_state.assessment_ready:
         unsafe_allow_html=True,
     )
 
-    # ---------- Tier Legend ----------
-st.markdown(
-    """
+        # ---------- Scenario strip (below RF / LF) ----------
+    st.markdown(
+        f"""
 <div style="
-    margin-top:0.5rem;
-    margin-bottom:1.4rem;
-    padding:1.0rem 1.2rem;
-    border-radius:10px;
-    background:#fafafa;
-    border:1px solid #e5e5e5;
+    margin-top:1.3rem;
+    margin-bottom:1.6rem;
+    padding:1.2rem 1.2rem;
+    border-radius:12px;
+    background:#f7f7f7;
+    border-left:4px solid #e0e0e0;
+    font-size:1.0rem;
     text-align:center;
 ">
-    <div style="
-        font-size:0.75rem;
-        letter-spacing:0.14em;
-        text-transform:uppercase;
-        color:#666;
-        margin-bottom:0.4rem;">
-        Scoring Tiers (0–100+)
+    <div style="font-size:0.8rem; text-transform:uppercase;
+                letter-spacing:0.14em; color:#555; margin-bottom:0.35rem;">
+        Scenario
     </div>
+    <div style="color:#222; font-size:1.05rem; line-height:1.5;">
+        {scenario_text}
+    </div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
-    <div style="font-size:0.9rem; color:#333; line-height:1.55;">
-        <b>Excellent:</b> 100+ (Top performing)<br>
-        <b>Stable:</b> 95–99 (Healthy, within benchmark)<br>
-        <b>At Risk:</b> 90–94 (Performance drift emerging)<br>
-        <b>Critical:</b> Below 90 (Immediate corrective foc
+    # ---------- Tier Legend (collapsible) ----------
+    with st.expander("Scoring Tiers (0–100+)", expanded=False):
+        st.markdown(
+            """
+<div style="
+    margin-top:0.2rem;
+    margin-bottom:0.4rem;
+    padding:0.6rem 0.2rem;
+    font-size:0.9rem;
+    color:#333;
+    line-height:1.6;
+">
+    <div style="margin-bottom:0.25rem;">
+        <span style="font-size:1rem; margin-right:0.35rem;">🟢</span>
+        <b>Excellent</b>: 100+ <span style="color:#555;">(Top performing)</span>
+    </div>
+    <div style="margin-bottom:0.25rem;">
+        <span style="font-size:1rem; margin-right:0.35rem;">🟡</span>
+        <b>Stable</b>: 95–99 <span style="color:#555;">(Healthy, within benchmark)</span>
+    </div>
+    <div style="margin-bottom:0.25rem;">
+        <span style="font-size:1rem; margin-right:0.35rem;">🟠</span>
+        <b>At Risk</b>: 90–94 <span style="color:#555;">(Performance drift emerging)</span>
+    </div>
+    <div>
+        <span style="font-size:1rem; margin-right:0.35rem;">🔴</span>
+        <b>Critical</b>: Below 90 <span style="color:#555;">(Immediate corrective focus)</span>
+    </div>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
 
     # Tabs: one pane per theme
     tab_rev, tab_lab, tab_sys = st.tabs(
@@ -789,6 +820,7 @@ st.markdown(
             "your prescriptive actions are successful. This does not change your "
             "core scores above; it is a what-if view."
         )
+        ...
 
         mode = st.radio(
             "Adjust by:",
