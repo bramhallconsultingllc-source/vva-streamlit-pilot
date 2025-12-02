@@ -290,7 +290,8 @@ SCENARIO_LOOKUP = {
 }
 
 INSIGHT_PACKS = {
-      "scenario_01": {
+    # You’ll paste the text for Scenarios 1–3 here from the doc
+    "scenario_01": {
         "id": 1,
         "rf_tier": "Excellent",
         "lf_tier": "Excellent",
@@ -340,6 +341,7 @@ INSIGHT_PACKS = {
         "expected_impact": [],
     },
 
+    # ✅ Fully wired example from your pack:
     "scenario_04": {
         "id": 4,
         "rf_tier": "Excellent",
@@ -585,6 +587,91 @@ INSIGHT_PACKS = {
         "expected_impact": [],
     },
 }
+
+def get_insight_pack_for_tiers(rf_t: str, lf_t: str):
+    """Return the static Insight Pack for the RF/LF tier pair, with fallbacks."""
+    key = SCENARIO_LOOKUP.get((rf_t, lf_t))
+    if not key:
+        st.error(f"No scenario mapping configured for RF={rf_t}, LF={lf_t}.")
+        return None, None
+
+    pack = INSIGHT_PACKS.get(key)
+    if not pack:
+        st.error(f"Scenario '{key}' not yet configured in INSIGHT_PACKS.")
+        return key, None
+
+    return key, pack
+
+
+def render_insight_pack_expanders(pack: dict):
+    """5-expander layout for a single static Insight Pack."""
+
+    if not pack:
+        st.info("Insight Pack content not available for this scenario yet.")
+        return
+
+    # Subheading for the scenario
+    st.markdown(
+        f"#### {pack.get('title', 'Insight Pack')}  \n"
+        f"<span style='color:#777;font-size:0.85rem;'>"
+        f"{pack.get('label','')}</span>",
+        unsafe_allow_html=True,
+    )
+
+    # 1. Executive Narrative
+    with st.expander("1. Executive Narrative", expanded=True):
+        st.markdown(pack.get("executive_narrative", "").strip() or "_Not yet configured._")
+
+    # 2. Why This Is Happening (Root Cause)
+    with st.expander("2. Why This Is Happening (Root Cause)"):
+        roots = pack.get("root_causes") or []
+        if not roots:
+            st.info("Root causes not yet configured for this scenario.")
+        else:
+            st.markdown("**Primary drivers:**")
+            for r in roots:
+                st.markdown(f"- {r}")
+
+    # 3. What To Do Next (Time-Phased Action Plan)
+    with st.expander("3. What To Do Next (Time-Phased Action Plan)"):
+        def render_phase(title, items):
+            if not items:
+                return
+            st.markdown(f"**{title}**")
+            for i, item in enumerate(items, start=1):
+                st.markdown(f"{i}. {item}")
+            st.markdown("")
+
+        render_phase("Do Tomorrow — Non-negotiable staples", pack.get("do_tomorrow"))
+        render_phase("Next 7 Days (Quick Wins)", pack.get("next_7_days"))
+        render_phase("Next 30–60 Days (High-Impact Moves)", pack.get("next_30_60_days"))
+        render_phase("Next 60–90 Days (Structural Fixes)", pack.get("next_60_90_days"))
+
+        if not any([
+            pack.get("do_tomorrow"),
+            pack.get("next_7_days"),
+            pack.get("next_30_60_days"),
+            pack.get("next_60_90_days"),
+        ]):
+            st.info("Action plan not yet configured for this scenario.")
+
+    # 4. Risks to Monitor
+    with st.expander("4. Risks to Monitor"):
+        risks = pack.get("risks") or []
+        if not risks:
+            st.info("Risks to monitor not yet configured for this scenario.")
+        else:
+            for r in risks:
+                st.markdown(f"- {r}")
+
+    # 5. Expected Impact
+    with st.expander("5. Expected Impact"):
+        impacts = pack.get("expected_impact") or []
+        if not impacts:
+            st.info("Expected impact not yet configured for this scenario.")
+        else:
+            for r in impacts:
+                st.markdown(f"- {r}")
 
 
 def format_money(x: float) -> str:
