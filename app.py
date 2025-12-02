@@ -1075,33 +1075,7 @@ if st.session_state.assessment_ready:
             unsafe_allow_html=True,
         )
 
-        # ---------- Executive Narrative strip (replaces Diagnostic Scenario) ----------
-    executive_text = scenario_text  # already pulled from insight_pack above
-
-    st.markdown(
-        f"""
-<div style="
-    margin-top:1.3rem;
-    margin-bottom:1.6rem;
-    padding:1.2rem 1.2rem;
-    border-radius:12px;
-    background:#f7f7f7;
-    border-left:4px solid #b08c3e;
-    font-size:1.0rem;
-">
-    <div style="font-size:0.8rem; text-transform:uppercase;
-                letter-spacing:0.14em; color:#555; margin-bottom:0.35rem;">
-        Executive Narrative
-    </div>
-    <div style="color:#222; font-size:1.0rem; line-height:1.5;">
-        {executive_text}
-    </div>
-</div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    
+            
         # ---------- Insight Pack Detail (5 expanders) ----------
     render_insight_pack_expanders(insight_pack)
 
