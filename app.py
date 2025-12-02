@@ -385,9 +385,7 @@ def prescriptive_actions(rf_t: str, lf_t: str, rpv_gap: float):
 # Rendering helpers
 # ----------------------------
 def render_action_bucket(title: str, items):
-    
-    Renders a titled list of actions in a consistent style.
-    
+    # Render a titled list of actions in a consistent style.
     if not items:
         st.info(f"No actions available for {title.lower()}.")
         return
