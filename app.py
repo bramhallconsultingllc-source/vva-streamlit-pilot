@@ -1085,10 +1085,6 @@ st.markdown(
 
 # ---------- Insight Pack Detail (5 expanders) ----------
 
-
-
-            
-        # ---------- Insight Pack Detail (5 expanders) ----------
     render_insight_pack_expanders(insight_pack)
 
 
