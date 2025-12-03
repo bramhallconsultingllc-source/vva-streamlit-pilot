@@ -1478,7 +1478,7 @@ def ai_coach_answer(
     if OpenAI is None:
         return False, "OpenAI SDK not installed. Add `openai` to requirements.txt to enable the AI Coach."
 
-        try:
+    try:
         api_key = st.secrets["OPENAI_API_KEY"]
     except Exception:
         return False, "Missing `OPENAI_API_KEY` in Streamlit Secrets. Add it to enable the AI Coach."
