@@ -1485,10 +1485,10 @@ def ai_coach_answer(
     except Exception:
         return False, "Missing `OPENAI_API_KEY` in Streamlit Secrets. Add it to enable the AI Coach."
 
-    # Hard whitelist of allowed questions
+        # Hard whitelist of allowed questions
     ALLOWED_QUESTIONS = [
         "Explain this scenario to a CFO who is new to VVI.",
-        "What should I tell frontline managers in tomorrow’s huddle?",
+        "What should we say in our morning huddles?",
         "If our LF improved to 80, what would that do to VVI?",
         "Summarize this clinic in 3 bullets.",
         "Why did we land in this scenario?",
