@@ -2108,15 +2108,28 @@ if st.session_state.assessment_ready:
     )
 
     # ---------- Save run & compare ----------
-    st.subheader("Save this run")
+        st.subheader("Save this run")
     default_name = f"Clinic {len(st.session_state.runs) + 1}"
     run_name = st.text_input("Name this clinic/run:", value=default_name)
 
-    st.success(f"Saved: {run_name}")
+    if st.button("Save this run"):
+        st.session_state.runs.append(
+            {
+                "Name": run_name,
+                "VVI": round(vvi_score, 1),
+                "RF": round(rf_score, 1),
+                "LF": round(lf_score, 1),
+                "NRPV": round(rpv, 2),
+                "LCV": round(lcv, 2),
+                "SWB%": round(swb_pct * 100, 1),
+            }
+        )
+        st.success(f"Saved: {run_name}")
 
     if st.session_state.runs:
         st.subheader("Portfolio (compare clinics)")
         comp = pd.DataFrame(st.session_state.runs)
+        ...
 
         def color_by_vvi(row):
             try:
