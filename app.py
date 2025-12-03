@@ -163,9 +163,9 @@ TIER_ORDER = ["Critical", "At Risk", "Stable", "Excellent"]  # RF left→right, 
 def tier_from_score(score: float) -> str:
     if score >= 100:
         return "Excellent"
-    if 95 <= score <= 99:
+    if 95 <= score < 100:
         return "Stable"
-    if 90 <= score <= 94:
+    if 90 <= score < 95:
         return "At Risk"
     return "Critical"
 
