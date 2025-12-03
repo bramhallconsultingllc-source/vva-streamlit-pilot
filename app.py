@@ -1246,7 +1246,7 @@ def render_insight_pack_expanders(pack: dict):
         if not roots:
             st.info("Root causes not yet configured for this scenario.")
         else:
-            st.markdown("**Primary drivers:**")
+            st.markdown("**Possible primary drivers:**")
             for r in roots:
                 st.markdown(f"- {r}")
 
