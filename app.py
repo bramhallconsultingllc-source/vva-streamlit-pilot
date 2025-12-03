@@ -1273,8 +1273,8 @@ def render_insight_pack_expanders(pack: dict):
         ]):
             st.info("Action plan not yet configured for this scenario.")
 
-    # 4. Risks to Monitor
-    with st.expander("4. Risks to Monitor"):
+    # 4. Risks Commonly Seen in This Scenario
+    with st.expander("4. Risks Commonly Seen in This Scenario"):
         risks = pack.get("risks") or []
         if not risks:
             st.info("Risks to monitor not yet configured for this scenario.")
