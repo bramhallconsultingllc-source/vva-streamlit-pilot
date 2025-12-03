@@ -1500,8 +1500,6 @@ with st.form("vvi_inputs"):
     # ✅ SUBMIT BUTTON *INSIDE* THE FORM
     submitted = st.form_submit_button("Run Assessment")
 
-submitted = st.form_submit_button("Run Assessment")
-
 # ----------------------------
 # Results
 # ----------------------------
