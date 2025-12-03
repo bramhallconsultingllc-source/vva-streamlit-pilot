@@ -1250,8 +1250,8 @@ def render_insight_pack_expanders(pack: dict):
             for r in roots:
                 st.markdown(f"- {r}")
 
-    # 3. What To Do Next (Time-Phased Action Plan)
-    with st.expander("3. What To Do Next (Time-Phased Action Plan)"):
+    # 3. What To Do Next (Suggested Actions Based on This Scenario)
+    with st.expander("3. What To Do Next (Suggested Actions Based on This Scenario)"):
         def render_phase(title, items):
             if not items:
                 return
