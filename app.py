@@ -1525,18 +1525,26 @@ if st.session_state.assessment_ready:
     lcv = labor / visits    # Labor Cost per Visit (LCV)
     swb_pct = labor / net_rev
 
-    # RF and LF
+        # RF and LF
     rf_raw = (rpv / rt) if rt else 0.0
     lf_raw = (lt / lcv) if lcv else 0.0
-    rf_score = round(rf_raw * 100, 2)
-    lf_score = round(lf_raw * 100, 2)
-    rf_t = tier(rf_score)
-    lf_t = tier(lf_score)
+
+    rf_score_raw = rf_raw * 100
+    lf_score_raw = lf_raw * 100
 
     # VVI (raw) and normalized using benchmark ratio
     vvi_raw = (rpv / lcv) if lcv else 0.0
     vvi_target = (rt / lt) if (rt and lt) else 1.67
-    vvi_score = round((vvi_raw / vvi_target) * 100, 2)
+    vvi_score_raw = (vvi_raw / vvi_target) * 100
+
+    # One-decimal display scores
+    rf_score = round(rf_score_raw, 1)
+    lf_score = round(lf_score_raw, 1)
+    vvi_score = round(vvi_score_raw, 1)
+
+    # Tiers based on what we actually display
+    rf_t = tier(rf_score)
+    lf_t = tier(lf_score)
     vvi_t = tier(vvi_score)
 
     # Static Insight Pack for RF/LF
