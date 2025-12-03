@@ -1282,8 +1282,8 @@ def render_insight_pack_expanders(pack: dict):
             for r in risks:
                 st.markdown(f"- {r}")
 
-    # 5. Expected Impact
-    with st.expander("5. Expected Impact"):
+    # 5. Possible Impact of Improvement
+    with st.expander("5. Possible Impact of Improvement"):
         impacts = pack.get("expected_impact") or []
         if not impacts:
             st.info("Expected impact not yet configured for this scenario.")
