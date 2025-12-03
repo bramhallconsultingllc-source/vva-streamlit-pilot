@@ -1480,22 +1480,22 @@ with st.form("vvi_inputs"):
     )
 
     r_target = st.number_input(
-        "Budgeted NOR per Visit",
-        min_value=1.0,
-        value=140.0,
-        step=1.0,
-        format="%.2f",
-        key="rev_target_input",
-    )
+    "Budgeted NOR per Visit ($)",
+    min_value=1.0,
+    value=140.0,
+    step=1.0,
+    format="%.2f",
+    key="rev_target_input",
+)
 
-    l_target = st.number_input(
-        "Budgeted SWB per Visit",
-        min_value=1.0,
-        value=85.0,
-        step=1.0,
-        format="%.2f",
-        key="lab_target_input",
-    )
+l_target = st.number_input(
+    "Budgeted SWB per Visit ($)",
+    min_value=1.0,
+    value=85.0,
+    step=1.0,
+    format="%.2f",
+    key="lab_target_input",
+)
 
     submitted = st.form_submit_button("Run Assessment")
 
