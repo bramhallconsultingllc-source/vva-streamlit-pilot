@@ -1012,6 +1012,48 @@ if st.session_state.assessment_ready:
     # ---------- Insight Pack Detail (5 expanders) ----------
     render_insight_pack_expanders(insight_pack)
 
+    # ---------- AI Coach (optional) ----------
+    st.subheader("AI Coach (optional)")
+
+    with st.expander("Ask a guided question about this clinic", expanded=False):
+        st.caption(
+            "The AI Coach can help you interpret results and communicate with leaders and staff. "
+            "It only answers the specific questions in this list."
+        )
+
+        question = st.selectbox(
+            "Select a question:",
+            [
+                "Explain this scenario to a CFO who is new to VVI.",
+                "What should I tell frontline managers in tomorrow’s huddle?",
+                "If our LF improved to 80, what would that do to VVI?",
+                "Summarize this clinic in 3 bullets.",
+                "Why did we land in this scenario?",
+                "What early indicators should we monitor based on this scenario?",
+                "How do I build effective front-desk POS scripting?",
+                "What are practical ways to improve morale?",
+                "What steps can reduce burnout for MAs and front-desk staff?",
+                "Convert this scenario into a 1-minute message for staff.",
+            ],
+        )
+
+        if st.button("Ask AI Coach"):
+            ok, md = ai_coach_answer(
+                selected_question=question,
+                rf_score=rf_score,
+                lf_score=lf_score,
+                vvi_score=vvi_score,
+                rpv=rpv,
+                lcv=lcv,
+                swb_pct=swb_pct,
+                insight_pack=insight_pack,
+            )
+            if ok:
+                st.markdown(md)
+            else:
+                st.warning(md)
+
+    
     # ---------- Impact Simulator (optional what-if) ----------
     with st.expander("Optional: Simulate impact of improvement", expanded=False):
         ...
