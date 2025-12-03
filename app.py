@@ -1374,7 +1374,8 @@ It is a structure, not a source of new actions.
 2. Schedule + Workflow Highlights (20–30 seconds)
    - Mention any operational or throughput points relevant to the scenario.
    - Keep it brief and actionable.
-
+   - If relevant, briefly reference any key KPIs or progress updates (e.g., visit volume, POS accuracy, chart closure timeliness).
+    
 3. Safety + Operational Reminders (20–30 seconds)
    - Reinforce essential clinical or workflow expectations at a high level.
 
