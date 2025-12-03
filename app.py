@@ -1497,7 +1497,7 @@ l_target = st.number_input(
     key="lab_target_input",
 )
 
-    submitted = st.form_submit_button("Run Assessment")
+submitted = st.form_submit_button("Run Assessment")
 
 # ----------------------------
 # Results
