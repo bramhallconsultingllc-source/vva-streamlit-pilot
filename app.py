@@ -1302,6 +1302,7 @@ def format_money(x: float) -> str:
 # AI Coach — System Prompt (strict rules for Q&A agent)
 # ------------------------------------------------------
 AI_COACH_SYSTEM_PROMPT = """
+AI_COACH_SYSTEM_PROMPT = """
 You are the VVI AI Coach for Bramhall Consulting.
 
 Your role is narrow and specific:
