@@ -709,6 +709,94 @@ Output:
 - Answer in markdown.
 - Be direct, avoid fluff, and keep responses scannable (bullets, short paragraphs).
 """
+def ai_coach_answer(
+    selected_question: str,
+    rf_score: float,
+    lf_score: float,
+    vvi_score: float,
+    rpv: float,
+    lcv: float,
+    swb_pct: float,
+    insight_pack: dict,
+):
+    """
+    Returns (ok, markdown_text) for the AI Coach panel.
+    Enforces:
+      - only canned questions are allowed
+      - uses Insight Pack + metrics as context
+    """
+
+    if OpenAI is None:
+        return False, "OpenAI SDK not installed. Add `openai` to requirements.txt to enable the AI Coach."
+
+    try:
+        api_key = st.secrets["OPENAI_API_KEY"]
+    except Exception:
+        return False, "Missing `OPENAI_API_KEY` in Streamlit Secrets. Add it to enable the AI Coach."
+
+    # Hard whitelist of allowed questions
+    ALLOWED_QUESTIONS = [
+        "Explain this scenario to a CFO who is new to VVI.",
+        "What should I tell frontline managers in tomorrow’s huddle?",
+        "If our LF improved to 80, what would that do to VVI?",
+        "Summarize this clinic in 3 bullets.",
+        "Why did we land in this scenario?",
+        "What early indicators should we monitor based on this scenario?",
+        "How do I build effective front-desk POS scripting?",
+        "What are practical ways to improve morale?",
+        "What steps can reduce burnout for MAs and front-desk staff?",
+        "Convert this scenario into a 1-minute message for staff.",
+    ]
+
+    if selected_question not in ALLOWED_QUESTIONS:
+        # Enforce "no conversation outside canned questions"
+        return False, "I’m only configured to answer the specific questions in the dropdown above."
+
+    # Build a compact context payload for the model
+    pack = insight_pack or {}
+    context = {
+        "rf_score": rf_score,
+        "lf_score": lf_score,
+        "vvi_score": vvi_score,
+        "rpv": rpv,
+        "lcv": lcv,
+        "swb_pct": swb_pct,
+        "scenario_title": pack.get("title", ""),
+        "scenario_label": pack.get("label", ""),
+        "executive_narrative": pack.get("executive_narrative", ""),
+        "root_causes": pack.get("root_causes", []),
+        "do_tomorrow": pack.get("do_tomorrow", []),
+        "next_7_days": pack.get("next_7_days", []),
+        "next_30_60_days": pack.get("next_30_60_days", []),
+        "next_60_90_days": pack.get("next_60_90_days", []),
+        "risks": pack.get("risks", []),
+        "expected_impact": pack.get("expected_impact", []),
+    }
+
+    try:
+        client = OpenAI(api_key=api_key)
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            temperature=0.25,
+            messages=[
+                {"role": "system", "content": AI_COACH_SYSTEM_PROMPT},
+                {
+                    "role": "user",
+                    "content": (
+                        "Here is the current clinic context as JSON. "
+                        "Use it strictly as your factual basis:\n"
+                        f"{context}\n\n"
+                        "Now answer ONLY this selected question, following all rules above:\n"
+                        f"{selected_question}"
+                    ),
+                },
+            ],
+        )
+        answer = resp.choices[0].message.content.strip()
+        return True, answer
+    except Exception as e:
+        return False, f"AI Coach call failed: {e}"
+
 
 # ----------------------------
 # Session state
