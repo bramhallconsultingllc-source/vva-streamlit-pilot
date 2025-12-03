@@ -709,6 +709,7 @@ Output:
 - Answer in markdown.
 - Be direct, avoid fluff, and keep responses scannable (bullets, short paragraphs).
 """
+    
 def ai_coach_answer(
     selected_question: str,
     rf_score: float,
