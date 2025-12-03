@@ -1353,17 +1353,6 @@ if st.session_state.assessment_ready:
     default_name = f"Clinic {len(st.session_state.runs) + 1}"
     run_name = st.text_input("Name this clinic/run:", value=default_name)
 
-    if st.button("Save to portfolio"):
-        st.session_state.runs.append(
-            {
-                "name": run_name,
-                "period": period,
-                "RF": rf_score,
-                "LF": lf_score,
-                "VVI": vvi_score,
-                "scenario": actions["diagnosis"],
-            }
-        )
         st.success(f"Saved: {run_name}")
 
     if st.session_state.runs:
