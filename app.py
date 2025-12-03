@@ -644,127 +644,460 @@ INSIGHT_PACKS = {
             "Meaningful margin recovery within 1–2 quarters.",
         ],
     },
-    "scenario_09": {
+        "scenario_09": {
         "id": 9,
         "rf_tier": "At Risk",
         "lf_tier": "Excellent",
         "title": "Scenario 9 — RF: At Risk / LF: Excellent",
         "label": "Low Revenue + Strong Labor Efficiency",
-        "executive_narrative": "TODO: paste Scenario 9 Executive Narrative.",
-        "root_causes": [],
-        "do_tomorrow": [],
-        "next_7_days": [],
-        "next_30_60_days": [],
-        "next_60_90_days": [],
-        "risks": [],
-        "expected_impact": [],
+        "executive_narrative": (
+            "This clinic is running efficiently from a labor standpoint, but revenue is underperforming. "
+            "The team is doing the work with discipline and reliability, yet value is not fully captured. "
+            "This pattern typically signals front-end, coding, or mid-cycle revenue leakage rather than a "
+            "staffing problem. The opportunity is to keep labor intact while tightening revenue integrity."
+        ),
+        "root_causes": [
+            "Under-coding or conservative E/M level selection by providers.",
+            "Missing modifiers or incomplete charge capture.",
+            "Registration and payer mapping errors reducing collectible revenue.",
+            "Inconsistent front-desk POS scripting and collection follow-through.",
+            "Denials and write-offs not being aggressively worked and prevented.",
+            "Documentation gaps limiting appropriate coding and billing.",
+        ],
+        "do_tomorrow": [
+            "5-minute huddle (focus: revenue integrity).",
+            "Perform a quick POS and registration accuracy check.",
+            "Confirm all charts are closed within 24 hours.",
+        ],
+        "next_7_days": [
+            "Repeat daily staples.",
+            "Conduct a targeted coding audit (10–20 encounters per provider).",
+            "Review top denial categories and identify preventable patterns.",
+            "Observe front-desk check-in and POS scripting for 1–2 sessions.",
+            "Validate payer plan selection and mapping for your top payers.",
+        ],
+        "next_30_60_days": [
+            "Deliver focused coding education to providers using real cases.",
+            "Standardize registration, POS, and insurance verification workflows.",
+            "Implement a weekly charge review for accuracy and completeness.",
+            "Stand up a simple denial-prevention playbook for staff.",
+        ],
+        "next_60_90_days": [
+            "Build a quarterly revenue integrity review cadence.",
+            "Designate coding or documentation champions among clinicians.",
+            "Integrate revenue checkpoints into front-line leader routines.",
+            "Roll out a basic dashboard for revenue drivers and denials.",
+        ],
+        "risks": [
+            "Denial rates creeping up over time.",
+            "Revenue per visit drifting further below benchmark.",
+            "Provider frustration if feedback is delayed or unclear.",
+            "Front-desk turnover disrupting scripting and accuracy.",
+            "Leadership assuming a “volume problem” instead of a capture issue.",
+        ],
+        "expected_impact": [
+            "4–8% NRPV improvement through better capture and coding.",
+            "5–9% VVI improvement with revenue gains on an efficient labor base.",
+            "Margin lift without adding labor hours or FTEs.",
+        ],
     },
+
     "scenario_10": {
         "id": 10,
         "rf_tier": "At Risk",
         "lf_tier": "Stable",
         "title": "Scenario 10 — RF: At Risk / LF: Stable",
         "label": "Low Revenue + Steady Labor",
-        "executive_narrative": "TODO: paste Scenario 10 Executive Narrative.",
-        "root_causes": [],
-        "do_tomorrow": [],
-        "next_7_days": [],
-        "next_30_60_days": [],
-        "next_60_90_days": [],
-        "risks": [],
-        "expected_impact": [],
+        "executive_narrative": (
+            "Labor is reasonably controlled, but revenue is lagging. The clinic is covering demand with an "
+            "adequate staffing model, yet value is not fully realized per visit. This is a classic revenue-"
+            "cycle improvement scenario: stabilizing and optimizing front-end, coding, and mid-cycle processes "
+            "to lift revenue without major labor changes."
+        ),
+        "root_causes": [
+            "Under-coding or inconsistent use of modifiers.",
+            "Inadequate documentation to support higher complexity visits.",
+            "Leaky POS execution or weak pre-visit financial clearance.",
+            "Missed ancillary services or add-on charges.",
+            "Denials not being worked systematically or fed back to the front end.",
+        ],
+        "do_tomorrow": [
+            "Morning huddle (revenue focus).",
+            "Review yesterday’s POS collections and scripting adherence.",
+            "Confirm same-day or ≤24-hour chart closure with providers.",
+        ],
+        "next_7_days": [
+            "Repeat daily staples.",
+            "Perform a small-sample charge and coding audit per provider.",
+            "Identify top denial reasons and correct preventable front-end errors.",
+            "Shadow front-desk and registration for a half-day to observe failure points.",
+            "Double-check payer mapping for common plans and products.",
+        ],
+        "next_30_60_days": [
+            "Implement standardized scripting for registration and POS.",
+            "Launch provider documentation improvement using real examples.",
+            "Create a weekly revenue huddle reviewing denials, AR, and NRPV trends.",
+            "Tighten processes for ancillary orders, referrals, and follow-ups.",
+        ],
+        "next_60_90_days": [
+            "Establish a recurring revenue integrity review (monthly/quarterly).",
+            "Deploy simple dashboards for NRPV, denials, and collections.",
+            "Integrate revenue-cycle performance into manager scorecards.",
+            "Formalize feedback loops between billing and clinic operations.",
+        ],
+        "risks": [
+            "Continued revenue softness eroding margin.",
+            "Denial volumes increasing without prevention efforts.",
+            "Front-desk fatigue if scripting expectations are unclear.",
+            "Provider disengagement if documentation asks feel arbitrary.",
+        ],
+        "expected_impact": [
+            "3–7% revenue uplift via improved capture and prevention of leakage.",
+            "4–8% VVI improvement based on revenue gains at steady labor cost.",
+            "Better financial performance with minimal disruption to staffing.",
+        ],
     },
+
     "scenario_11": {
         "id": 11,
         "rf_tier": "At Risk",
         "lf_tier": "At Risk",
         "title": "Scenario 11 — RF: At Risk / LF: At Risk",
         "label": "Dual Drift: Revenue Softness + Labor Inefficiency",
-        "executive_narrative": "TODO: paste Scenario 11 Executive Narrative.",
-        "root_causes": [],
-        "do_tomorrow": [],
-        "next_7_days": [],
-        "next_30_60_days": [],
-        "next_60_90_days": [],
-        "risks": [],
-        "expected_impact": [],
+        "executive_narrative": (
+            "Both revenue and labor performance are drifting away from benchmark. The clinic is doing more work "
+            "than it needs to for less revenue than it should earn per visit. Left unaddressed, this dual drift "
+            "erodes margin and creates instability. The objective is to stabilize operations while simultaneously "
+            "strengthening revenue capture and labor efficiency."
+        ),
+        "root_causes": [
+            "Throughput inefficiencies increasing labor hours per visit.",
+            "Role drift and unclear task ownership for MAs and front-desk staff.",
+            "Under-coding and documentation gaps reducing revenue per visit.",
+            "Weak POS performance and inconsistent scripting.",
+            "Lack of routine KPI review for both revenue and labor metrics.",
+            "Early burnout signals: fatigue, errors, rising absenteeism.",
+        ],
+        "do_tomorrow": [
+            "5-minute stability huddle (focus: today’s flow + high-risk bottlenecks).",
+            "Registration/POS accuracy check with real-time feedback.",
+            "Verify all charts from the prior day are closed.",
+        ],
+        "next_7_days": [
+            "Repeat stability staples.",
+            "Complete a basic throughput time study (door-to-room, room-to-provider).",
+            "Perform a small coding and charge capture audit.",
+            "Review scheduling templates vs. actual demand patterns.",
+            "Hold brief stay interviews with key staff to identify friction points.",
+        ],
+        "next_30_60_days": [
+            "Refine staffing templates and shift patterns to match visit volume.",
+            "Clarify and rebalance MA/front-desk task lists to reduce rework.",
+            "Deliver focused documentation and coding refresh sessions.",
+            "Install weekly KPI review for NRPV, LCV, throughput, and chart closure.",
+        ],
+        "next_60_90_days": [
+            "Implement a mini operating system: huddles, scorecards, leader rounding.",
+            "Streamline or eliminate low-value tasks contributing to burnout.",
+            "Create an internal continuous-improvement backlog and cadence.",
+            "Invest in morale and recognition tied to measurable improvement.",
+        ],
+        "risks": [
+            "Slow slide into Critical for either RF or LF.",
+            "Turnover among experienced staff and MAs.",
+            "Provider frustration with inconsistent support.",
+            "Patient dissatisfaction as waits increase and flow slows.",
+        ],
+        "expected_impact": [
+            "6–12% VVI improvement with balanced gains across RF and LF.",
+            "8–15% LCV improvement by tightening staffing and throughput.",
+            "Reversal of margin erosion within 1–2 quarters.",
+        ],
     },
+
     "scenario_12": {
         "id": 12,
         "rf_tier": "At Risk",
         "lf_tier": "Critical",
         "title": "Scenario 12 — RF: At Risk / LF: Critical",
         "label": "Low Revenue + Severe Labor Inefficiency",
-        "executive_narrative": "TODO: paste Scenario 12 Executive Narrative.",
-        "root_causes": [],
-        "do_tomorrow": [],
-        "next_7_days": [],
-        "next_30_60_days": [],
-        "next_60_90_days": [],
-        "risks": [],
-        "expected_impact": [],
+        "executive_narrative": (
+            "This clinic is underperforming on revenue while also carrying a highly inefficient labor cost structure. "
+            "The result is rapid margin compression and growing operational risk. The priority is to stabilize the "
+            "workforce and restore basic throughput reliability while simultaneously closing critical revenue leaks. "
+            "Without decisive action, this site will remain a chronic underperformer."
+        ),
+        "root_causes": [
+            "Misaligned staffing levels relative to volume and acuity.",
+            "High overtime, PRN, or agency usage.",
+            "Fragmented workflows causing rework and idle time.",
+            "Under-coding and missed charges suppressing NRPV.",
+            "Inconsistent or weak POS and registration execution.",
+            "Staff burnout driving errors, absenteeism, and turnover.",
+        ],
+        "do_tomorrow": [
+            "Daily stabilization huddle (flow + staffing + safety).",
+            "Immediate POS and registration spot check.",
+            "Confirm chart closure ≤24 hours with clear expectations.",
+        ],
+        "next_7_days": [
+            "Repeat daily stabilization staples.",
+            "Implement short-term overtime controls with exception approvals only.",
+            "Conduct a rapid staffing and schedule review for each shift.",
+            "Identify 2–3 obvious workflow bottlenecks and address them.",
+            "Perform a focused coding and charge capture sample review.",
+        ],
+        "next_30_60_days": [
+            "Redesign staffing templates to align with actual visit patterns.",
+            "Clarify roles and responsibilities to reduce duplication and rework.",
+            "Rebuild intake, rooming, and checkout workflows for efficiency.",
+            "Deliver targeted coding and documentation training using clinic data.",
+            "Establish a weekly operations + revenue review huddle.",
+        ],
+        "next_60_90_days": [
+            "Implement a structured 8–12 week recovery plan with HR + Operations.",
+            "Systematically eliminate non–value-added tasks from MA and front-desk workload.",
+            "Formalize reliability cadence: huddles, KPI review, and escalation paths.",
+            "Invest in culture, recognition, and burnout mitigation strategies.",
+        ],
+        "risks": [
+            "Sustained negative margin at the clinic level.",
+            "Accelerating turnover among high performers.",
+            "Increasing patient dissatisfaction and complaints.",
+            "Provider exit risk due to operational instability.",
+        ],
+        "expected_impact": [
+            "12–20% VVI improvement when both revenue and labor are corrected.",
+            "15–25% LCV improvement as labor inefficiency is addressed.",
+            "Movement toward breakeven or positive margin within 2–3 quarters.",
+        ],
     },
+
     "scenario_13": {
         "id": 13,
         "rf_tier": "Critical",
         "lf_tier": "Excellent",
         "title": "Scenario 13 — RF: Critical / LF: Excellent",
         "label": "Severe Revenue Leakage + Highly Efficient Labor",
-        "executive_narrative": "TODO: paste Scenario 13 Executive Narrative.",
-        "root_causes": [],
-        "do_tomorrow": [],
-        "next_7_days": [],
-        "next_30_60_days": [],
-        "next_60_90_days": [],
-        "risks": [],
-        "expected_impact": [],
+        "executive_narrative": (
+            "Labor performance is strong and efficient, but revenue is severely underperforming. "
+            "This is a classic severe revenue-leakage scenario: the clinic is doing the work, but "
+            "value is not being captured. Addressing front-end accuracy, coding, and denials can "
+            "drive large revenue gains without increasing labor cost."
+        ),
+        "root_causes": [
+            "Significant under-coding and conservative provider behavior.",
+            "High rates of missing or incorrect modifiers.",
+            "Frequent registration and insurance eligibility errors.",
+            "Weak or inconsistent POS execution and follow-up.",
+            "Denials not being corrected, fed back, or prevented at the front end.",
+            "Documentation not supporting visit complexity.",
+        ],
+        "do_tomorrow": [
+            "Revenue integrity huddle (front-end + coding focus).",
+            "Immediate POS/registration audit for error rates.",
+            "Confirm timely chart closure and documentation completeness.",
+        ],
+        "next_7_days": [
+            "Repeat revenue integrity staples.",
+            "Perform a high-yield coding/charge capture audit per provider.",
+            "Review denial data for top 3 preventable categories.",
+            "Shadow front-desk at check-in, POS, and insurance verification.",
+            "Validate payer mapping and plan selection for common visit types.",
+        ],
+        "next_30_60_days": [
+            "Deliver targeted coding and documentation training with clinic cases.",
+            "Standardize registration, financial clearance, and POS workflows.",
+            "Implement weekly denial-prevention and charge review huddles.",
+            "Add simple checklists for front-desk and billing handoffs.",
+        ],
+        "next_60_90_days": [
+            "Create a quarterly revenue integrity review cadence.",
+            "Integrate revenue KPIs into clinic leader scorecards.",
+            "Develop internal coding champions and coaching loops.",
+            "Pair high-performing providers with those needing support.",
+        ],
+        "risks": [
+            "Sustained revenue underperformance despite efficient labor.",
+            "Denials and write-offs rising without prevention.",
+            "Provider resistance if issues aren’t framed with data and support.",
+            "Leadership misinterpreting the issue as a volume or staffing problem.",
+        ],
+        "expected_impact": [
+            "10–20% NRPV improvement with focused revenue integrity work.",
+            "8–15% VVI improvement leveraging strong labor efficiency.",
+            "Significant margin recovery without additional FTEs.",
+        ],
     },
+
     "scenario_14": {
         "id": 14,
         "rf_tier": "Critical",
         "lf_tier": "Stable",
         "title": "Scenario 14 — RF: Critical / LF: Stable",
         "label": "Severe Revenue Leakage + Labor Near Benchmark",
-        "executive_narrative": "TODO: paste Scenario 14 Executive Narrative.",
-        "root_causes": [],
-        "do_tomorrow": [],
-        "next_7_days": [],
-        "next_30_60_days": [],
-        "next_60_90_days": [],
-        "risks": [],
-        "expected_impact": [],
+        "executive_narrative": (
+            "Labor is near benchmark, but revenue performance is severely below expectations. "
+            "The clinic is staffed reasonably, yet significant value is being lost in the revenue "
+            "cycle. The priority is to aggressively identify and fix the biggest sources of revenue "
+            "leakage while keeping labor steady and focused on high-reliability execution."
+        ),
+        "root_causes": [
+            "Under-coding and incomplete documentation.",
+            "High frequency of missed or incorrect modifiers and add-on codes.",
+            "Front-end eligibility, registration, or plan selection errors.",
+            "Weak POS collections and inconsistent scripting.",
+            "Denials being worked slowly or without preventing recurrence.",
+        ],
+        "do_tomorrow": [
+            "Revenue-focused morning huddle with front-desk + providers.",
+            "Quick POS/registration accuracy spot check.",
+            "Ensure all charts from the previous day are closed and documented.",
+        ],
+        "next_7_days": [
+            "Repeat daily revenue staples.",
+            "Run a focused coding/charge audit for high-volume visit types.",
+            "Identify top 3 denial reasons and map them to front-end fixes.",
+            "Shadow 1–2 providers to observe documentation and coding habits.",
+            "Confirm AR follow-up and denial workqueues have clear ownership.",
+        ],
+        "next_30_60_days": [
+            "Standardize financial clearance, registration, and POS workflows.",
+            "Implement structured provider education using real denial and audit data.",
+            "Launch a weekly micro-review of NRPV, denials, and collections.",
+            "Tighten handoffs between clinic and billing teams with simple SLAs.",
+        ],
+        "next_60_90_days": [
+            "Establish a quarterly revenue integrity and denial-prevention cadence.",
+            "Elevate revenue KPIs into leadership scorecards and performance reviews.",
+            "Build a simple “playbook” for common revenue failure modes and fixes.",
+            "Spread lessons learned to peer clinics in the portfolio.",
+        ],
+        "risks": [
+            "Persistent negative margin driven by low revenue.",
+            "Provider disengagement if feedback is infrequent or unclear.",
+            "Front-desk burnout if scripting and expectations are not supported.",
+            "Denials normalizing as “background noise” instead of urgent signals.",
+        ],
+        "expected_impact": [
+            "9–18% uplift in NRPV with targeted revenue-cycle work.",
+            "7–14% VVI improvement with revenue gains on stable labor.",
+            "Margin turnaround within 2–3 quarters if execution is consistent.",
+        ],
     },
+
     "scenario_15": {
         "id": 15,
         "rf_tier": "Critical",
         "lf_tier": "At Risk",
         "title": "Scenario 15 — RF: Critical / LF: At Risk",
         "label": "Severe Revenue Leakage + Early Labor Inefficiency",
-        "executive_narrative": "TODO: paste Scenario 15 Executive Narrative.",
-        "root_causes": [],
-        "do_tomorrow": [],
-        "next_7_days": [],
-        "next_30_60_days": [],
-        "next_60_90_days": [],
-        "risks": [],
-        "expected_impact": [],
+        "executive_narrative": (
+            "Revenue performance is severely below expectations, and labor costs are beginning to drift upward. "
+            "The clinic is at an inflection point: without intervention, it will progress toward full systemic "
+            "distress. The play here is to stabilize labor efficiency while aggressively fixing front-end and "
+            "coding-related revenue leakage."
+        ),
+        "root_causes": [
+            "Front-end errors and under-coding driving low NRPV.",
+            "Throughput slow-downs modestly increasing labor per visit.",
+            "Role drift and unclear task ownership for MAs and front-desk staff.",
+            "Rising overtime or schedule inefficiencies.",
+            "Denials not being systematically prevented or fed back to operations.",
+        ],
+        "do_tomorrow": [
+            "Stability huddle (flow + revenue + staffing).",
+            "Spot check POS, registration, and insurance verification accuracy.",
+            "Confirm same-day or ≤24-hour chart closure expectations.",
+        ],
+        "next_7_days": [
+            "Repeat daily stability and revenue staples.",
+            "Conduct a short throughput time study on one high-volume day.",
+            "Run a focused coding and charge capture audit by provider.",
+            "Review schedules vs. volume to identify misaligned shifts.",
+            "Hold quick stay interviews with key staff to identify pain points.",
+        ],
+        "next_30_60_days": [
+            "Refine staffing templates to better match visit patterns.",
+            "Clarify and rebalance MA/front-desk task load to reduce rework.",
+            "Deliver targeted provider documentation and coding training.",
+            "Initiate a weekly operations + revenue performance huddle.",
+        ],
+        "next_60_90_days": [
+            "Develop a 12-week improvement plan spanning revenue and labor.",
+            "Eliminate low-value tasks contributing to burnout and inefficiency.",
+            "Formalize reliability routines: huddles, KPIs, and escalation pathways.",
+            "Invest in morale-building and recognition linked to measurable gains.",
+        ],
+        "risks": [
+            "Drift into Scenario 16 (systemic distress) if not corrected.",
+            "Increasing staff turnover and absenteeism.",
+            "Provider dissatisfaction with support levels and throughput.",
+            "Worsening patient experience as waits increase and errors persist.",
+        ],
+        "expected_impact": [
+            "10–18% VVI improvement with coordinated revenue and labor work.",
+            "12–20% NRPV and LCV combined impact over 2–3 quarters.",
+            "Clear path away from systemic distress toward stability.",
+        ],
     },
+
     "scenario_16": {
         "id": 16,
         "rf_tier": "Critical",
         "lf_tier": "Critical",
         "title": "Scenario 16 — RF: Critical / LF: Critical",
         "label": "Systemic Distress: Low Revenue + High Labor Cost",
-        "executive_narrative": "TODO: paste Scenario 16 Executive Narrative.",
-        "root_causes": [],
-        "do_tomorrow": [],
-        "next_7_days": [],
-        "next_30_60_days": [],
-        "next_60_90_days": [],
-        "risks": [],
-        "expected_impact": [],
+        "executive_narrative": (
+            "This is the most severe scenario: revenue is significantly underperforming while labor cost per visit "
+            "is very high. The clinic is in systemic distress, with acute margin pressure and high risk of workforce "
+            "instability. Immediate, coordinated intervention is required across staffing, workflow, and revenue "
+            "integrity to prevent further deterioration."
+        ),
+        "root_causes": [
+            "Chronic misalignment between staffing levels and actual demand.",
+            "High overtime, PRN, or agency usage driving LCV up.",
+            "Major workflow breakdowns creating rework and idle time.",
+            "Severe under-coding, missed charges, or registration errors.",
+            "Denials not being worked effectively or prevented.",
+            "Burnout, disengagement, and turnover across key roles.",
+        ],
+        "do_tomorrow": [
+            "Crisis huddle with clear focus: safety, flow, and revenue integrity.",
+            "Immediate review of today’s staffing vs. schedule; correct obvious misalignments.",
+            "Quick POS/registration and chart-closure compliance check.",
+        ],
+        "next_7_days": [
+            "Hold daily stabilization huddles (staffing, throughput, revenue).",
+            "Temporarily tighten overtime approvals and track usage daily.",
+            "Conduct a rapid diagnostic on throughput and workflow bottlenecks.",
+            "Sample audit of coding, charges, and denials by provider and visit type.",
+            "Begin stay interviews and burnout check-ins with core staff.",
+        ],
+        "next_30_60_days": [
+            "Redesign staffing templates and schedule structure to match volume.",
+            "Rebuild core workflows (intake, rooming, checkout, documentation).",
+            "Deliver focused provider documentation/coding training with immediate feedback.",
+            "Stand up weekly operations + revenue steering meetings with clear owners.",
+        ],
+        "next_60_90_days": [
+            "Implement a 12-week recovery roadmap owned by Operations and HR.",
+            "Remove non–value-added tasks to reduce burnout and rework.",
+            "Institutionalize reliability cadence: daily huddles, weekly KPI review, monthly deep dives.",
+            "Rebuild culture and engagement through recognition, communication, and visible wins.",
+        ],
+        "risks": [
+            "Sustained negative margin and consideration of service reduction or closure.",
+            "High turnover among providers and key clinical support roles.",
+            "Rising safety risk if instability is not controlled.",
+            "Poor patient experience and reputational damage in the market.",
+        ],
+        "expected_impact": [
+            "15–25% VVI improvement over 2–4 quarters with disciplined execution.",
+            "20–30% improvement in LCV and NRPV combined as workflows stabilize.",
+            "Movement from crisis toward controlled, sustainable performance.",
+        ],
     },
-}
 
 def get_insight_pack_for_tiers(rf_t: str, lf_t: str):
     """Return the static Insight Pack for the RF/LF tier pair, with fallbacks."""
