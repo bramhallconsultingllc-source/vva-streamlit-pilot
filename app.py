@@ -2106,8 +2106,8 @@ if st.session_state.assessment_ready:
         mime="application/pdf",
     )
 
-    # ---------- Save run & compare ----------
-        st.subheader("Save this run")
+        # ---------- Save run & compare ----------
+    st.subheader("Save this run")
     default_name = f"Clinic {len(st.session_state.runs) + 1}"
     run_name = st.text_input("Name this clinic/run:", value=default_name)
 
@@ -2128,7 +2128,6 @@ if st.session_state.assessment_ready:
     if st.session_state.runs:
         st.subheader("Portfolio (compare clinics)")
         comp = pd.DataFrame(st.session_state.runs)
-        ...
 
         def color_by_vvi(row):
             try:
