@@ -1204,6 +1204,7 @@ INSIGHT_PACKS = {
             "Movement from crisis toward controlled, sustainable performance.",
         ],
     },
+}
 
 def get_insight_pack_for_tiers(rf_t: str, lf_t: str):
     """Return the static Insight Pack for the RF/LF tier pair, with fallbacks."""
