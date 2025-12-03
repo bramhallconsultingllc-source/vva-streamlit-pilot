@@ -291,57 +291,163 @@ SCENARIO_LOOKUP = {
 
 INSIGHT_PACKS = {
     # You’ll paste the text for Scenarios 1–3 here from the doc
-    "scenario_01": {
+        "scenario_01": {
         "id": 1,
         "rf_tier": "Excellent",
         "lf_tier": "Excellent",
         "title": "Scenario 1 — RF: Excellent / LF: Excellent",
         "label": "High Revenue + Efficient Labor",
-        "executive_narrative": "TODO: paste Scenario 1 Executive Narrative.",
+        "executive_narrative": (
+            "This clinic is performing at a top-quartile level: revenue per visit is strong and labor "
+            "is deployed efficiently. Visits are being converted into margin without obvious waste, "
+            "and the operating rhythm is likely reliable and well led. The focus here is not a major "
+            "fix but protecting what works, avoiding hidden burnout, and selectively scaling this playbook "
+            "to other sites."
+        ),
         "root_causes": [
-            "TODO: paste Scenario 1 root cause bullets.",
+            "Clear roles and accountability across front desk, MAs, providers, and billing.",
+            "Staffing templates closely aligned with visit patterns and acuity.",
+            "Reliable workflows for intake, rooming, documentation, and checkout.",
+            "Disciplined revenue-cycle habits (accurate registration, coding, and POS).",
+            "Engaged leadership presence with regular huddles and KPI review.",
         ],
         "do_tomorrow": [
-            "TODO: Scenario 1 Do Tomorrow bullet 1",
+            "Brief huddle to recognize performance and reinforce “what good looks like.”",
+            "Verify yesterday’s charts are closed and POS collections reconciled.",
+            "Ask staff where today’s biggest risk to flow might be and mitigate early.",
         ],
-        "next_7_days": [],
-        "next_30_60_days": [],
-        "next_60_90_days": [],
-        "risks": [],
-        "expected_impact": [],
+        "next_7_days": [
+            "Run a simple time-study on a busy session to confirm throughput remains tight.",
+            "Spot-check coding and POS for any early signs of revenue leakage.",
+            "Check schedule templates against actual demand to confirm continued fit.",
+        ],
+        "next_30_60_days": [
+            "Document this clinic’s playbook (staffing, workflows, huddle routines).",
+            "Use this site as a peer-teaching location for under-performing clinics.",
+            "Refresh stay interviews or engagement touchpoints with key staff.",
+        ],
+        "next_60_90_days": [
+            "Review succession plans for front-line leaders and key roles.",
+            "Stress-test capacity for modest volume growth without harming VVI.",
+            "Refine KPIs and dashboards to keep leading indicators visible.",
+        ],
+        "risks": [
+            "Complacency or “we’re fine” mindset leading to gradual drift.",
+            "Hidden burnout from high performers carrying too much load.",
+            "Key-person risk in front-line leadership or revenue-cycle experts.",
+            "Volume growth that outpaces capacity and erodes performance.",
+        ],
+        "expected_impact": [
+            "Sustain VVI above benchmark while absorbing moderate volume growth.",
+            "Protect margin through early detection of drift or leakage.",
+            "Create a repeatable model that can be lifted to other clinics.",
+        ],
     },
+
     "scenario_02": {
         "id": 2,
         "rf_tier": "Excellent",
         "lf_tier": "Stable",
         "title": "Scenario 2 — RF: Excellent / LF: Stable",
         "label": "High Revenue + Stable Labor",
-        "executive_narrative": "TODO: paste Scenario 2 Executive Narrative.",
-        "root_causes": [],
-        "do_tomorrow": [],
-        "next_7_days": [],
-        "next_30_60_days": [],
-        "next_60_90_days": [],
-        "risks": [],
-        "expected_impact": [],
+        "executive_narrative": (
+            "Revenue performance is strong and labor cost per visit is on benchmark. The clinic is "
+            "converting visits into margin reliably, with room for thoughtful efficiency gains. The "
+            "goal is to preserve revenue integrity while gently tuning staffing, workflows, and "
+            "throughput to move labor from Stable toward Excellent—without destabilizing the team."
+        ),
+        "root_causes": [
+            "Effective front-end and coding practices driving strong NRPV.",
+            "Staffing levels generally matched to demand, with some pockets of slack or rework.",
+            "Workflows that function but may have unnecessary steps or handoffs.",
+            "Predictable schedule templates but limited cross-training or flexibility.",
+        ],
+        "do_tomorrow": [
+            "5-minute huddle to celebrate strong revenue and share today’s flow priorities.",
+            "Check yesterday’s POS collections and registration accuracy.",
+            "Ask leaders and staff where they see wasted steps or downtime in the day.",
+        ],
+        "next_7_days": [
+            "Complete a light throughput review on a busy clinic session.",
+            "Identify 1–2 tasks that can be streamlined or re-sequenced to save time.",
+            "Review overtime and schedule patterns for small, recurring inefficiencies.",
+        ],
+        "next_30_60_days": [
+            "Tune staffing templates using recent volume and no-show patterns.",
+            "Cross-train select staff to flex across roles during peaks.",
+            "Standardize best practices from this site into simple checklists and huddle scripts.",
+        ],
+        "next_60_90_days": [
+            "Target a modest labor efficiency lift (e.g., 2–4% LCV improvement) with no loss of access.",
+            "Formalize a quarterly review of staffing, throughput metrics, and VVI trends.",
+            "Share efficiency wins and lessons learned across peer clinics.",
+        ],
+        "risks": [
+            "Over-tightening labor and harming access, morale, or revenue.",
+            "Ignoring emerging inefficiencies because overall results look “good enough.”",
+            "Under-investing in engagement, leading to avoidable turnover later.",
+        ],
+        "expected_impact": [
+            "2–4% LCV improvement while sustaining Excellent revenue performance.",
+            "3–6% VVI lift from balanced revenue and labor tuning.",
+            "Stronger resilience to demand swings without major staffing changes.",
+        ],
     },
+
     "scenario_03": {
         "id": 3,
         "rf_tier": "Excellent",
         "lf_tier": "At Risk",
         "title": "Scenario 3 — RF: Excellent / LF: At Risk",
         "label": "High Revenue + Emerging Labor Inefficiency",
-        "executive_narrative": "TODO: paste Scenario 3 Executive Narrative.",
-        "root_causes": [],
-        "do_tomorrow": [],
-        "next_7_days": [],
-        "next_30_60_days": [],
-        "next_60_90_days": [],
-        "risks": [],
-        "expected_impact": [],
+        "executive_narrative": (
+            "Revenue performance is strong, but labor cost per visit is beginning to drift above "
+            "benchmark. This is an early warning scenario: the clinic is still creating value, "
+            "but it is spending more labor than necessary to do so. The priority is to correct "
+            "role drift and workflow friction now, before it progresses to severe inefficiency."
+        ),
+        "root_causes": [
+            "Gradual role drift for MAs and front-desk staff (extra tasks, unclear ownership).",
+            "Throughput slowdowns causing more labor minutes per visit.",
+            "Scheduling templates that no longer match actual visit patterns.",
+            "Rising overtime or heavier use of float/PRN coverage.",
+            "Rework from documentation lag, callbacks, or unresolved patient issues.",
+        ],
+        "do_tomorrow": [
+            "Stability-focused huddle naming this as an early-warning labor trend.",
+            "Review yesterday’s overtime and float/PRN usage.",
+            "Ask staff to identify “top 2” time-wasters in their day.",
+        ],
+        "next_7_days": [
+            "Conduct a simple time-study on one busy clinic session.",
+            "Map MA and front-desk tasks to identify duplication or low-value work.",
+            "Review staffing and schedule templates vs. actual volume by hour and day.",
+            "Spot-check chart closure timeliness and documentation rework.",
+        ],
+        "next_30_60_days": [
+            "Refine staffing templates and shift patterns to match demand more closely.",
+            "Clarify roles and expectations to reduce role drift and handoff confusion.",
+            "Streamline 1–2 high-friction workflows (e.g., intake, rooming, phone callbacks).",
+            "Introduce a basic labor and throughput KPI review into weekly huddles.",
+        ],
+        "next_60_90_days": [
+            "Set a modest labor efficiency target (e.g., 4–8% LCV improvement) with guardrails.",
+            "Invest in cross-training to increase flexibility without adding FTEs.",
+            "Reassess burnout and engagement through quick pulse checks or stay interviews.",
+        ],
+        "risks": [
+            "Drift into Scenario 4 if labor issues are not addressed early.",
+            "Burnout rising quietly as staff absorb more tasks and complexity.",
+            "Provider frustration if support becomes inconsistent.",
+            "Access or patient experience declining if throughput continues to slow.",
+        ],
+        "expected_impact": [
+            "4–8% LCV improvement by correcting role drift and rework.",
+            "5–9% VVI improvement from restoring balance between revenue and labor.",
+            "Protection of a strong revenue base while keeping the team sustainable.",
+        ],
     },
 
-    # ✅ Fully wired example from your pack:
     "scenario_04": {
         "id": 4,
         "rf_tier": "Excellent",
