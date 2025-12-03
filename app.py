@@ -1888,10 +1888,10 @@ if st.session_state.assessment_ready:
     # ---------- Insight Pack Detail (5 expanders) ----------
     render_insight_pack_expanders(insight_pack)
 
-    # ---------- AI Coach (optional) ----------
+        # ---------- AI Coach (optional) ----------
     st.subheader("AI Coach (optional)")
 
-        with st.expander("Ask a guided question about this clinic", expanded=False):
+    with st.expander("Ask a guided question about this clinic", expanded=False):
         st.caption(
             "The AI Coach can help you interpret results and communicate with leaders and staff. "
             "It only answers the specific questions in this list."
@@ -1928,7 +1928,6 @@ if st.session_state.assessment_ready:
                 st.markdown(md)
             else:
                 st.warning(md)
-
     
     # ---------- Impact Simulator (optional what-if) ----------
     with st.expander("Optional: Simulate impact of improvement", expanded=False):
