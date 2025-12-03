@@ -1891,27 +1891,27 @@ if st.session_state.assessment_ready:
     # ---------- AI Coach (optional) ----------
     st.subheader("AI Coach (optional)")
 
-    with st.expander("Ask a guided question about this clinic", expanded=False):
+        with st.expander("Ask a guided question about this clinic", expanded=False):
         st.caption(
             "The AI Coach can help you interpret results and communicate with leaders and staff. "
             "It only answers the specific questions in this list."
         )
 
-            question = st.selectbox(
-        "Select a question:",
-        [
-            "Explain this scenario to a CFO who is new to VVI.",
-            "What should we say in our morning huddles?",
-            "If our LF improved to 80, what would that do to VVI?",
-            "Summarize this clinic in 3 bullets.",
-            "Why did we land in this scenario?",
-            "What early indicators should we monitor based on this scenario?",
-            "How do I build effective front-desk POS scripting?",
-            "What are practical ways to improve morale?",
-            "What steps can reduce burnout for MAs and front-desk staff?",
-            "Convert this scenario into a 1-minute message for staff.",
-        ],
-    )
+        question = st.selectbox(
+            "Select a question:",
+            [
+                "Explain this scenario to a CFO who is new to VVI.",
+                "What should we say in our morning huddles?",
+                "If our LF improved to 80, what would that do to VVI?",
+                "Summarize this clinic in 3 bullets.",
+                "Why did we land in this scenario?",
+                "What early indicators should we monitor based on this scenario?",
+                "How do I build effective front-desk POS scripting?",
+                "What are practical ways to improve morale?",
+                "What steps can reduce burnout for MAs and front-desk staff?",
+                "Convert this scenario into a 1-minute message for staff.",
+            ],
+        )
 
         if st.button("Ask AI Coach"):
             ok, md = ai_coach_answer(
