@@ -1656,9 +1656,10 @@ if st.session_state.assessment_ready:
     lcv = labor / visits    # Labor Cost per Visit (LCV)
     swb_pct = labor / net_rev
 
-        # RF and LF
+    # RF and LF
     rf_raw = (rpv / rt) if rt else 0.0
     lf_raw = (lt / lcv) if lcv else 0.0
+
 
     rf_score_raw = rf_raw * 100
     lf_score_raw = lf_raw * 100
