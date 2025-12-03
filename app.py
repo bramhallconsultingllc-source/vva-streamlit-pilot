@@ -1588,15 +1588,15 @@ if st.session_state.assessment_ready:
 ">
     <div style="margin-bottom:0.25rem;">
         <span style="font-size:1rem; margin-right:0.35rem;">🟢</span>
-        <b>Excellent</b>: 100+ <span style="color:#555;">(Top performing)</span>
+        <b>Excellent</b>: ≥100 <span style="color:#555;">(Top performing)</span>
     </div>
     <div style="margin-bottom:0.25rem;">
         <span style="font-size:1rem; margin-right:0.35rem;">🟡</span>
-        <b>Stable</b>: 95–99 <span style="color:#555;">(Healthy, within benchmark)</span>
+        <b>Stable</b>: 95–99.9 <span style="color:#555;">(Healthy, within benchmark)</span>
     </div>
     <div style="margin-bottom:0.25rem;">
         <span style="font-size:1rem; margin-right:0.35rem;">🟠</span>
-        <b>At Risk</b>: 90–94 <span style="color:#555;">(Performance drift emerging)</span>
+        <b>At Risk</b>: 90–94.9 <span style="color:#555;">(Performance drift emerging)</span>
     </div>
     <div>
         <span style="font-size:1rem; margin-right:0.35rem;">🔴</span>
