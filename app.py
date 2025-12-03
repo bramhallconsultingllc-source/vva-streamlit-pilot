@@ -1174,7 +1174,7 @@ if st.session_state.assessment_ready:
     
     # ---------- Impact Simulator (optional what-if) ----------
     with st.expander("Optional: Simulate impact of improvement", expanded=False):
-        ...
+        
         st.caption(
             "Adjust Net Revenue per Visit (NRPV) and Labor Cost per Visit (LCV) "
             "by dollars or percent to see how VVI, RF, and LF could move if "
