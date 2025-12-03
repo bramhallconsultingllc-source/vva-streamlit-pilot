@@ -1499,7 +1499,7 @@ def ai_coach_answer(
         "Convert this scenario into a 1-minute message for staff.",
     ]
 
-    if selected_question not in ALLOWED_QUESTIONS:
+        if selected_question not in ALLOWED_QUESTIONS:
         # Enforce "no conversation outside canned questions"
         return False, "I’m only configured to answer the specific questions in the dropdown above."
 
