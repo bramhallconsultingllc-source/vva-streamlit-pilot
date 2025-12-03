@@ -1240,8 +1240,8 @@ def render_insight_pack_expanders(pack: dict):
     with st.expander("1. Executive Narrative", expanded=True):
         st.markdown(pack.get("executive_narrative", "").strip() or "_Not yet configured._")
 
-    # 2. Why This Is Happening (Root Cause)
-    with st.expander("2. Why This Is Happening (Root Cause)"):
+    # 2. Why This May Be Happening (Root Cause)
+    with st.expander("2. Why This May Be Happening (Root Cause)"):
         roots = pack.get("root_causes") or []
         if not roots:
             st.info("Root causes not yet configured for this scenario.")
