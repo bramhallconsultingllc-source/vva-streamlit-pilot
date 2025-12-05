@@ -19,7 +19,6 @@ try:
 except Exception:
     OpenAI = None  # app still runs if OpenAI SDK isn't installed
 
-
 # ----------------------------
 # Helpers
 # ----------------------------
